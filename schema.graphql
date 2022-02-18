@@ -1,0 +1,9 @@
+type Transfer @entity {
+  id: ID! # Tx hash
+
+  from: String!
+  to: String!
+  contractAddress: String!
+  amount: BigInt!
+  blockNumber: BigInt!
+}
