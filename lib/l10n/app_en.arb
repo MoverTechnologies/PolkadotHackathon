@@ -1,0 +1,66 @@
+{
+    "@@locale": "en",
+    "appName": "Mover",
+    "corporationName": "Devillage",
+    "appInfo": "info",
+    "connectWallet": "Connect Wallet",
+    "connectWalletFailure": "Connect Wallet Failure",
+    "invalidChain": "Invalid Chain",
+    "continueApp": "Continue",
+    "welcome": "Welcome! {name}",
+    "@welcome": {
+        "description": "The conventional newborn programmer greeting",
+        "placeholders": {
+            "name": {
+                "description": "username"
+            }
+        }
+    },
+    "cancel": "Cancel",
+    "save": "Save",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "changePassword": "Change Password",
+    "forgetYourPassword": "Forget your password?",
+    "forgetYourPasswordDetailMsg": "Enter your e-mail below and we will send a vaildation code.",
+    "resetPassword": "Reset my password",
+    "resetPasswordDetailMsg": "resend validation code after {secondsRemaining} second",
+    "@resetPasswordDetailMsg": {
+        "description": "resend validation message",
+        "placeholders": {
+            "secondsRemaining": {
+                "description": "count down second"
+            }
+        }
+    },
+    "resendCode": "Resend code",
+    "validationCode": "Validation code",
+    "signInMissingRequireParam": "Missing required parameter email or password",
+    "signInNotAuthorize": "Invalid parameter email or password",
+    "signInSaveInfoMsg": "save user info and password",
+    "passwordIsEmpty": "password is empty ",
+    "passwordShouldUpper": "should contain at least one upper case",
+    "passwordShouldLower": "should contain at least one lower case",
+    "passwordShouldDigit": "should contain at least one digit",
+    "passwordShouldSpecial": "should contain at least one Special character(allow !@#)",
+    "passwordShould8Length": "Must be at least 8 characters in length",
+    "passwordShouldSame": "should be same password",
+    "dashboard": "Dashboard",
+    "menu": "menu",
+    "update": "update",
+    "settings": "Settings",
+    "inquiry": "inquiry",
+    "about": "about",
+    "search": "search",
+    "darkMode": "Dark mode",
+    "orderMod": "Order a Mod",
+    "investigateDao": "Investigate DAO",
+    "experienceOfDao": "Experience of DAO",
+    "nftHeld": "NFT held",
+    "hasEns": "Has ENS",
+    "cryptoExperiencePeriod": "Crypto Experience Period",
+    "cryptoRecentActivity": "Crypto Recent Activity",
+    "price": "Price",
+    "periodOfEmployment": "Period of Employment"
+}

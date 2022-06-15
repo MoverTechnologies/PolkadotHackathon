@@ -1,0 +1,123 @@
+import 'package:flutter/material.dart';
+import 'package:mover/app/pages/mod_order/views/mod_search_view.dart';
+import 'package:mover/app/pages/top_view/views/components/info_card_view.dart';
+
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+class TopView extends StatelessWidget {
+  const TopView({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        toolbarHeight: 80,
+        backgroundColor: Colors.transparent,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: FittedBox(
+              child: ClipOval(
+                child: Material(
+                  borderOnForeground: true,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(Icons.person,
+                        size: 60,
+                        color: Theme.of(context).primaryIconTheme.color),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+          child: Center(
+        child: Column(children: [
+          InfoCardView(),
+          Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                          style: Theme.of(context).elevatedButtonTheme.style,
+                          child: Container(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(children: [
+                                Align(
+                                    alignment: Alignment.topRight,
+                                    child: Icon(
+                                      Icons.request_page,
+                                      size: 50,
+                                      color: Theme.of(context)
+                                          .primaryIconTheme
+                                          .color,
+                                    )),
+                                FittedBox(
+                                    child: Text(
+                                  AppLocalizations.of(context)!.orderMod,
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ))
+                              ])),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ModSearchView()));
+                          },
+                        )),
+                  ),
+                  Expanded(
+                    child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: ElevatedButton(
+                          style: Theme.of(context).elevatedButtonTheme.style,
+                          child: Container(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(children: [
+                                Align(
+                                    alignment: Alignment.topRight,
+                                    child: Icon(
+                                      Icons.home_repair_service,
+                                      size: 50,
+                                      color: Theme.of(context)
+                                          .primaryIconTheme
+                                          .color,
+                                    )),
+                                FittedBox(
+                                    child: Text(
+                                  AppLocalizations.of(context)!.investigateDao,
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ))
+                              ])),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ModSearchView()));
+                          },
+                        )),
+                  ),
+                ],
+              )),
+          Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: TextField(
+                onTap: () {
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => ModSearchView()));
+                },
+                decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.search,
+                    suffixIcon: Icon(Icons.search)),
+              )),
+        ]),
+      )),
+    );
+  }
+}

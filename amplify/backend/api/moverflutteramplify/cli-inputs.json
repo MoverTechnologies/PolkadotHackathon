@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "moverflutteramplify",
+    "serviceName": "AppSync",
+    "gqlSchemaPath": "C:\\Users\\hiken\\workspace\\Mover\\mover-mvp-frontend\\amplify\\backend\\api\\moverflutteramplify\\schema.graphql",
+    "defaultAuthType": {
+      "mode": "API_KEY",
+      "expirationTime": 30,
+      "apiKeyExpirationDate": "2022-07-15T14:09:44.256Z",
+      "keyDescription": "This is an api key"
+    },
+    "additionalAuthTypes": [
+      {
+        "mode": "AWS_IAM"
+      }
+    ],
+    "conflictResolution": {
+      "defaultResolutionStrategy": {
+        "type": "AUTOMERGE"
+      }
+    }
+  }
+}

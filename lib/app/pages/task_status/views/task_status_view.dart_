@@ -1,0 +1,161 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/task_status_provider.dart_';
+import "package:intl/intl.dart";
+
+class TaskStatusView extends StatefulWidget {
+  TaskStatusView({Key? key}) : super(key: key);
+
+  @override
+  State<TaskStatusView> createState() => _TaskStatusViewState();
+}
+
+class _TaskStatusViewState extends State<TaskStatusView> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<TaskStatusProvider>().updateStatus();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int _currentStep = context.watch<TaskStatusProvider>().currentStep;
+    TaskStatusModel? _taskStatus =
+        context.watch<TaskStatusProvider>().taskStatus;
+    List<Step> _steps = (null == _taskStatus) ? [] : _getSteps(_taskStatus);
+
+    return (null == _taskStatus)
+        ? const SizedBox(
+            width: 50, height: 50, child: CircularProgressIndicator())
+        : Column(
+            children: [
+              Text("${_taskStatus.name}", style: TextStyle(fontSize: 20)),
+              Theme(
+                  data: ThemeData(
+                    colorScheme: ColorScheme.fromSwatch()
+                        .copyWith(primary: Colors.black),
+                  ),
+                  child: Stepper(
+                    currentStep: _currentStep,
+                    controlsBuilder:
+                        (BuildContext context, ControlsDetails? details) {
+                      if (_taskStatus.isComplete) {
+                        return const SizedBox();
+                      }
+                      return Row(
+                        children: <Widget>[
+                          ElevatedButton(
+                            onPressed: (context
+                                    .read<TaskStatusProvider>()
+                                    .isEnableApprove)
+                                ? details!.onStepContinue
+                                : null,
+                            child:
+                                (context.read<TaskStatusProvider>().inProgress)
+                                    ? SizedBox(
+                                        width: 10,
+                                        height: 10,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1,
+                                          color: Colors.white,
+                                        ))
+                                    : Text(
+                                        'Approve',
+                                      ),
+                          ),
+                        ],
+                      );
+                    },
+                    onStepCancel: null,
+                    onStepContinue: () {
+                      context.read<TaskStatusProvider>().approve();
+                    },
+                    steps: _steps,
+                  )),
+            ],
+          );
+  }
+
+  List<Step> _getSteps(TaskStatusModel _taskStatusModel) {
+    List<Step> steps = [];
+    bool _isActive = false;
+    bool _foundActiveTask = false;
+
+    // start
+    steps.add(Step(
+      title: Column(
+        children: [
+          Text("Start ${_formatter.format(_taskStatusModel.period.start)}")
+        ],
+      ),
+      content: Align(
+          alignment: Alignment.topLeft,
+          child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text("Start Mod works!"))),
+      state: (_taskStatusModel.isStarted)
+          ? StepState.complete
+          : StepState.disabled,
+      isActive: !_taskStatusModel.isStarted,
+    ));
+    if (!_taskStatusModel.isStarted) {
+      _foundActiveTask = true;
+    }
+
+    // check point
+    for (TaskStatusItemModel item in _taskStatusModel.taskStatusList) {
+      steps.add(Step(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("${item.name} ${_formatter.format(item.deadline)}"),
+            if (null != item.completedDate)
+              Text("Done ${_formatter.format(item.completedDate!)}"),
+          ],
+        ),
+        content: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text("Approve Mod works!"))),
+        state: (null != item.completedDate)
+            ? StepState.complete
+            : StepState.disabled,
+        isActive: (_foundActiveTask) ? false : (null == item.completedDate),
+      ));
+      if (null == item.completedDate) {
+        _foundActiveTask = true;
+      }
+    }
+
+    // end
+    steps.add(Step(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Complete ${_formatter.format(_taskStatusModel.period.end)}"),
+          if (_taskStatusModel.isComplete)
+            Text("Done ${_formatter.format(_taskStatusModel.completedDate!)}"),
+        ],
+      ),
+      content: Align(
+          alignment: Alignment.topLeft,
+          child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: (!_taskStatusModel.isComplete)
+                  ? Text("Complete Mod works!")
+                  : Text("✅All done"))),
+      state: (_taskStatusModel.isComplete)
+          ? StepState.complete
+          : StepState.disabled,
+      isActive: (_foundActiveTask) ? false : !_taskStatusModel.isComplete,
+    ));
+
+    return steps;
+  }
+
+  final _formatter = DateFormat('yyyy/MM/dd');
+}
