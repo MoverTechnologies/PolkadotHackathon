@@ -16,6 +16,8 @@ class ModSearchView extends StatefulWidget {
 class _ModSearchViewState extends State<ModSearchView> {
   TextEditingController _textFieldController = TextEditingController();
 
+  final ScrollController _chipScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -63,70 +65,82 @@ class _ModSearchViewState extends State<ModSearchView> {
     }).toList());
 
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Theme.of(context).primaryIconTheme.color),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.search,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back,
                 color: Theme.of(context).primaryIconTheme.color),
-            onPressed: () {
-              context.read<ModSearchProvider>().search();
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ModSearchResultView()));
-            },
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          SizedBox(width: 16),
-        ],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-            child: Column(children: [
-          Center(
-              child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  child: TextField(
-                    controller: _textFieldController,
-                    onSubmitted: (_text) {
-                      context
-                          .read<ModSearchProvider>()
-                          .onAddItem(ModSearchRequestItem(
-                              header: ModSearchConfigHeader(
-                                key: "keyword",
-                                name: "keyword",
-                                omitName: "keyword",
-                                type: "",
-                              ),
-                              item: {"key": _text, "val": _text}));
-                    },
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.search,
-                      suffixIcon: IconButton(
-                        onPressed: () => _textFieldController.clear(),
-                        icon: Icon(Icons.clear),
-                      ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.search,
+                  color: Theme.of(context).primaryIconTheme.color),
+              onPressed: () {
+                context.read<ModSearchProvider>().search();
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ModSearchResultView()));
+              },
+            ),
+            SizedBox(width: 16),
+          ],
+        ),
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              pinned: true,
+              flexibleSpace: SizedBox(
+                  height: 200,
+                  child: Column(children: [
+                    Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: TextField(
+                          controller: _textFieldController,
+                          onSubmitted: (_text) {
+                            context
+                                .read<ModSearchProvider>()
+                                .onAddItem(ModSearchRequestItem(
+                                    header: ModSearchConfigHeader(
+                                      key: "keyword",
+                                      name: "keyword",
+                                      omitName: "keyword",
+                                      type: "",
+                                    ),
+                                    item: {"key": _text, "val": _text}));
+                          },
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.search,
+                            suffixIcon: IconButton(
+                              onPressed: () => _textFieldController.clear(),
+                              icon: Icon(Icons.clear),
+                            ),
+                          ),
+                        )),
+                    SizedBox(
+                      height: 30,
                     ),
-                  ))),
-          SizedBox(
-            height: 30,
-          ),
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(children: _selectedWidget))),
-          Center(child: _selectWidget()),
-          SizedBox(
-            height: 30,
-          ),
-        ])),
-      ),
-    );
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: SingleChildScrollView(
+                            controller: _chipScrollController,
+                            scrollDirection: Axis.horizontal,
+                            child: Row(children: _selectedWidget))),
+                  ])),
+              expandedHeight: 200,
+              collapsedHeight: 150,
+              backgroundColor: Colors.white,
+            ),
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Center(child: _selectWidget()),
+                SizedBox(
+                  height: 30,
+                ),
+              ]),
+            ),
+          ],
+        ));
   }
 
   _runFilter(String _input) {

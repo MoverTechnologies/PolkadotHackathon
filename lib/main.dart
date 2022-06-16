@@ -1,3 +1,4 @@
+import 'package:mover/app/common/endpoint/amplify_endpoint.dart';
 import 'package:mover/app/common/utils/remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +12,11 @@ import 'package:provider/provider.dart';
 // providers
 import 'app/common/providers/menu_provider.dart';
 import 'app/common/providers/theme_provider.dart';
+import 'app/common/providers/user_provider.dart';
 import 'app/common/providers/wallet_provider.dart';
 import 'app/common/utils/notification.dart';
 import 'app/pages/mod_order/providers/mod_search_provider.dart';
+import 'app/pages/task_status/providers/task_status_provider.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -28,13 +31,18 @@ void main() async {
   final ModSearchProvider _modSearchProvider = ModSearchProvider();
   await _modSearchProvider.init();
 
+  AmplifyEndpoint _amplifyEndpoint = AmplifyEndpoint();
+  await _amplifyEndpoint.init();
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
     runApp(MultiProvider(providers: [
       ChangeNotifierProvider(create: (context) => MenuProvider()),
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ChangeNotifierProvider(create: (context) => WalletProvider()),
+      ChangeNotifierProvider(create: (context) => UserProvider()),
       ChangeNotifierProvider(create: (context) => _modSearchProvider),
+      ChangeNotifierProvider(create: (context) => TaskStatusProvider()),
     ], child: const MyApp()));
   });
 }
@@ -45,7 +53,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AstarStats App',
+      title: 'Mover',
       theme: context.select((ThemeProvider _model) => _model.theme),
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

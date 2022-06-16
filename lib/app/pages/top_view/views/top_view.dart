@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mover/app/common/providers/user_provider.dart';
 import 'package:mover/app/pages/mod_order/views/mod_search_view.dart';
 import 'package:mover/app/pages/top_view/views/components/info_card_view.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
 class TopView extends StatelessWidget {
   const TopView({Key? key}) : super(key: key);
@@ -16,17 +18,13 @@ class TopView extends StatelessWidget {
         backgroundColor: Colors.transparent,
         actions: [
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: EdgeInsets.all(10.0),
             child: FittedBox(
-              child: ClipOval(
-                child: Material(
-                  borderOnForeground: true,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(Icons.person,
-                        size: 60,
-                        color: Theme.of(context).primaryIconTheme.color),
-                  ),
+              child: CircleAvatar(
+                backgroundColor: Colors.grey,
+                radius: 50,
+                backgroundImage: NetworkImage(
+                  context.watch<UserProvider>().user!.iconUrl!,
                 ),
               ),
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/task_status_provider.dart_';
+import '../providers/task_status_provider.dart';
 import "package:intl/intl.dart";
 
 class TaskStatusView extends StatefulWidget {
@@ -87,9 +87,7 @@ class _TaskStatusViewState extends State<TaskStatusView> {
     // start
     steps.add(Step(
       title: Column(
-        children: [
-          Text("Start ${_formatter.format(_taskStatusModel.period.start)}")
-        ],
+        children: [Text("Start ${_formatter.format(_taskStatusModel.start)}")],
       ),
       content: Align(
           alignment: Alignment.topLeft,
@@ -136,7 +134,7 @@ class _TaskStatusViewState extends State<TaskStatusView> {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Complete ${_formatter.format(_taskStatusModel.period.end)}"),
+          Text("Complete ${_formatter.format(_taskStatusModel.end)}"),
           if (_taskStatusModel.isComplete)
             Text("Done ${_formatter.format(_taskStatusModel.completedDate!)}"),
         ],

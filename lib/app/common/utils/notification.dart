@@ -18,6 +18,8 @@ class Notifications {
 
   Notifications._();
 
+  static String token = "";
+
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
@@ -83,6 +85,7 @@ class Notifications {
   }
 
   _saveToken(String _token) {
+    token = _token;
     print("token : $_token");
   }
 

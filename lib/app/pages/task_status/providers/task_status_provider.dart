@@ -67,14 +67,14 @@ class TaskStatusProvider with ChangeNotifier {
 
     if (_currentStep < 1) {
       // not started
-      _ret = _taskStatus!.period.start.isBefore(_now);
+      _ret = _taskStatus!.start.isBefore(_now);
     } else if (_currentStep < (stepLength - 1)) {
       // started but not complete
       _ret =
           _taskStatus!.taskStatusList[_currentStep - 1].deadline.isBefore(_now);
     } else if (_currentStep < (stepLength)) {
       // complete
-      _ret = _taskStatus!.period.end.isBefore(_now);
+      _ret = _taskStatus!.end.isBefore(_now);
     } else {
       // already complete
       // nop
@@ -111,7 +111,8 @@ final _now = DateTime.now();
 TaskStatusModel __testData = TaskStatusModel(
     id: "demo00000000",
     name: "Demo Task",
-    period: DateTimeRange(start: _now.add(Duration(days: -11)), end: _now),
+    start: _now.add(Duration(days: -11)),
+    end: _now,
     completedDate: null,
     isComplete: false,
     isStarted: false,

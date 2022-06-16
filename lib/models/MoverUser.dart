@@ -24,17 +24,17 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 
-/** This is an auto generated class representing the User type in your schema. */
+/** This is an auto generated class representing the MoverUser type in your schema. */
 @immutable
-class User extends Model {
-  static const classType = const _UserModelType();
+class MoverUser extends Model {
+  static const classType = const _MoverUserModelType();
   final String id;
-  final String? _name;
-  final String? _firebaseTokenId;
+  final String? _walletID;
+  final String? _firebaseTokenID;
   final String? _iconUrl;
   final List<String>? _languagesAsISO639;
   final String? _email;
-  final String? _walletID;
+  final String? _name;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -46,12 +46,12 @@ class User extends Model {
     return id;
   }
   
-  String? get name {
-    return _name;
+  String? get walletID {
+    return _walletID;
   }
   
-  String? get firebaseTokenId {
-    return _firebaseTokenId;
+  String? get firebaseTokenID {
+    return _firebaseTokenID;
   }
   
   String? get iconUrl {
@@ -66,8 +66,8 @@ class User extends Model {
     return _email;
   }
   
-  String? get walletID {
-    return _walletID;
+  String? get name {
+    return _name;
   }
   
   TemporalDateTime? get createdAt {
@@ -78,17 +78,17 @@ class User extends Model {
     return _updatedAt;
   }
   
-  const User._internal({required this.id, name, firebaseTokenId, iconUrl, languagesAsISO639, email, walletID, createdAt, updatedAt}): _name = name, _firebaseTokenId = firebaseTokenId, _iconUrl = iconUrl, _languagesAsISO639 = languagesAsISO639, _email = email, _walletID = walletID, _createdAt = createdAt, _updatedAt = updatedAt;
+  const MoverUser._internal({required this.id, walletID, firebaseTokenID, iconUrl, languagesAsISO639, email, name, createdAt, updatedAt}): _walletID = walletID, _firebaseTokenID = firebaseTokenID, _iconUrl = iconUrl, _languagesAsISO639 = languagesAsISO639, _email = email, _name = name, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory User({String? id, String? name, String? firebaseTokenId, String? iconUrl, List<String>? languagesAsISO639, String? email, String? walletID}) {
-    return User._internal(
+  factory MoverUser({String? id, String? walletID, String? firebaseTokenID, String? iconUrl, List<String>? languagesAsISO639, String? email, String? name}) {
+    return MoverUser._internal(
       id: id == null ? UUID.getUUID() : id,
-      name: name,
-      firebaseTokenId: firebaseTokenId,
+      walletID: walletID,
+      firebaseTokenID: firebaseTokenID,
       iconUrl: iconUrl,
       languagesAsISO639: languagesAsISO639 != null ? List<String>.unmodifiable(languagesAsISO639) : languagesAsISO639,
       email: email,
-      walletID: walletID);
+      name: name);
   }
   
   bool equals(Object other) {
@@ -98,14 +98,14 @@ class User extends Model {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is User &&
+    return other is MoverUser &&
       id == other.id &&
-      _name == other._name &&
-      _firebaseTokenId == other._firebaseTokenId &&
+      _walletID == other._walletID &&
+      _firebaseTokenID == other._firebaseTokenID &&
       _iconUrl == other._iconUrl &&
       DeepCollectionEquality().equals(_languagesAsISO639, other._languagesAsISO639) &&
       _email == other._email &&
-      _walletID == other._walletID;
+      _name == other._name;
   }
   
   @override
@@ -115,14 +115,14 @@ class User extends Model {
   String toString() {
     var buffer = new StringBuffer();
     
-    buffer.write("User {");
+    buffer.write("MoverUser {");
     buffer.write("id=" + "$id" + ", ");
-    buffer.write("name=" + "$_name" + ", ");
-    buffer.write("firebaseTokenId=" + "$_firebaseTokenId" + ", ");
+    buffer.write("walletID=" + "$_walletID" + ", ");
+    buffer.write("firebaseTokenID=" + "$_firebaseTokenID" + ", ");
     buffer.write("iconUrl=" + "$_iconUrl" + ", ");
     buffer.write("languagesAsISO639=" + (_languagesAsISO639 != null ? _languagesAsISO639!.toString() : "null") + ", ");
     buffer.write("email=" + "$_email" + ", ");
-    buffer.write("walletID=" + "$_walletID" + ", ");
+    buffer.write("name=" + "$_name" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -130,42 +130,42 @@ class User extends Model {
     return buffer.toString();
   }
   
-  User copyWith({String? id, String? name, String? firebaseTokenId, String? iconUrl, List<String>? languagesAsISO639, String? email, String? walletID}) {
-    return User._internal(
+  MoverUser copyWith({String? id, String? walletID, String? firebaseTokenID, String? iconUrl, List<String>? languagesAsISO639, String? email, String? name}) {
+    return MoverUser._internal(
       id: id ?? this.id,
-      name: name ?? this.name,
-      firebaseTokenId: firebaseTokenId ?? this.firebaseTokenId,
+      walletID: walletID ?? this.walletID,
+      firebaseTokenID: firebaseTokenID ?? this.firebaseTokenID,
       iconUrl: iconUrl ?? this.iconUrl,
       languagesAsISO639: languagesAsISO639 ?? this.languagesAsISO639,
       email: email ?? this.email,
-      walletID: walletID ?? this.walletID);
+      name: name ?? this.name);
   }
   
-  User.fromJson(Map<String, dynamic> json)  
+  MoverUser.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
-      _name = json['name'],
-      _firebaseTokenId = json['firebaseTokenId'],
+      _walletID = json['walletID'],
+      _firebaseTokenID = json['firebaseTokenID'],
       _iconUrl = json['iconUrl'],
       _languagesAsISO639 = json['languagesAsISO639']?.cast<String>(),
       _email = json['email'],
-      _walletID = json['walletID'],
+      _name = json['name'],
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'name': _name, 'firebaseTokenId': _firebaseTokenId, 'iconUrl': _iconUrl, 'languagesAsISO639': _languagesAsISO639, 'email': _email, 'walletID': _walletID, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'walletID': _walletID, 'firebaseTokenID': _firebaseTokenID, 'iconUrl': _iconUrl, 'languagesAsISO639': _languagesAsISO639, 'email': _email, 'name': _name, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
 
-  static final QueryField ID = QueryField(fieldName: "user.id");
-  static final QueryField NAME = QueryField(fieldName: "name");
-  static final QueryField FIREBASETOKENID = QueryField(fieldName: "firebaseTokenId");
+  static final QueryField ID = QueryField(fieldName: "moverUser.id");
+  static final QueryField WALLETID = QueryField(fieldName: "walletID");
+  static final QueryField FIREBASETOKENID = QueryField(fieldName: "firebaseTokenID");
   static final QueryField ICONURL = QueryField(fieldName: "iconUrl");
   static final QueryField LANGUAGESASISO639 = QueryField(fieldName: "languagesAsISO639");
   static final QueryField EMAIL = QueryField(fieldName: "email");
-  static final QueryField WALLETID = QueryField(fieldName: "walletID");
+  static final QueryField NAME = QueryField(fieldName: "name");
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
-    modelSchemaDefinition.name = "User";
-    modelSchemaDefinition.pluralName = "Users";
+    modelSchemaDefinition.name = "MoverUser";
+    modelSchemaDefinition.pluralName = "MoverUsers";
     
     modelSchemaDefinition.authRules = [
       AuthRule(
@@ -181,38 +181,38 @@ class User extends Model {
     modelSchemaDefinition.addField(ModelFieldDefinition.id());
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: User.NAME,
+      key: MoverUser.WALLETID,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: User.FIREBASETOKENID,
+      key: MoverUser.FIREBASETOKENID,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: User.ICONURL,
+      key: MoverUser.ICONURL,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: User.LANGUAGESASISO639,
+      key: MoverUser.LANGUAGESASISO639,
       isRequired: false,
       isArray: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.collection, ofModelName: describeEnum(ModelFieldTypeEnum.string))
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: User.EMAIL,
+      key: MoverUser.EMAIL,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: User.WALLETID,
+      key: MoverUser.NAME,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
@@ -233,11 +233,11 @@ class User extends Model {
   });
 }
 
-class _UserModelType extends ModelType<User> {
-  const _UserModelType();
+class _MoverUserModelType extends ModelType<MoverUser> {
+  const _MoverUserModelType();
   
   @override
-  User fromJson(Map<String, dynamic> jsonData) {
-    return User.fromJson(jsonData);
+  MoverUser fromJson(Map<String, dynamic> jsonData) {
+    return MoverUser.fromJson(jsonData);
   }
 }

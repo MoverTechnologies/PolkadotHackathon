@@ -152,7 +152,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                     textAlign: TextAlign.center,
                                   ),
                                   leading: Text(
-                                    "${e.value.condition.periodOfMonth}\nmon",
+                                    "${e.value.employmentRequests.first.periodOfMonth}\nmon",
                                     style: TextStyle(
                                       fontSize: 20,
                                     ),
@@ -160,7 +160,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                   ),
                                   onLongPress: () => {},
                                   trailing: Text(
-                                    "\$${e.value.condition.price}",
+                                    "\$${e.value.employmentRequests.first.price}",
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),

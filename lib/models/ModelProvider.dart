@@ -20,21 +20,15 @@
 // ignore_for_file: public_member_api_docs, annotate_overrides, dead_code, dead_codepublic_member_api_docs, depend_on_referenced_packages, file_names, library_private_types_in_public_api, no_leading_underscores_for_library_prefixes, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, null_check_on_nullable_type_parameter, prefer_adjacent_string_concatenation, prefer_const_constructors, prefer_if_null_operators, prefer_interpolation_to_compose_strings, slash_for_doc_comments, sort_child_properties_last, unnecessary_const, unnecessary_constructor_name, unnecessary_late, unnecessary_new, unnecessary_null_aware_assignments, unnecessary_nullable_for_final_variable_declarations, unnecessary_string_interpolations, use_build_context_synchronously
 
 import 'package:amplify_core/amplify_core.dart';
-import 'EmploymentRequest.dart';
-import 'TaskItem.dart';
-import 'TaskStatus.dart';
-import 'User.dart';
+import 'MoverUser.dart';
 
-export 'EmploymentRequest.dart';
-export 'TaskItem.dart';
-export 'TaskStatus.dart';
-export 'User.dart';
+export 'MoverUser.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "ff4221b8c5022ef553a28705496b9312";
+  String version = "9e41ca186b72ec5dd9c4dbbc2871fb90";
   @override
-  List<ModelSchema> modelSchemas = [EmploymentRequest.schema, TaskItem.schema, TaskStatus.schema, User.schema];
+  List<ModelSchema> modelSchemas = [MoverUser.schema];
   static final ModelProvider _instance = ModelProvider();
   @override
   List<ModelSchema> customTypeSchemas = [];
@@ -43,14 +37,8 @@ class ModelProvider implements ModelProviderInterface {
   
   ModelType getModelTypeByModelName(String modelName) {
     switch(modelName) {
-      case "EmploymentRequest":
-        return EmploymentRequest.classType;
-      case "TaskItem":
-        return TaskItem.classType;
-      case "TaskStatus":
-        return TaskStatus.classType;
-      case "User":
-        return User.classType;
+      case "MoverUser":
+        return MoverUser.classType;
       default:
         throw Exception("Failed to find model in model provider for model name: " + modelName);
     }

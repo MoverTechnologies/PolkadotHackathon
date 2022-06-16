@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mover/app/common/providers/user_provider.dart';
+import 'package:mover/app/pages/mod_order/providers/mod_search_provider.dart';
+import 'package:mover/app/pages/mod_order/views/mod_task_status_view.dart';
+import 'package:mover/app/pages/task_status/views/task_status_view.dart';
 import 'package:mover/app/pages/top_view/views/top_view.dart';
-import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-class WelcomeView extends StatelessWidget {
-  const WelcomeView({Key? key}) : super(key: key);
-
+class ModOfferCompleteView extends StatelessWidget {
+  ModOfferCompleteView({Key? key, required ModModel this.mod})
+      : super(key: key);
+  ModModel mod;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,14 +20,13 @@ class WelcomeView extends StatelessWidget {
         children: [
           Padding(
               padding: const EdgeInsets.all(50.0),
-              child: Text(
-                AppLocalizations.of(context)!.welcome(""),
-                style: Theme.of(context).textTheme.titleLarge,
-              )),
-          SizedBox(
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Lottie.asset('assets/lottie/lottie-welcome.json')),
+              child: Text(AppLocalizations.of(context)!.contract +
+                  " " +
+                  AppLocalizations.of(context)!.complete +
+                  "!")),
+          Center(
+            child: Lottie.asset('assets/lottie/lottie-success.json'),
+          ),
           TextButton(
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 20),
@@ -48,7 +49,7 @@ class WelcomeView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.continueApp,
+                          AppLocalizations.of(context)!.complete,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
                         const Icon(Icons.arrow_forward)
@@ -58,7 +59,10 @@ class WelcomeView extends StatelessWidget {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const TopView()),
+                    MaterialPageRoute(
+                        builder: (context) => ModTaskStatusView(
+                              mod: mod,
+                            )),
                     (route) => false);
               }),
         ],

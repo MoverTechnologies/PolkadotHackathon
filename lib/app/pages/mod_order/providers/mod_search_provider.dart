@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:mover/app/common/repositories/datastore_repository.dart';
+import 'package:mover/app/common/endpoint/amplify_endpoint.dart';
 import 'package:mover/app/common/utils/remote_config.dart';
 
 class ModModel {
   final UserModel user;
   final ModRatingModel rating;
-  final ModConditionModel condition;
+  final List<EmploymentRequestModel> employmentRequests;
 
-  ModModel({required this.user, required this.rating, required this.condition});
+  ModModel(
+      {required this.user,
+      required this.rating,
+      required this.employmentRequests});
 }
 
 class UserModel {
@@ -24,6 +27,7 @@ class UserModel {
   final String hireable;
   final String bio;
   final String publicRepos;
+  final List<String> languarges;
 
   UserModel(
       {required this.name,
@@ -38,18 +42,20 @@ class UserModel {
       required this.company,
       required this.hireable,
       required this.bio,
-      required this.publicRepos});
+      required this.publicRepos,
+      required this.languarges});
 }
 
 class ModRatingModel {
   final double total;
   final int expDao;
+  final bool isEns;
 
   toExpDaoString() {
     var _ret = "";
     if (expDao < 10) {
       _ret = "<10";
-    } else if (10 < expDao) {
+    } else if ((10 < expDao) && (expDao < 100)) {
       _ret = "+10";
     } else if (100 < expDao) {
       _ret = "+100";
@@ -57,14 +63,21 @@ class ModRatingModel {
     return "$_ret Communities";
   }
 
-  ModRatingModel({required this.total, required this.expDao});
+  ModRatingModel(
+      {required this.total, required this.expDao, required this.isEns});
 }
 
-class ModConditionModel {
+class EmploymentRequestModel {
   final int periodOfMonth;
+  final int hourOfDay;
+  final int dayOfMonth;
   final int price;
 
-  ModConditionModel({required this.periodOfMonth, required this.price});
+  EmploymentRequestModel(
+      {required this.periodOfMonth,
+      required this.hourOfDay,
+      required this.dayOfMonth,
+      required this.price});
 }
 
 final List<ModModel> __statsModels = [
@@ -85,15 +98,33 @@ final List<ModModel> __statsModels = [
         website: 'https://astar-stats.org/',
         description:
             'The first statistic & visualize tool on Astar Network BlockChain.',
+        languarges: ["ja", "en"],
       ),
       rating: ModRatingModel(
         total: 4.5,
         expDao: 128,
+        isEns: true,
       ),
-      condition: ModConditionModel(
-        periodOfMonth: 3,
-        price: 300,
-      )),
+      employmentRequests: [
+        EmploymentRequestModel(
+          periodOfMonth: 3,
+          dayOfMonth: 20,
+          hourOfDay: 10,
+          price: 300,
+        ),
+        EmploymentRequestModel(
+          periodOfMonth: 4,
+          dayOfMonth: 10,
+          hourOfDay: 4,
+          price: 600,
+        ),
+        EmploymentRequestModel(
+          periodOfMonth: 5,
+          dayOfMonth: 5,
+          hourOfDay: 5,
+          price: 1500,
+        )
+      ]),
 ];
 
 class ModSearchProvider with ChangeNotifier {
@@ -131,11 +162,7 @@ class ModSearchProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  DataStoreRepository _dataStoreRepository = DataStoreRepository();
-
-  init() async {
-    await _dataStoreRepository.init();
-  }
+  init() async {}
 
   sortByHot() {
     print("sortByHot");
@@ -164,7 +191,6 @@ class ModSearchProvider with ChangeNotifier {
     notifyListeners();
 
     await Future.delayed(const Duration(seconds: 2));
-    _dataStoreRepository.test();
 
     _modModels = __statsModels;
     _showModModels = __statsModels;

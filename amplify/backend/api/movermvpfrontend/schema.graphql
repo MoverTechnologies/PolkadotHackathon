@@ -1,0 +1,10 @@
+type MoverUser @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  walletID: String
+  firebaseTokenID: String
+  iconUrl: AWSURL
+  languagesAsISO639: [String]
+  email: AWSEmail
+  name: String
+}
+ 

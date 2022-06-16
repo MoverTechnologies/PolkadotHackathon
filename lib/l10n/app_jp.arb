@@ -5,6 +5,8 @@
     "appInfo": "このアプリについて",
     "connectWallet": "ウォレットに接続",
     "continueApp": "続ける",
+    "complete": "完了",
+    "contract": "契約",
     "welcome": "こんにちは! {name}",
     "@welcome": {
         "description": "The conventional newborn programmer greeting",
