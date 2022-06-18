@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -13,14 +13,14 @@ contract Vesting is Ownable {
     bool public _availableReleaseFlg;
     uint256 public _firstReleaseRate;
 
-    struct UserInfo_Vesting {
+    struct ModInfo_Vesting {
         uint256 amount;
         uint256 released;
         uint256 lockTime;
         uint256 vestingDuration;
     }
 
-    mapping (address => UserInfo_Vesting) public userInfo_Vesting;
+    mapping (address => ModInfo_Vesting[]) public modInfo_Vestings;
 
     event Release(
         address user,
@@ -33,5 +33,9 @@ contract Vesting is Ownable {
 
     function release() public virtual {
         //
+    }
+
+    function modContractsCount() public view returns(uint256) {
+        return modInfo_Vestings[msg.sender].length;
     }
 }
