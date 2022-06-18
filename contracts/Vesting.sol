@@ -12,12 +12,13 @@ contract Vesting is Ownable {
 
     bool public _availableReleaseFlg;
     uint256 public _firstReleaseRate;
+    uint256 public totalVestingAmount;
 
     struct ModInfo_Vesting {
         uint256 amount;
         uint256 released;
         uint256 lockTime;
-        uint256 vestingDuration;
+        uint256 Duration;
     }
 
     mapping (address => ModInfo_Vesting[]) public modInfo_Vestings;
@@ -27,15 +28,23 @@ contract Vesting is Ownable {
         uint256 releaseAmount
     );
 
-    function deposit() public {
-        //
+    function addVestingInfo(uint256 _amount, uint256 _lockTime, uint256 _duration) public {
+        require(_amount > 0, "TokenVesting: amount must be > 0");
+        require(_duration > 0, "TokenVesting: duration must be > 0");
+        ModInfo_Vesting memory vesting = ModInfo_Vesting({
+            amount: _amount,
+            released: 0,
+            lockTime: _lockTime,
+            Duration: _duration
+        });
+        modInfo_Vestings[msg.sender].push(vesting);
     }
 
     function release() public virtual {
         //
     }
 
-    function modContractsCount() public view returns(uint256) {
+    function modVestingsCount() public view returns(uint256) {
         return modInfo_Vestings[msg.sender].length;
     }
 }
