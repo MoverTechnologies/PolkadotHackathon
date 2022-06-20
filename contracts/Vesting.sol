@@ -39,6 +39,7 @@ contract Vesting is Ownable {
 
     function addVestingInfo(uint256 _proofId, uint256 _amount, uint256 _jobEndTime, uint256 _duration) public {
         require(_amount > 0, "addVestingInfo: amount must be > 0");
+        require(depositedToken.balanceOf(msg.sender) >= _amount, "addVestingInfo: insufficient token balance");
         require(_jobEndTime > block.timestamp, "addVestingInfo: jobEndtime must be > block.timestamp");
         require(_duration > 0, "addVestingInfo: duration must be > 0");
 
