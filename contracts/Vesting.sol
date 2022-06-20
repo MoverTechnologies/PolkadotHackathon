@@ -41,6 +41,9 @@ contract Vesting is Ownable {
         require(_amount > 0, "addVestingInfo: amount must be > 0");
         require(_jobEndTime > block.timestamp, "addVestingInfo: jobEndtime must be > block.timestamp");
         require(_duration > 0, "addVestingInfo: duration must be > 0");
+
+        depositedToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+
         modInfo_Vesting[msg.sender][_proofId].amount = _amount;
         modInfo_Vesting[msg.sender][_proofId].released = 0;
         modInfo_Vesting[msg.sender][_proofId].jobEndTime = _jobEndTime;
@@ -51,15 +54,18 @@ contract Vesting is Ownable {
     function release(uint256 _proofId) public virtual {
         require(block.timestamp > modInfo_Vesting[msg.sender][_proofId].jobEndTime, "release: block.timestamp must be > jobEndTime ");
         uint256 releasable = releaseAmount(_proofId);
-        emit Released(msg.sender, _proofId, releasable);
+        depositedToken.safeTransfer(address(msg.sender), releasable);
+
         if (modInfo_Vesting[msg.sender][_proofId].amount == modInfo_Vesting[msg.sender][_proofId].released) {
             modInfo_Vesting[msg.sender][_proofId].completed = true;
         }
-        depositedToken.safeTransfer(address(msg.sender), releasable);
+
+        emit Released(msg.sender, _proofId, releasable);
     }
 
     function releaseAmount(uint256 _proofId) public view virtual returns (uint256) {
         uint remainingAmount = modInfo_Vesting[msg.sender][_proofId].amount - modInfo_Vesting[msg.sender][_proofId].released;
+    
         if (block.timestamp > modInfo_Vesting[msg.sender][_proofId].jobEndTime + modInfo_Vesting[msg.sender][_proofId].duration) {
             return remainingAmount;
         } else {
