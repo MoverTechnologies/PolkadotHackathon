@@ -75,6 +75,10 @@ contract Vesting is Ownable {
     }
 
     function releaseAmount(uint256 _proofId) public view virtual returns (uint256) {
+        if (block.timestamp < modInfo_Vesting[_proofId].jobEndTime) {
+            return 0;
+        }
+
         uint remainingAmount = modInfo_Vesting[_proofId].amount - modInfo_Vesting[_proofId].released;
     
         if (block.timestamp > modInfo_Vesting[_proofId].jobEndTime + modInfo_Vesting[_proofId].duration) {
