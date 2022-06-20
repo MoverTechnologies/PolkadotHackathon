@@ -10,71 +10,69 @@ contract Vesting is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    // IERC20 public collateralToken;
-    bool public availableReleaseFlg;
-    uint256 public firstReleaseRate;
-    uint256 public totalVestingAmount;
+    IERC20 public depositedToken;
 
     struct ModInfo_Vesting {
-        uint id; // nft の id にする
         uint256 amount;
         uint256 released;
         uint256 jobEndTime; // 基準点
         uint256 duration;
+        bool completed;
     }
 
-    mapping (address => ModInfo_Vesting[]) public modInfo_Vestings;
+    mapping (address => mapping(uint256 => ModInfo_Vesting)) public modInfo_Vesting;
 
     event Released(
         address user,
+        uint256 proofId,
         uint256 releaseAmount
     );
 
     event Revoked(
         address user,
-        uint256 amount,
-        uint256 jobEndTime
+        uint256 proofId
     );
 
-    // constructor(
-    //     IERC20 _collateralToken,
-    //     uint256 _firstReleaseRate
-    // ) public {
-    //     collateralToken = IERC20(_collateralToken);
-    //     firstReleaseRate = _firstReleaseRate;
-    //     availableReleaseFlg = false;
-    // }
+    constructor (IERC20 _depositedToken) {
+        depositedToken = IERC20(_depositedToken);
+    }
 
-    function addVestingInfo(uint256 _amount, uint256 _jobEndTime, uint256 _duration) public {
+    function addVestingInfo(uint256 _proofId, uint256 _amount, uint256 _jobEndTime, uint256 _duration) public {
         require(_amount > 0, "addVestingInfo: amount must be > 0");
         require(_jobEndTime > block.timestamp, "addVestingInfo: jobEndtime must be > block.timestamp");
         require(_duration > 0, "addVestingInfo: duration must be > 0");
-        ModInfo_Vesting memory vesting = ModInfo_Vesting({
-            id: 1, // nft の id にする（引数で受ける）
-            amount: _amount,
-            released: 0,
-            jobEndTime: _jobEndTime,
-            duration: _duration
-        });
-        modInfo_Vestings[msg.sender].push(vesting);
+        modInfo_Vesting[msg.sender][_proofId].amount = _amount;
+        modInfo_Vesting[msg.sender][_proofId].released = 0;
+        modInfo_Vesting[msg.sender][_proofId].jobEndTime = _jobEndTime;
+        modInfo_Vesting[msg.sender][_proofId].duration = _duration;
+        modInfo_Vesting[msg.sender][_proofId].completed = false;
     }
 
-    function release() public virtual {
-        uint256 releasable = releaseAmount();
-        modInfo_Vestings[msg.sender];
-        emit Released(msg.sender, releasable);
+    function release(uint256 _proofId) public virtual {
+        require(block.timestamp > modInfo_Vesting[msg.sender][_proofId].jobEndTime, "release: block.timestamp must be > jobEndTime ");
+        uint256 releasable = releaseAmount(_proofId);
+        emit Released(msg.sender, _proofId, releasable);
+        if (modInfo_Vesting[msg.sender][_proofId].amount == modInfo_Vesting[msg.sender][_proofId].released) {
+            modInfo_Vesting[msg.sender][_proofId].completed = true;
+        }
+        depositedToken.safeTransfer(address(msg.sender), releasable);
     }
 
-    function releaseAmount() public view returns (uint256) {
-        //
+    function releaseAmount(uint256 _proofId) public view virtual returns (uint256) {
+        uint remainingAmount = modInfo_Vesting[msg.sender][_proofId].amount - modInfo_Vesting[msg.sender][_proofId].released;
+        if (block.timestamp > modInfo_Vesting[msg.sender][_proofId].jobEndTime + modInfo_Vesting[msg.sender][_proofId].duration) {
+            return remainingAmount;
+        } else {
+            return ((remainingAmount * (block.timestamp - modInfo_Vesting[msg.sender][_proofId].jobEndTime)) / modInfo_Vesting[msg.sender][_proofId].duration);
+        }
     }
 
     // Practically essential (No need for this in the demo.)
-    function revoke() public virtual {
-        //
+    function revoke(uint256 _proofId) public virtual {
+        emit Revoked(msg.sender, _proofId);
     }
 
-    function modVestingsCount() public view returns(uint256) {
-        return modInfo_Vestings[msg.sender].length;
+    function setDepoistedToken(address _depositedToken) public onlyOwner {
+        depositedToken = IERC20(_depositedToken);
     }
 }
