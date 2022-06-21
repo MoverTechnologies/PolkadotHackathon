@@ -64,10 +64,14 @@ describe("Vesting", () => {
                 3600
             );
             await tx.wait();
-            // check balance
+            // check owner balance
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
             );
+            // check VestingContract balance
+            expect(
+                await MockTokenContract.balanceOf(VestingContract.address)
+            ).to.equal(ethers.utils.parseEther("1000"));
             // check founderAddress
             await expect(
                 (
@@ -104,6 +108,12 @@ describe("Vesting", () => {
                     await VestingContract.modInfo_Vesting(1)
                 ).duration
             ).to.equal(3600);
+            // check completed
+            await expect(
+                (
+                    await VestingContract.modInfo_Vesting(1)
+                ).completed
+            ).to.equal(false);
         });
         it("should revert when amount = 0", async () => {
             await expect(
@@ -159,6 +169,7 @@ describe("Vesting", () => {
 
     describe("releaseAmount", () => {
         it("should releaseAmount", async () => {
+            // // addVestingInfo
             await VestingContract.addVestingInfo(
                 1,
                 spender.address,
@@ -169,10 +180,58 @@ describe("Vesting", () => {
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
             );
+            // WIP
+        });
+        it("should return 0 when now < jobEndTime", async () => {
+            await VestingContract.addVestingInfo(
+                1,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 1800,
+                3600
+            );
+            expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
+                ethers.utils.parseEther("9000")
+            );
+            expect(await VestingContract.releaseAmount(1)).to.equal(0);
         });
     });
 
     describe("revoke", () => {
-        //
+        it("should revoke", async () => {
+            // addVestingInfo
+            await VestingContract.addVestingInfo(
+                1,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 1800,
+                3600
+            );
+            expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
+                ethers.utils.parseEther("9000")
+            );
+            // revoke
+            const tx = await VestingContract.revoke(1);
+            await tx.wait();
+            // check owner balance
+            expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
+                ethers.utils.parseEther("10000")
+            );
+        });
+
+        it("should revert when msg.sender not equal founderAddress", async () => {
+            // addVestingInfo
+            await VestingContract.addVestingInfo(
+                1,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 1800,
+                3600
+            );
+            expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
+                ethers.utils.parseEther("9000")
+            );
+            // WIP
+        });
     });
 });
