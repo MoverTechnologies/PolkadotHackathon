@@ -53,16 +53,47 @@ describe("Vesting", () => {
 
     describe("addVestingInfo", () => {
         it("should addVestingInfo", async () => {
-            await VestingContract.addVestingInfo(
+            const tx = await VestingContract.addVestingInfo(
                 1,
                 spender.address,
                 ethers.utils.parseEther("1000"),
                 date + 1800,
                 3600
             );
+            await tx.wait();
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
             );
+            await expect(
+                (
+                    await VestingContract.modInfo_Vesting(1)
+                ).founderAddress
+            ).to.equal(owner.address);
+            await expect(
+                (
+                    await VestingContract.modInfo_Vesting(1)
+                ).modAddress
+            ).to.equal(spender.address);
+            await expect(
+                (
+                    await VestingContract.modInfo_Vesting(1)
+                ).amount
+            ).to.equal(ethers.utils.parseEther("1000"));
+            await expect(
+                (
+                    await VestingContract.modInfo_Vesting(1)
+                ).released
+            ).to.equal(0);
+            await expect(
+                (
+                    await VestingContract.modInfo_Vesting(1)
+                ).jobEndTime
+            ).to.equal(date + 1800);
+            await expect(
+                (
+                    await VestingContract.modInfo_Vesting(1)
+                ).duration
+            ).to.equal(3600);
         });
         it("should revert when amount = 0", async () => {
             await expect(
@@ -117,7 +148,18 @@ describe("Vesting", () => {
     });
 
     describe("releaseAmount", () => {
-        //
+        it("should releaseAmount", async () => {
+            await VestingContract.addVestingInfo(
+                1,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 1800,
+                3600
+            );
+            expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
+                ethers.utils.parseEther("9000")
+            );
+        });
     });
 
     describe("revoke", () => {
