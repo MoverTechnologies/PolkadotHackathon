@@ -64,6 +64,52 @@ describe("Vesting", () => {
                 ethers.utils.parseEther("9000")
             );
         });
+        it("should revert when amount = 0", async () => {
+            await expect(
+                VestingContract.addVestingInfo(
+                    1,
+                    spender.address,
+                    0,
+                    date + 1800,
+                    3600
+                )
+            ).revertedWith("addVestingInfo: amount must be > 0");
+        });
+        it("should revert when insufficient token balance", async () => {
+            await expect(
+                VestingContract.addVestingInfo(
+                    1,
+                    spender.address,
+                    ethers.utils.parseEther("10001"),
+                    date + 1800,
+                    3600
+                )
+            ).revertedWith("addVestingInfo: insufficient token balance");
+        });
+        it("should revert when jobEndtime < block.timestamp", async () => {
+            await expect(
+                VestingContract.addVestingInfo(
+                    1,
+                    spender.address,
+                    ethers.utils.parseEther("1000"),
+                    date - 1800,
+                    3600
+                )
+            ).revertedWith(
+                "addVestingInfo: jobEndtime must be > block.timestamp"
+            );
+        });
+        it("should revert when duration = 0", async () => {
+            await expect(
+                VestingContract.addVestingInfo(
+                    1,
+                    spender.address,
+                    ethers.utils.parseEther("1000"),
+                    date + 1800,
+                    0
+                )
+            ).revertedWith("addVestingInfo: duration must be > 0");
+        });
     });
 
     describe("release", () => {
