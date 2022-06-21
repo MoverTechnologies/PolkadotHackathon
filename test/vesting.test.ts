@@ -6,6 +6,7 @@ import {Token, Vesting} from "../typechain";
 describe("Vesting", () => {
     let VestingContract: Vesting;
     let MockTokenContract: Token;
+    let SecondMockTokenContract: Token;
     let owner: SignerWithAddress;
     let spender: SignerWithAddress;
     let holder: SignerWithAddress;
@@ -180,7 +181,7 @@ describe("Vesting", () => {
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
             );
-            // WIP
+            // WIP 時間を進めて確認する必要がある
         });
         it("should return 0 when now < jobEndTime", async () => {
             await VestingContract.addVestingInfo(
@@ -231,7 +232,27 @@ describe("Vesting", () => {
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
             );
-            // WIP
+            // WIP テスト上の実行者のアドレスを変更して、テストする必要がある
+        });
+    });
+
+    describe("setDepoistedToken", () => {
+        it("should setDepoistedToken", async () => {
+            // second mock token
+            const MockTokenContractFactory = await ethers.getContractFactory(
+                "Token"
+            );
+            SecondMockTokenContract = await MockTokenContractFactory.deploy(
+                "Test",
+                "TEST"
+            );
+            await SecondMockTokenContract.deployed();
+            // change depoistedToken to second mock token
+            VestingContract.setDepoistedToken(SecondMockTokenContract.address);
+            // check depoistedToken address
+            expect(await VestingContract.depositedToken()).to.equal(
+                SecondMockTokenContract.address
+            );
         });
     });
 });
