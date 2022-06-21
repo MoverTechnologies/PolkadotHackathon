@@ -29,15 +29,18 @@ describe("Vesting", () => {
         await VestingContract.deployed();
         [owner, spender, holder, ...otherSigners] = await ethers.getSigners();
         // setUp
+        // mint 10000 token to owner
         await MockTokenContract.mint(
             owner.address,
             ethers.utils.parseEther("10000")
         );
+        // mockToken approve owner
         const tx = await MockTokenContract.approve(
             owner.address,
             ethers.constants.MaxUint256
         );
         await tx.wait();
+        // mockToken approve VestingContract
         const vtx = await MockTokenContract.approve(
             VestingContract.address,
             ethers.constants.MaxUint256
@@ -61,34 +64,41 @@ describe("Vesting", () => {
                 3600
             );
             await tx.wait();
+            // check balance
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
             );
+            // check founderAddress
             await expect(
                 (
                     await VestingContract.modInfo_Vesting(1)
                 ).founderAddress
             ).to.equal(owner.address);
+            // check modAddress
             await expect(
                 (
                     await VestingContract.modInfo_Vesting(1)
                 ).modAddress
             ).to.equal(spender.address);
+            // check amount
             await expect(
                 (
                     await VestingContract.modInfo_Vesting(1)
                 ).amount
             ).to.equal(ethers.utils.parseEther("1000"));
+            // check released
             await expect(
                 (
                     await VestingContract.modInfo_Vesting(1)
                 ).released
             ).to.equal(0);
+            // check jobEndTime
             await expect(
                 (
                     await VestingContract.modInfo_Vesting(1)
                 ).jobEndTime
             ).to.equal(date + 1800);
+            // check duration
             await expect(
                 (
                     await VestingContract.modInfo_Vesting(1)
