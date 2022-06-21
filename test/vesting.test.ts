@@ -165,7 +165,40 @@ describe("Vesting", () => {
     });
 
     describe("release", () => {
-        //
+        it("should revert when now < jobEndTime", async () => {
+            // // addVestingInfo
+            await VestingContract.addVestingInfo(
+                1,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 1800,
+                3600
+            );
+            expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
+                ethers.utils.parseEther("9000")
+            );
+            await expect(VestingContract.release(1)).revertedWith(
+                "release: block.timestamp must be > jobEndTime"
+            );
+        });
+        // it("should revert when modAddress not equal msg.sender", async () => {
+        //     // // addVestingInfo
+        //     await VestingContract.addVestingInfo(
+        //         1,
+        //         spender.address,
+        //         ethers.utils.parseEther("1000"),
+        //         date + 1800,
+        //         3600
+        //     );
+        //     expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
+        //         ethers.utils.parseEther("9000")
+        //     );
+        //     // WIP 時間を進めて確認する必要がある
+        //     // WIP テスト上の実行者のアドレスを変更して、テストする必要がある
+        //     await expect(VestingContract.release(1)).revertedWith(
+        //         "release: modAddress must be msg.sender"
+        //     );
+        // });
     });
 
     describe("releaseAmount", () => {
