@@ -30,7 +30,7 @@ contract AgreementContract is
 
     // Mapping address to agreement id list
     // Founder and moderator have both the same agreementId
-    mapping(address => bytes32[]) public holderToId;
+    mapping(address => bytes32[]) public holderToIds;
 
     // Mapping agreementId(bytes32) to agreement detail
     mapping(bytes32 => Agreement) public agreements;
@@ -92,8 +92,8 @@ contract AgreementContract is
             )
         );
 
-        holderToId[msg.sender].push(id);
-        holderToId[moderator].push(id);
+        holderToIds[msg.sender].push(id);
+        holderToIds[moderator].push(id);
 
         agreements[id] = Agreement({
             id: id,
@@ -175,7 +175,7 @@ contract AgreementContract is
         view
         returns (Agreement[] memory)
     {
-        bytes32[] memory ids = holderToId[holder];
+        bytes32[] memory ids = holderToIds[holder];
         Agreement[] memory _agreements = new Agreement[](ids.length);
         for (uint256 i = 0; i < ids.length; i++) {
             _agreements[i] = agreements[ids[i]];
@@ -195,7 +195,7 @@ contract AgreementContract is
         view
         returns (bytes32[] memory)
     {
-        return holderToId[holder];
+        return holderToIds[holder];
     }
 
     /**
