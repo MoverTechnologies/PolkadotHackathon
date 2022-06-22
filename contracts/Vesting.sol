@@ -41,16 +41,16 @@ contract Vesting is Ownable {
         depositedToken = IERC20(_depositedToken);
     }
 
-    // founder が実行する（ proof or nft コントラクトからであれば、引数追加）
-    function addVestingInfo(string memory _proofId, address _modAddress, uint256 _amount, uint256 _jobEndTime, uint256 _duration) public {
+    // コントラクトから実行する
+    function addVestingInfo(string memory _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint256 _jobEndTime, uint256 _duration) public {
         require(_amount > 0, "addVestingInfo: amount must be > 0");
-        require(depositedToken.balanceOf(msg.sender) >= _amount, "addVestingInfo: insufficient token balance");
+        require(depositedToken.balanceOf(_founderAddress) >= _amount, "addVestingInfo: insufficient token balance");
         require(_jobEndTime > block.timestamp, "addVestingInfo: jobEndtime must be > block.timestamp");
         require(_duration > 0, "addVestingInfo: duration must be > 0");
 
-        depositedToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+        depositedToken.safeTransferFrom(_founderAddress, address(this), _amount);
 
-        modInfo_Vesting[_proofId].founderAddress = msg.sender; // 引数追加候補
+        modInfo_Vesting[_proofId].founderAddress = _founderAddress;
         modInfo_Vesting[_proofId].modAddress = _modAddress;
         modInfo_Vesting[_proofId].amount = _amount;
         modInfo_Vesting[_proofId].released = 0;
@@ -89,7 +89,7 @@ contract Vesting is Ownable {
         }
     }
 
-    // founder が実行する
+    // founder が実行する（ここもコントラクトからの処理の可能性あり）
     function revoke(string memory _proofId) public virtual {
         require(modInfo_Vesting[_proofId].founderAddress == msg.sender, "revoke: founderAddress must be msg.sender");
         depositedToken.safeTransfer(address(msg.sender), modInfo_Vesting[_proofId].amount);

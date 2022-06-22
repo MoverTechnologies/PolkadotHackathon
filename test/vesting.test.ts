@@ -53,6 +53,7 @@ describe("Vesting", () => {
         it("should addVestingInfo", async () => {
             const tx = await VestingContract.addVestingInfo(
                 "1",
+                owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
                 date + 1800,
@@ -114,6 +115,7 @@ describe("Vesting", () => {
             await expect(
                 VestingContract.addVestingInfo(
                     "1",
+                    owner.address,
                     spender.address,
                     0,
                     date + 1800,
@@ -125,6 +127,7 @@ describe("Vesting", () => {
             await expect(
                 VestingContract.addVestingInfo(
                     "1",
+                    owner.address,
                     spender.address,
                     ethers.utils.parseEther("10001"),
                     date + 1800,
@@ -136,6 +139,7 @@ describe("Vesting", () => {
             await expect(
                 VestingContract.addVestingInfo(
                     "1",
+                    owner.address,
                     spender.address,
                     ethers.utils.parseEther("1000"),
                     date - 1800,
@@ -149,6 +153,7 @@ describe("Vesting", () => {
             await expect(
                 VestingContract.addVestingInfo(
                     "1",
+                    owner.address,
                     spender.address,
                     ethers.utils.parseEther("1000"),
                     date + 1800,
@@ -163,6 +168,7 @@ describe("Vesting", () => {
             // addVestingInfo
             await VestingContract.addVestingInfo(
                 "1",
+                owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
                 date + 1800,
@@ -179,6 +185,7 @@ describe("Vesting", () => {
         //     // // addVestingInfo
         //     await VestingContract.addVestingInfo(
         //         1,
+        //         owner.address,
         //         spender.address,
         //         ethers.utils.parseEther("1000"),
         //         date + 1800,
@@ -200,6 +207,7 @@ describe("Vesting", () => {
             // addVestingInfo
             await VestingContract.addVestingInfo(
                 "1",
+                owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
                 date + 1800,
@@ -218,6 +226,7 @@ describe("Vesting", () => {
         it("should return 0 when now < jobEndTime", async () => {
             await VestingContract.addVestingInfo(
                 "1",
+                owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
                 date + 1800,
@@ -235,6 +244,7 @@ describe("Vesting", () => {
             // addVestingInfo
             await VestingContract.addVestingInfo(
                 "1",
+                owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
                 date + 1800,
@@ -256,6 +266,7 @@ describe("Vesting", () => {
             // addVestingInfo
             await VestingContract.addVestingInfo(
                 "1",
+                owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
                 date + 1800,
