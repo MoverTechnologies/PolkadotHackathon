@@ -12,7 +12,7 @@ import "hardhat-abi-exporter";
 
 // This adds support for typescript paths mappings
 import "tsconfig-paths/register";
-
+const {privateKey} = require("./private.json");
 dotenv.config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -43,6 +43,11 @@ const config: HardhatUserConfig = {
                 process.env.PRIVATE_KEY !== undefined
                     ? [process.env.PRIVATE_KEY]
                     : [],
+        },
+        astar: {
+            url: "https://evm.astar.network/",
+            chainId: 592,
+            accounts: [privateKey],
         },
     },
     gasReporter: {
