@@ -24,9 +24,9 @@ describe("Vesting", () => {
         const VestingContractFactory = await ethers.getContractFactory(
             "Vesting"
         );
-        VestingContract = await VestingContractFactory.deploy(
-            MockTokenContract.address
-        );
+        VestingContract = await VestingContractFactory.deploy();
+        await VestingContract.initialize(MockTokenContract.address);
+
         await VestingContract.deployed();
         [owner, spender, holder, ...otherSigners] = await ethers.getSigners();
         // setUp
@@ -291,7 +291,9 @@ describe("Vesting", () => {
             );
             await SecondMockTokenContract.deployed();
             // change depoistedToken to second mock token
-            VestingContract.setDepoistedToken(SecondMockTokenContract.address);
+            await VestingContract.setDepoistedToken(
+                SecondMockTokenContract.address
+            );
             // check depoistedToken address
             expect(await VestingContract.depositedToken()).to.equal(
                 SecondMockTokenContract.address

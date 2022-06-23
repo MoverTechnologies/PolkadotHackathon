@@ -1,16 +1,17 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract Vesting is Ownable {
+contract Vesting is Initializable, OwnableUpgradeable {
 
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
+    using SafeMathUpgradeable for uint256;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IERC20 public depositedToken;
+    IERC20Upgradeable public depositedToken;
 
     struct ModInfo_Vesting {
         address founderAddress;
@@ -37,8 +38,11 @@ contract Vesting is Ownable {
         string proofId
     );
 
-    constructor (IERC20 _depositedToken) {
-        depositedToken = IERC20(_depositedToken);
+    function initialize(
+        IERC20Upgradeable _depositedToken
+    ) public initializer {
+        depositedToken = IERC20Upgradeable(_depositedToken);
+        __Ownable_init();
     }
 
     // コントラクトから実行する
@@ -98,6 +102,6 @@ contract Vesting is Ownable {
     }
 
     function setDepoistedToken(address _depositedToken) public onlyOwner {
-        depositedToken = IERC20(_depositedToken);
+        depositedToken = IERC20Upgradeable(_depositedToken);
     }
 }
