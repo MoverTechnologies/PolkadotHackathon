@@ -77,7 +77,7 @@ contract AgreementContract is
      */
     function createAgreement(
         address moderator,
-        bytes20 daoName,
+        bytes22 daoName,
         uint32 startTime,
         uint32 endTime,
         uint256 rewardAmount
@@ -91,6 +91,9 @@ contract AgreementContract is
                 blockhash(block.number - 1)
             )
         );
+
+        // make sure there is no duplicated agreementIds
+        require(agreements[id].id != id, "agreementId already exists");
 
         holderToIds[msg.sender].push(id);
         holderToIds[moderator].push(id);
