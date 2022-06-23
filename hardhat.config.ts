@@ -12,7 +12,7 @@ import "hardhat-abi-exporter";
 
 // This adds support for typescript paths mappings
 import "tsconfig-paths/register";
-const {privateKey} = require("./private.json");
+import {privateKey} from "./private.json";
 dotenv.config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -28,7 +28,15 @@ dotenv.config();
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 const config: HardhatUserConfig = {
-    solidity: "0.8.4",
+    solidity: {
+        version: "0.8.4",
+        settings: {
+            optimizer: {
+                enabled: true,
+                runs: 200,
+            },
+        },
+    },
     networks: {
         rinkeby: {
             url: process.env.ALCHEMY_RINKEBY_URL || "",
@@ -49,6 +57,14 @@ const config: HardhatUserConfig = {
             chainId: 592,
             accounts: [privateKey],
         },
+        shibuya: {
+            url: "https://evm.shibuya.astar.network",
+            chainId: 81,
+            accounts:
+                process.env.PRIVATE_KEY !== undefined
+                    ? [process.env.PRIVATE_KEY]
+                    : [],
+        },
     },
     gasReporter: {
         enabled: process.env.REPORT_GAS !== undefined,
@@ -61,6 +77,13 @@ const config: HardhatUserConfig = {
         clear: true,
         pretty: true,
     },
+    /**
+     *  Remove comment out below to see contract size when compiled
+     * */
+    // contractSizer: {
+    //     runOnCompile: true,
+    //     strict: true,
+    // },
 };
 
 export default config;
