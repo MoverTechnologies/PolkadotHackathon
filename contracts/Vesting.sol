@@ -97,7 +97,7 @@ contract Vesting is Initializable, OwnableUpgradeable {
     function revoke(bytes32 _proofId) public virtual {
         require(modInfo_Vesting[_proofId].founderAddress == msg.sender, "revoke: founderAddress must be msg.sender");
         depositedToken.safeTransfer(address(msg.sender), modInfo_Vesting[_proofId].amount);
-        // modInfo_Vesting[_proofId].completed = true;
+        modInfo_Vesting[_proofId].completed = true;
         emit Revoked(msg.sender, _proofId);
     }
 
