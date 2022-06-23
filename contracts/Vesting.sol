@@ -18,24 +18,24 @@ contract Vesting is Initializable, OwnableUpgradeable {
         address modAddress;
         uint256 amount;
         uint256 released;
-        uint256 jobEndTime; // 基準点
+        uint32 jobEndTime; // 基準点
         uint256 duration;
         bool completed;
         // bool revoked;
     }
 
     // proof id (string) -> vesting info
-    mapping (string =>  ModInfo_Vesting) public modInfo_Vesting;
+    mapping (bytes32 =>  ModInfo_Vesting) public modInfo_Vesting;
 
     event Released(
-        address user,
-        string proofId,
-        uint256 releaseAmount
+        address indexed mod,
+        bytes32 indexed proofId,
+        uint256 indexed releaseAmount
     );
 
     event Revoked(
-        address user,
-        string proofId
+        address indexed founder,
+        bytes32 indexed proofId
     );
 
     function initialize(
@@ -46,7 +46,7 @@ contract Vesting is Initializable, OwnableUpgradeable {
     }
 
     // コントラクトから実行する
-    function addVestingInfo(string memory _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint256 _jobEndTime, uint256 _duration) public {
+    function addVestingInfo(bytes32 _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint32 _jobEndTime, uint256 _duration) public {
         require(_amount > 0, "addVestingInfo: amount must be > 0");
         require(depositedToken.balanceOf(_founderAddress) >= _amount, "addVestingInfo: insufficient token balance");
         require(_jobEndTime > block.timestamp, "addVestingInfo: jobEndtime must be > block.timestamp");
@@ -65,7 +65,7 @@ contract Vesting is Initializable, OwnableUpgradeable {
     }
 
     // mod が実行する
-    function release(string memory _proofId) public virtual {
+    function release(bytes32 _proofId) public virtual {
         require(block.timestamp > modInfo_Vesting[_proofId].jobEndTime, "release: block.timestamp must be > jobEndTime");
         require(modInfo_Vesting[_proofId].modAddress == msg.sender, "release: modAddress must be msg.sender");
         require(modInfo_Vesting[_proofId].completed == false, "release: you already completed");
@@ -79,7 +79,7 @@ contract Vesting is Initializable, OwnableUpgradeable {
         emit Released(msg.sender, _proofId, releasable);
     }
 
-    function releaseAmount(string memory _proofId) public view virtual returns (uint256) {
+    function releaseAmount(bytes32 _proofId) public view virtual returns (uint256) {
         if (block.timestamp < modInfo_Vesting[_proofId].jobEndTime) {
             return 0;
         }
@@ -94,7 +94,7 @@ contract Vesting is Initializable, OwnableUpgradeable {
     }
 
     // founder が実行する（ここもコントラクトからの処理の可能性あり）
-    function revoke(string memory _proofId) public virtual {
+    function revoke(bytes32 _proofId) public virtual {
         require(modInfo_Vesting[_proofId].founderAddress == msg.sender, "revoke: founderAddress must be msg.sender");
         depositedToken.safeTransfer(address(msg.sender), modInfo_Vesting[_proofId].amount);
         // modInfo_Vesting[_proofId].completed = true;
