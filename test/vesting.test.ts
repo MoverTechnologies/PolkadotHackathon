@@ -218,12 +218,19 @@ describe("Vesting", () => {
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
             );
-            // WIP 時間を進めて確認する必要がある
-            // await network.provider.send("evm_increaseTime", [6000]);
-            // console.log(await VestingContract.releaseAmount("1"));
-            // await expect(VestingContract.releaseAmount("1")).to.equal(
-            //     ethers.utils.parseEther("1000")
-            // );
+
+            // 時間を進めて確認
+            await ethers.provider.send("evm_increaseTime", [12000]);
+            await ethers.provider.send("evm_mine", []);
+
+            // console.log(await VestingContract.releaseAmount(bytes32));
+            expect(await VestingContract.releaseAmount(bytes32)).to.equal(
+                ethers.utils.parseEther("1000")
+            );
+
+            // 時間戻さないと後のテストがコケる！！
+            await ethers.provider.send("evm_increaseTime", [-12000]);
+            await ethers.provider.send("evm_mine", []);
         });
         it("should return 0 when now < jobEndTime", async () => {
             await VestingContract.addVestingInfo(
