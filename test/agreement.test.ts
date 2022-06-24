@@ -1,5 +1,5 @@
 import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
-import {AgreementContract, PoM} from "../typechain";
+import {AgreementContract, PoM, Vesting, Token} from "../typechain";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import {ethers, network} from "hardhat";
@@ -9,8 +9,11 @@ const daoNameParam = ethers.utils.zeroPad(
     22
 );
 
+const date = Math.floor(new Date().getTime() / 1000);
 describe("AgreementContract", function () {
     let agreementContract: AgreementContract;
+    let vestingContract: Vesting;
+    let tokenContract: Token;
     let pomContract: PoM;
     let owner: SignerWithAddress;
     let founder: SignerWithAddress;
@@ -21,17 +24,52 @@ describe("AgreementContract", function () {
 
     // WARNING: THIS METHOD HEAVILY RELIES ON VARIABLES DEFINED ABOVE AND THIS SCOPE
     const setUp = async () => {
+        // Deploy & initilize PoM contract
         pomContract = await ethers
             .getContractFactory("PoM")
             .then(async (res) => await res.deploy());
-        const pomAddr = await pomContract
-            .deployed()
-            .then(async (res) => await res.address);
-        await agreementContract.initialize(pomAddr);
         await pomContract.initialize("PoM", "POM", "BASE_URL");
+
+        // Deploy Token contract to use Vesting contract
+        const TokenContractFactory = await ethers.getContractFactory("Token");
+        tokenContract = await TokenContractFactory.deploy("New", "NEW");
+        await tokenContract.deployed();
+
+        // Deploy Vesting contract
+        const VestingContractFactory = await ethers.getContractFactory(
+            "Vesting"
+        );
+        vestingContract = await VestingContractFactory.deploy();
+        await vestingContract.initialize(tokenContract.address);
+        await vestingContract.deployed();
+
+        // Deploy & initialize Agreement contract
+        const AgreementContractFactory = await ethers.getContractFactory(
+            "AgreementContract"
+        );
+        agreementContract = await AgreementContractFactory.deploy();
+        await agreementContract.deployed();
+        await agreementContract.initialize(
+            pomContract.address,
+            vestingContract.address
+        );
+
+        /**
+         * Setting up necessary data
+         */
+        await tokenContract.mint(
+            founder.address,
+            ethers.utils.parseEther("10000")
+        );
+        const tx = await tokenContract
+            .connect(founder)
+            .approve(vestingContract.address, ethers.utils.parseEther("10000"));
+        await tx.wait();
+
         await pomContract.setAgreementContractAddress(
             agreementContract.address
         );
+        // Set block time
         const latestBlock = await ethers.provider.getBlock("latest");
         await network.provider.send("evm_setNextBlockTimestamp", [
             latestBlock.timestamp + 100,
@@ -48,38 +86,46 @@ describe("AgreementContract", function () {
         );
 
         agreementId = ethers.utils.keccak256(hash);
-
-        await agreementContract
-            .connect(founder)
-            .createAgreement(
-                moderator.address,
-                daoNameParam,
-                1640592293,
-                1640592300,
-                10
-            );
     };
 
     beforeEach(async () => {
-        const AgreementContractFactory = await ethers.getContractFactory(
-            "AgreementContract"
-        );
-        agreementContract = await AgreementContractFactory.deploy();
-        await agreementContract.deployed();
         [owner, founder, moderator, ...otherSigners] =
             await ethers.getSigners();
     });
 
     describe("initialize", () => {
         it("should set admin role to owner", async () => {
-            const pom = await ethers
+            // Deploy & initilize PoM contract
+            pomContract = await ethers
                 .getContractFactory("PoM")
                 .then(async (res) => await res.deploy());
-            const pomAddr = await pom
-                .deployed()
-                .then(async (res) => await res.address);
-            await agreementContract.initialize(pomAddr);
+            await pomContract.initialize("PoM", "POM", "BASE_URL");
 
+            // Deploy Token contract to use Vesting contract
+            const TokenContractFactory = await ethers.getContractFactory(
+                "Token"
+            );
+            tokenContract = await TokenContractFactory.deploy("New", "NEW");
+            await tokenContract.deployed();
+
+            // Deploy Vesting contract
+            const VestingContractFactory = await ethers.getContractFactory(
+                "Vesting"
+            );
+            vestingContract = await VestingContractFactory.deploy();
+            await vestingContract.initialize(tokenContract.address);
+            await vestingContract.deployed();
+
+            // Deploy & initialize Agreement contract
+            const AgreementContractFactory = await ethers.getContractFactory(
+                "AgreementContract"
+            );
+            agreementContract = await AgreementContractFactory.deploy();
+            await agreementContract.deployed();
+            await agreementContract.initialize(
+                pomContract.address,
+                vestingContract.address
+            );
             await expect(
                 await agreementContract.hasRole(
                     await agreementContract.DEFAULT_ADMIN_ROLE(),
@@ -91,21 +137,7 @@ describe("AgreementContract", function () {
 
     describe("createAgreement", () => {
         beforeEach(async () => {
-            pomContract = await ethers
-                .getContractFactory("PoM")
-                .then(async (res) => await res.deploy());
-            const pomAddr = await pomContract
-                .deployed()
-                .then(async (res) => await res.address);
-            await agreementContract.initialize(pomAddr);
-            await pomContract.initialize("PoM", "POM", "BASE_URL");
-            await pomContract.setAgreementContractAddress(
-                agreementContract.address
-            );
-            const latestBlock = await ethers.provider.getBlock("latest");
-            await network.provider.send("evm_setNextBlockTimestamp", [
-                latestBlock.timestamp + 100,
-            ]);
+            await setUp();
         });
         it("should create agreement", async () => {
             const latestBlock = await ethers.provider.getBlock("latest");
@@ -119,8 +151,9 @@ describe("AgreementContract", function () {
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
 
             const hash = ethers.utils.solidityPack(
@@ -139,9 +172,9 @@ describe("AgreementContract", function () {
                 id,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
                 1640592293,
-                1640592300,
+                date + 2000,
                 false,
-                BigNumber.from(10),
+                ethers.utils.parseEther("10"),
                 founder.address,
                 moderator.address,
             ];
@@ -162,8 +195,9 @@ describe("AgreementContract", function () {
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
             const balance = await pomContract.balanceOf(moderator.address);
             expect(balance).to.be.equal(1);
@@ -179,8 +213,9 @@ describe("AgreementContract", function () {
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
             totalAgreements = await agreementContract.getTotalAgreements();
             expect(totalAgreements).to.be.equal(1);
@@ -200,8 +235,9 @@ describe("AgreementContract", function () {
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
             founderIds = await agreementContract.getAllIds(founder.address);
             moderatorIds = await agreementContract.getAllIds(moderator.address);
@@ -213,6 +249,16 @@ describe("AgreementContract", function () {
     describe("updateAgreement", () => {
         beforeEach(async () => {
             await setUp();
+            await agreementContract
+                .connect(founder)
+                .createAgreement(
+                    moderator.address,
+                    daoNameParam,
+                    1640592293,
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
+                );
         });
         it("should update agreement", async () => {
             const result = await agreementContract
@@ -251,7 +297,7 @@ describe("AgreementContract", function () {
 
             const expected = {
                 startTime: BigNumber.from(1640592293),
-                endTime: BigNumber.from(1640592300),
+                endTime: BigNumber.from(date + 2000),
                 rewardAmount: BigNumber.from(12),
             };
 
@@ -266,8 +312,8 @@ describe("AgreementContract", function () {
             let proof = await agreementContract.agreements(agreementId);
 
             expect(proof.startTime).equal(BigNumber.from(1640592293));
-            expect(proof.endTime).equal(BigNumber.from(1640592300));
-            expect(proof.rewardAmount).equal(BigNumber.from(10));
+            expect(proof.endTime).equal(BigNumber.from(date + 2000));
+            expect(proof.rewardAmount).equal(ethers.utils.parseEther("10"));
 
             await agreementContract.connect(founder).updateAgreement(
                 agreementId,
@@ -279,7 +325,7 @@ describe("AgreementContract", function () {
             const expected = {
                 startTime: BigNumber.from(1640592295),
                 endTime: BigNumber.from(1640592304),
-                rewardAmount: BigNumber.from(10),
+                rewardAmount: ethers.utils.parseEther("10"),
             };
 
             proof = await agreementContract.agreements(agreementId);
@@ -312,6 +358,22 @@ describe("AgreementContract", function () {
     describe("completeAgreement", () => {
         beforeEach(async () => {
             await setUp();
+            await agreementContract
+                .connect(founder)
+                .createAgreement(
+                    moderator.address,
+                    daoNameParam,
+                    1640592293,
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
+                );
+            await ethers.provider.send("evm_increaseTime", [12000]);
+            await ethers.provider.send("evm_mine", []);
+        });
+        afterEach(async () => {
+            await ethers.provider.send("evm_increaseTime", [-12000]);
+            await ethers.provider.send("evm_mine", []);
         });
         it("should complete agreement", async () => {
             const result = await agreementContract
@@ -326,9 +388,9 @@ describe("AgreementContract", function () {
                 agreementId,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
                 1640592293,
-                1640592300,
+                date + 2000,
                 true, // isCompleted property
-                BigNumber.from(10),
+                ethers.utils.parseEther("10"),
                 founder.address,
                 moderator.address,
             ];
@@ -337,55 +399,8 @@ describe("AgreementContract", function () {
             await expect(proof).to.deep.equal(expected);
         });
 
-        it("should update agreement only rewardAmount property", async () => {
-            await agreementContract.connect(founder).updateAgreement(
-                agreementId,
-                0, // startTime property
-                0, // endTime property
-                12
-            );
-
-            const expected = {
-                startTime: BigNumber.from(1640592293),
-                endTime: BigNumber.from(1640592300),
-                rewardAmount: BigNumber.from(12),
-            };
-
-            const proof = await agreementContract.agreements(agreementId);
-
-            expect(await proof.startTime).equal(expected.startTime);
-            expect(await proof.endTime).equal(expected.endTime);
-            expect(await proof.rewardAmount).equal(expected.rewardAmount);
-        });
-
-        it("should update agreement only startTime and endTime properties", async () => {
-            let proof = await agreementContract.agreements(agreementId);
-
-            expect(proof.startTime).equal(BigNumber.from(1640592293));
-            expect(proof.endTime).equal(BigNumber.from(1640592300));
-            expect(proof.rewardAmount).equal(BigNumber.from(10));
-
-            await agreementContract.connect(founder).updateAgreement(
-                agreementId,
-                1640592295,
-                1640592304,
-                0 // rewardAmount property
-            );
-
-            const expected = {
-                startTime: BigNumber.from(1640592295),
-                endTime: BigNumber.from(1640592304),
-                rewardAmount: BigNumber.from(10),
-            };
-
-            proof = await agreementContract.agreements(agreementId);
-
-            expect(await proof.startTime).equal(expected.startTime);
-            expect(await proof.endTime).equal(expected.endTime);
-            expect(await proof.rewardAmount).equal(expected.rewardAmount);
-        });
-
         it("should revert if the currenct time has not passed agreement endTime", async () => {
+            // Set time much later than current block time
             await agreementContract.connect(founder).updateAgreement(
                 agreementId,
                 0,
@@ -404,6 +419,27 @@ describe("AgreementContract", function () {
     describe("getAllAgreements", () => {
         beforeEach(async () => {
             await setUp();
+            await agreementContract
+                .connect(founder)
+                .createAgreement(
+                    moderator.address,
+                    daoNameParam,
+                    1640592293,
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
+                );
+            await tokenContract.mint(
+                otherSigners[0].address,
+                ethers.utils.parseEther("10000")
+            );
+            const tx = await tokenContract
+                .connect(otherSigners[0])
+                .approve(
+                    vestingContract.address,
+                    ethers.utils.parseEther("10000")
+                );
+            await tx.wait();
 
             await agreementContract
                 .connect(otherSigners[0])
@@ -411,8 +447,9 @@ describe("AgreementContract", function () {
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
         });
 
@@ -447,13 +484,36 @@ describe("AgreementContract", function () {
             await setUp();
 
             await agreementContract
+                .connect(founder)
+                .createAgreement(
+                    moderator.address,
+                    daoNameParam,
+                    1640592293,
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
+                );
+
+            await tokenContract.mint(
+                otherSigners[0].address,
+                ethers.utils.parseEther("10000")
+            );
+            await tokenContract
+                .connect(otherSigners[0])
+                .approve(
+                    vestingContract.address,
+                    ethers.utils.parseEther("10000")
+                );
+
+            await agreementContract
                 .connect(otherSigners[0])
                 .createAgreement(
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 2000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
         });
 
@@ -485,17 +545,18 @@ describe("AgreementContract", function () {
 
     describe("getTotalAgreements", () => {
         beforeEach(async () => {
-            pomContract = await ethers
-                .getContractFactory("PoM")
-                .then(async (res) => await res.deploy());
-            const pomAddr = await pomContract
-                .deployed()
-                .then(async (res) => await res.address);
-            await agreementContract.initialize(pomAddr);
-            await pomContract.initialize("PoM", "POM", "BASE_URL");
-            await pomContract.setAgreementContractAddress(
-                agreementContract.address
+            await setUp();
+
+            await tokenContract.mint(
+                otherSigners[0].address,
+                ethers.utils.parseEther("10000")
             );
+            await tokenContract
+                .connect(otherSigners[0])
+                .approve(
+                    vestingContract.address,
+                    ethers.utils.parseEther("10000")
+                );
         });
 
         it("should return 2 after 2 agreements are made", async () => {
@@ -505,8 +566,9 @@ describe("AgreementContract", function () {
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 12000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
 
             await agreementContract
@@ -515,8 +577,9 @@ describe("AgreementContract", function () {
                     moderator.address,
                     daoNameParam,
                     1640592293,
-                    1640592300,
-                    10
+                    date + 12000,
+                    ethers.utils.parseEther("10"),
+                    5184000
                 );
             const result = await agreementContract
                 .connect(moderator)
