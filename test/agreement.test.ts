@@ -155,7 +155,7 @@ describe("AgreementContract", function () {
                 "CreateAgreement"
             );
 
-            const proof = await agreementContract.agreements(id);
+            const proof = await agreementContract.getAgreementDetail(id);
             expect(proof).to.deep.equal(expected);
         });
 
@@ -257,7 +257,9 @@ describe("AgreementContract", function () {
                 "UpdateAgreement"
             );
 
-            const proof = await agreementContract.agreements(agreementId);
+            const proof = await agreementContract.getAgreementDetail(
+                agreementId
+            );
 
             expect(proof).deep.equal(expected);
         });
@@ -276,7 +278,9 @@ describe("AgreementContract", function () {
                 rewardAmount: BigNumber.from(12),
             };
 
-            const proof = await agreementContract.agreements(agreementId);
+            const proof = await agreementContract.getAgreementDetail(
+                agreementId
+            );
 
             expect(await proof.startTime).equal(expected.startTime);
             expect(await proof.endTime).equal(expected.endTime);
@@ -284,7 +288,7 @@ describe("AgreementContract", function () {
         });
 
         it("should update agreement only startTime and endTime properties", async () => {
-            let proof = await agreementContract.agreements(agreementId);
+            let proof = await agreementContract.getAgreementDetail(agreementId);
 
             expect(proof.startTime).equal(BigNumber.from(1640592293));
             expect(proof.endTime).equal(BigNumber.from(date + 2000));
@@ -303,7 +307,7 @@ describe("AgreementContract", function () {
                 rewardAmount: ethers.utils.parseEther("10"),
             };
 
-            proof = await agreementContract.agreements(agreementId);
+            proof = await agreementContract.getAgreementDetail(agreementId);
 
             expect(await proof.startTime).equal(expected.startTime);
             expect(await proof.endTime).equal(expected.endTime);
@@ -370,7 +374,9 @@ describe("AgreementContract", function () {
                 moderator.address,
             ];
 
-            const proof = await agreementContract.agreements(agreementId);
+            const proof = await agreementContract.getAgreementDetail(
+                agreementId
+            );
             await expect(proof).to.deep.equal(expected);
         });
 
@@ -423,7 +429,7 @@ describe("AgreementContract", function () {
                     daoNameParam,
                     1640592293,
                     date + 2000,
-                    ethers.utils.parseEther("10"),
+                    ethers.utils.parseEther("12"),
                     5184000
                 );
         });
@@ -432,10 +438,24 @@ describe("AgreementContract", function () {
             const result = await agreementContract
                 .connect(moderator)
                 .getAllAgreements(moderator.address);
-            await expect(result.length).equal(2);
+            expect(result.length).equal(2);
+
+            const expected = [
+                agreementId,
+                "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
+                1640592293,
+                date + 2000,
+                false, // isCompleted property
+                ethers.utils.parseEther("10"),
+                founder.address,
+                moderator.address,
+            ];
+
+            expect(result[0]).to.deep.equal(expected);
+            expect(result[1].founder).to.equal(otherSigners[0].address);
         });
 
-        it("should return 1 agreement for founder and another founder", async () => {
+        it("should return 1 agreement for each founder", async () => {
             const founderResult1 = await agreementContract
                 .connect(founder)
                 .getAllAgreements(founder.address);
