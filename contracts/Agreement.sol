@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 import {PoM} from "./PoM.sol";
+import {Vesting} from "./Vesting.sol";
 import "./libs/SharedStructs.sol";
 
 contract AgreementContract is
@@ -27,6 +28,7 @@ contract AgreementContract is
     event CompleteAgreement(bytes32 indexed agreementId);
 
     PoM private pom;
+    Vesting private vesting;
 
     // Mapping address to agreement id list
     // Founder and moderator have both the same agreementId
@@ -60,10 +62,11 @@ contract AgreementContract is
     /*************************************
      * Functions
      *************************************/
-    function initialize(address _pom) public initializer {
+    function initialize(address _pom, address _vesting) public initializer {
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         pom = PoM(_pom);
+        vesting = Vesting(_vesting);
     }
 
     /**
@@ -71,17 +74,21 @@ contract AgreementContract is
      * @notice msg.sender should be a founder who tries to hire the moderator
      * @param moderator address, moderator address
      * @param daoName string, DAO name
-     * @param startTime uint256, start time of the agreement
-     * @param endTime uint256, end time of the agreement
+     * @param startTime uint32, start time of the agreement
+     * @param endTime uint32, end time of the agreement
      * @param rewardAmount uint256, reward amount
+     * @param vestingDuration uint256, end time of the agreement
      */
     function createAgreement(
         address moderator,
         bytes22 daoName,
         uint32 startTime,
         uint32 endTime,
-        uint256 rewardAmount
+        uint256 rewardAmount,
+        uint256 vestingDuration
     ) external {
+        require(startTime < endTime, "endTime must be after startTime");
+
         // Create unique id for agreement
         bytes32 id = keccak256(
             abi.encodePacked(
@@ -109,7 +116,14 @@ contract AgreementContract is
             moderator: moderator
         });
 
-        // TODO: call vesting contract too
+        vesting.addVestingInfo(
+            id,
+            msg.sender,
+            moderator,
+            rewardAmount,
+            endTime,
+            vestingDuration
+        );
         pom.mintToken(moderator, agreements[id]);
 
         totalAgreements.increment();
