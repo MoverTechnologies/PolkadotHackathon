@@ -2,7 +2,7 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import {ethers} from "hardhat";
-import {AgreementContract, PoM} from "../typechain";
+import {AgreementContract, PoM, Vesting, Token} from "../typechain";
 
 const daoNameParam = ethers.utils.zeroPad(
     ethers.utils.toUtf8Bytes("daoName"),
@@ -12,6 +12,8 @@ const daoNameParam = ethers.utils.zeroPad(
 describe("PoM", () => {
     let pomContract: PoM;
     let agreementContract: AgreementContract;
+    let vestingContract: Vesting;
+    let tokenContract: Token;
     let owner: SignerWithAddress;
     let founder: SignerWithAddress;
     let moderator: SignerWithAddress;
@@ -22,15 +24,36 @@ describe("PoM", () => {
     beforeEach(async () => {
         const PoMContract = await ethers.getContractFactory("PoM");
         pomContract = await PoMContract.deploy();
-        await pomContract.deployed();
-        await pomContract.initialize("PoM", "PoMSymbol", "baseURI");
 
-        const AgreementContract = await ethers.getContractFactory(
+        await pomContract.initialize("PoM", "POM", "BASE_URL");
+
+        // Deploy Token contract to use Vesting contract
+        const TokenContractFactory = await ethers.getContractFactory("Token");
+        tokenContract = await TokenContractFactory.deploy("New", "NEW");
+        await tokenContract.deployed();
+
+        // Deploy Vesting contract
+        const VestingContractFactory = await ethers.getContractFactory(
+            "Vesting"
+        );
+        vestingContract = await VestingContractFactory.deploy();
+        await vestingContract.initialize(tokenContract.address);
+        await vestingContract.deployed();
+
+        // Deploy & initialize Agreement contract
+        const AgreementContractFactory = await ethers.getContractFactory(
             "AgreementContract"
         );
-        agreementContract = await AgreementContract.deploy();
+        agreementContract = await AgreementContractFactory.deploy();
         await agreementContract.deployed();
-        agreementContract.initialize(pomContract.address);
+        await agreementContract.initialize(
+            pomContract.address,
+            vestingContract.address
+        );
+
+        await pomContract.setAgreementContractAddress(
+            agreementContract.address
+        );
 
         const agreementContractAddress =
             await agreementContract.signer.getAddress();
