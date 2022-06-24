@@ -13,7 +13,7 @@ contract Vesting is Initializable, OwnableUpgradeable {
 
     IERC20Upgradeable public depositedToken;
 
-    struct ModInfo_Vesting {
+    struct ModInfoVesting {
         address founderAddress;
         address modAddress;
         uint256 amount;
@@ -24,8 +24,8 @@ contract Vesting is Initializable, OwnableUpgradeable {
         // bool revoked;
     }
 
-    // proof id (string) -> vesting info
-    mapping (bytes32 =>  ModInfo_Vesting) public modInfo_Vesting;
+    // proof id (bytes32) -> vesting info
+    mapping (bytes32 =>  ModInfoVesting) public modInfoVesting;
 
     event Released(
         address indexed mod,
@@ -47,57 +47,58 @@ contract Vesting is Initializable, OwnableUpgradeable {
 
     // コントラクトから実行する
     function addVestingInfo(bytes32 _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint32 _jobEndTime, uint256 _duration) public {
-        require(_amount > 0, "addVestingInfo: amount must be > 0");
-        require(depositedToken.balanceOf(_founderAddress) >= _amount, "addVestingInfo: insufficient token balance");
-        require(_jobEndTime > block.timestamp, "addVestingInfo: jobEndtime must be > block.timestamp");
-        require(_duration > 0, "addVestingInfo: duration must be > 0");
+        require(_amount > 0, "amount must be > 0");
+        require(depositedToken.balanceOf(_founderAddress) >= _amount, "insufficient token balance");
+        require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
+        require(_duration > 0, "duration must be > 0");
 
         depositedToken.safeTransferFrom(_founderAddress, address(this), _amount);
 
-        modInfo_Vesting[_proofId].founderAddress = _founderAddress;
-        modInfo_Vesting[_proofId].modAddress = _modAddress;
-        modInfo_Vesting[_proofId].amount = _amount;
-        modInfo_Vesting[_proofId].released = 0;
-        modInfo_Vesting[_proofId].jobEndTime = _jobEndTime;
-        modInfo_Vesting[_proofId].duration = _duration;
-        modInfo_Vesting[_proofId].completed = false;
-        // modInfo_Vesting[_proofId].revoked = false;
+        modInfoVesting[_proofId].founderAddress = _founderAddress;
+        modInfoVesting[_proofId].modAddress = _modAddress;
+        modInfoVesting[_proofId].amount = _amount;
+        modInfoVesting[_proofId].released = 0;
+        modInfoVesting[_proofId].jobEndTime = _jobEndTime;
+        modInfoVesting[_proofId].duration = _duration;
+        modInfoVesting[_proofId].completed = false;
+        // modInfoVesting[_proofId].revoked = false;
     }
 
     // mod が実行する
     function release(bytes32 _proofId) public virtual {
-        require(block.timestamp > modInfo_Vesting[_proofId].jobEndTime, "release: block.timestamp must be > jobEndTime");
-        require(modInfo_Vesting[_proofId].modAddress == msg.sender, "release: modAddress must be msg.sender");
-        require(modInfo_Vesting[_proofId].completed == false, "release: you already completed");
+        require(block.timestamp > modInfoVesting[_proofId].jobEndTime, "now must be > jobEndTime");
+        require(modInfoVesting[_proofId].modAddress == msg.sender, "msg.sender must be modAddress");
+        require(modInfoVesting[_proofId].completed == false, "release: you already completed");
         uint256 releasable = releaseAmount(_proofId);
-        depositedToken.safeTransfer(address(msg.sender), releasable);
+        depositedToken.safeTransfer(msg.sender, releasable);
+        modInfoVesting[_proofId].released += releasable;
 
-        if (modInfo_Vesting[_proofId].amount == modInfo_Vesting[_proofId].released) {
-            modInfo_Vesting[_proofId].completed = true;
+        if (modInfoVesting[_proofId].amount == modInfoVesting[_proofId].released) {
+            modInfoVesting[_proofId].completed = true;
         }
 
         emit Released(msg.sender, _proofId, releasable);
     }
 
     function releaseAmount(bytes32 _proofId) public view virtual returns (uint256) {
-        if (block.timestamp < modInfo_Vesting[_proofId].jobEndTime) {
+        if (block.timestamp < modInfoVesting[_proofId].jobEndTime) {
             return 0;
         }
 
-        uint remainingAmount = modInfo_Vesting[_proofId].amount - modInfo_Vesting[_proofId].released;
+        uint remainingAmount = modInfoVesting[_proofId].amount - modInfoVesting[_proofId].released;
     
-        if (block.timestamp > modInfo_Vesting[_proofId].jobEndTime + modInfo_Vesting[_proofId].duration) {
+        if (block.timestamp > modInfoVesting[_proofId].jobEndTime + modInfoVesting[_proofId].duration) {
             return remainingAmount;
         } else {
-            return ((remainingAmount * (block.timestamp - modInfo_Vesting[_proofId].jobEndTime)) / modInfo_Vesting[_proofId].duration);
+            return ((remainingAmount * (block.timestamp - modInfoVesting[_proofId].jobEndTime)) / modInfoVesting[_proofId].duration);
         }
     }
 
     // founder が実行する（ここもコントラクトからの処理の可能性あり）
     function revoke(bytes32 _proofId) public virtual {
-        require(modInfo_Vesting[_proofId].founderAddress == msg.sender, "revoke: founderAddress must be msg.sender");
-        depositedToken.safeTransfer(address(msg.sender), modInfo_Vesting[_proofId].amount);
-        modInfo_Vesting[_proofId].completed = true;
+        require(modInfoVesting[_proofId].founderAddress == msg.sender, "msg.sender must be founder");
+        depositedToken.safeTransfer(address(msg.sender), modInfoVesting[_proofId].amount);
+        modInfoVesting[_proofId].completed = true;
         emit Revoked(msg.sender, _proofId);
     }
 
