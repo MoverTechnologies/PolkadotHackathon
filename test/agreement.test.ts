@@ -10,6 +10,7 @@ const daoNameParam = ethers.utils.zeroPad(
 );
 
 const date = Math.floor(new Date().getTime() / 1000);
+
 describe("AgreementContract", function () {
     let agreementContract: AgreementContract;
     let vestingContract: Vesting;
@@ -263,28 +264,32 @@ describe("AgreementContract", function () {
         it("should update agreement", async () => {
             const result = await agreementContract
                 .connect(founder)
-                .updateAgreement(agreementId, 1640592294, 1640592301, 12);
+                .updateAgreement(
+                    agreementId,
+                    1640592294,
+                    1640592301,
+                    ethers.utils.parseEther("12")
+                );
 
-            // const expected = [
-            //     agreementId,
-            //     0, // agreementId (index)
-            //     ,
-            //     founder.address,
-            //     "daoName",
-            //     BigNumber.from(1640592294),
-            //     BigNumber.from(1640592301),
-            //     BigNumber.from(12),
-            //     false,
-            // ];
+            const expected = [
+                agreementId,
+                "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
+                1640592294,
+                1640592301,
+                false,
+                ethers.utils.parseEther("12"),
+                founder.address,
+                moderator.address,
+            ];
 
             await expect(await result).to.emit(
                 agreementContract,
                 "UpdateAgreement"
             );
 
-            // const proof = await agreementContract.agreements(agreementId);
+            const proof = await agreementContract.agreements(agreementId);
 
-            // expect(await proof).deep.equal(expected);
+            expect(proof).deep.equal(expected);
         });
 
         it("should update agreement only rewardAmount property", async () => {
