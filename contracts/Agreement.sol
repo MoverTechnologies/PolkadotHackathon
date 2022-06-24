@@ -32,15 +32,15 @@ contract AgreementContract is
 
     // Mapping address to agreement id list
     // Founder and moderator have both the same agreementId
-    mapping(address => bytes32[]) public holderToIds;
+    mapping(address => bytes32[]) private _holderToIds;
 
     // Mapping agreementId(bytes32) to agreement detail
-    mapping(bytes32 => Agreement) public agreements;
+    mapping(bytes32 => Agreement) private _agreements;
 
     // Count total agreements that have been made
     // Incremented when agreement is created
     // Decremented when agreemenet is cancelled
-    CountersUpgradeable.Counter private totalAgreements;
+    CountersUpgradeable.Counter private _totalAgreements;
 
     bytes32 public constant AUTH_ROLE = keccak256("AUTH_ROLE");
 
@@ -49,13 +49,13 @@ contract AgreementContract is
      *************************************/
     modifier onlyFounder(bytes32 agreementId) {
         require(
-            agreements[agreementId].founder == msg.sender,
+            _agreements[agreementId].founder == msg.sender,
             "Not authorized"
         );
         _;
     }
     modifier agreementExists(bytes32 agreementId) {
-        require(agreements[agreementId].id > 0, "Agreement not exists");
+        require(_agreements[agreementId].id > 0, "Agreement not exists");
         _;
     }
 
@@ -100,12 +100,12 @@ contract AgreementContract is
         );
 
         // make sure there is no duplicated agreementIds
-        require(agreements[id].id != id, "agreementId already exists");
+        require(_agreements[id].id != id, "agreementId already exists");
 
-        holderToIds[msg.sender].push(id);
-        holderToIds[moderator].push(id);
+        _holderToIds[msg.sender].push(id);
+        _holderToIds[moderator].push(id);
 
-        agreements[id] = Agreement({
+        _agreements[id] = Agreement({
             id: id,
             daoName: daoName,
             startTime: startTime,
@@ -124,9 +124,9 @@ contract AgreementContract is
             endTime,
             vestingDuration
         );
-        pom.mintToken(moderator, agreements[id]);
+        pom.mintToken(moderator, _agreements[id]);
 
-        totalAgreements.increment();
+        _totalAgreements.increment();
 
         emit CreateAgreement(moderator, id);
     }
@@ -144,7 +144,7 @@ contract AgreementContract is
         uint32 endTime,
         uint256 rewardAmount
     ) external onlyFounder(agreementId) agreementExists(agreementId) {
-        Agreement storage agreement = agreements[agreementId];
+        Agreement storage agreement = _agreements[agreementId];
         if (startTime != 0) {
             agreement.startTime = startTime;
         }
@@ -170,10 +170,10 @@ contract AgreementContract is
         agreementExists(agreementId)
     {
         require(
-            block.timestamp > agreements[agreementId].endTime,
+            block.timestamp > _agreements[agreementId].endTime,
             "Contract not ended"
         );
-        Agreement storage agreement = agreements[agreementId];
+        Agreement storage agreement = _agreements[agreementId];
         agreement.isCompleted = true;
 
         pom.addReview(agreementId, review);
@@ -192,13 +192,13 @@ contract AgreementContract is
         view
         returns (Agreement[] memory)
     {
-        bytes32[] memory ids = holderToIds[holder];
-        Agreement[] memory _agreements = new Agreement[](ids.length);
+        bytes32[] memory ids = _holderToIds[holder];
+        Agreement[] memory agreements = new Agreement[](ids.length);
         for (uint256 i = 0; i < ids.length; i++) {
-            _agreements[i] = agreements[ids[i]];
+            agreements[i] = _agreements[ids[i]];
         }
 
-        return _agreements;
+        return agreements;
     }
 
     /**
@@ -212,7 +212,7 @@ contract AgreementContract is
         view
         returns (bytes32[] memory)
     {
-        return holderToIds[holder];
+        return _holderToIds[holder];
     }
 
     /**
@@ -226,11 +226,11 @@ contract AgreementContract is
         view
         returns (Agreement memory)
     {
-        return agreements[agreementId];
+        return _agreements[agreementId];
     }
 
     function getTotalAgreements() external view returns (uint256) {
-        return totalAgreements.current();
+        return _totalAgreements.current();
     }
 
     /*************************************
