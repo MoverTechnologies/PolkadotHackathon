@@ -2,7 +2,12 @@ import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import {ethers} from "hardhat";
-import {AgreementContract, PoM, Vesting, Token} from "../typechain";
+import {AgreementContract, PoM, Vesting} from "../typechain";
+import {
+    deployAgreementContract,
+    deployPoMContract,
+    deployVestingAndTokenContracts,
+} from "./helpers";
 
 const daoNameParam = ethers.utils.zeroPad(
     ethers.utils.toUtf8Bytes("daoName"),
@@ -13,7 +18,6 @@ describe("PoM", () => {
     let pomContract: PoM;
     let agreementContract: AgreementContract;
     let vestingContract: Vesting;
-    let tokenContract: Token;
     let owner: SignerWithAddress;
     let founder: SignerWithAddress;
     let moderator: SignerWithAddress;
@@ -22,30 +26,16 @@ describe("PoM", () => {
     let agreement: any;
 
     beforeEach(async () => {
-        const PoMContract = await ethers.getContractFactory("PoM");
-        pomContract = await PoMContract.deploy();
+        pomContract = await deployPoMContract();
 
         await pomContract.initialize("PoM", "POM", "BASE_URL");
 
-        // Deploy Token contract to use Vesting contract
-        const TokenContractFactory = await ethers.getContractFactory("Token");
-        tokenContract = await TokenContractFactory.deploy("New", "NEW");
-        await tokenContract.deployed();
-
-        // Deploy Vesting contract
-        const VestingContractFactory = await ethers.getContractFactory(
-            "Vesting"
-        );
-        vestingContract = await VestingContractFactory.deploy();
-        await vestingContract.initialize(tokenContract.address);
-        await vestingContract.deployed();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const contracts = await deployVestingAndTokenContracts();
+        vestingContract = contracts.vestingContract;
 
         // Deploy & initialize Agreement contract
-        const AgreementContractFactory = await ethers.getContractFactory(
-            "AgreementContract"
-        );
-        agreementContract = await AgreementContractFactory.deploy();
-        await agreementContract.deployed();
+        agreementContract = await deployAgreementContract();
         await agreementContract.initialize(
             pomContract.address,
             vestingContract.address

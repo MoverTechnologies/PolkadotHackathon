@@ -3,6 +3,11 @@ import {AgreementContract, PoM, Vesting, Token} from "../typechain";
 import {expect} from "chai";
 import {BigNumber} from "ethers";
 import {ethers, network} from "hardhat";
+import {
+    deployAgreementContract,
+    deployPoMContract,
+    deployVestingAndTokenContracts,
+} from "./helpers";
 
 const daoNameParam = ethers.utils.zeroPad(
     ethers.utils.toUtf8Bytes("daoName"),
@@ -26,30 +31,16 @@ describe("AgreementContract", function () {
     // WARNING: THIS METHOD HEAVILY RELIES ON VARIABLES DEFINED ABOVE AND THIS SCOPE
     const setUp = async () => {
         // Deploy & initilize PoM contract
-        pomContract = await ethers
-            .getContractFactory("PoM")
-            .then(async (res) => await res.deploy());
+        pomContract = await deployPoMContract();
         await pomContract.initialize("PoM", "POM", "BASE_URL");
 
-        // Deploy Token contract to use Vesting contract
-        const TokenContractFactory = await ethers.getContractFactory("Token");
-        tokenContract = await TokenContractFactory.deploy("New", "NEW");
-        await tokenContract.deployed();
-
-        // Deploy Vesting contract
-        const VestingContractFactory = await ethers.getContractFactory(
-            "Vesting"
-        );
-        vestingContract = await VestingContractFactory.deploy();
-        await vestingContract.initialize(tokenContract.address);
-        await vestingContract.deployed();
+        // Deploy token and vesting contracts
+        const contracts = await deployVestingAndTokenContracts();
+        tokenContract = contracts.tokenContract;
+        vestingContract = contracts.vestingContract;
 
         // Deploy & initialize Agreement contract
-        const AgreementContractFactory = await ethers.getContractFactory(
-            "AgreementContract"
-        );
-        agreementContract = await AgreementContractFactory.deploy();
-        await agreementContract.deployed();
+        agreementContract = await deployAgreementContract();
         await agreementContract.initialize(
             pomContract.address,
             vestingContract.address
@@ -96,33 +87,12 @@ describe("AgreementContract", function () {
 
     describe("initialize", () => {
         it("should set admin role to owner", async () => {
-            // Deploy & initilize PoM contract
-            pomContract = await ethers
-                .getContractFactory("PoM")
-                .then(async (res) => await res.deploy());
+            const contracts = await deployVestingAndTokenContracts();
+            vestingContract = contracts.vestingContract;
+            pomContract = await deployPoMContract();
             await pomContract.initialize("PoM", "POM", "BASE_URL");
 
-            // Deploy Token contract to use Vesting contract
-            const TokenContractFactory = await ethers.getContractFactory(
-                "Token"
-            );
-            tokenContract = await TokenContractFactory.deploy("New", "NEW");
-            await tokenContract.deployed();
-
-            // Deploy Vesting contract
-            const VestingContractFactory = await ethers.getContractFactory(
-                "Vesting"
-            );
-            vestingContract = await VestingContractFactory.deploy();
-            await vestingContract.initialize(tokenContract.address);
-            await vestingContract.deployed();
-
-            // Deploy & initialize Agreement contract
-            const AgreementContractFactory = await ethers.getContractFactory(
-                "AgreementContract"
-            );
-            agreementContract = await AgreementContractFactory.deploy();
-            await agreementContract.deployed();
+            agreementContract = await deployAgreementContract();
             await agreementContract.initialize(
                 pomContract.address,
                 vestingContract.address
