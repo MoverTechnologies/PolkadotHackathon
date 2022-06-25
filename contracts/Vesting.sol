@@ -82,12 +82,13 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         require(modVestingInfo.modAddress == msg.sender, "msg.sender must be modAddress");
         require(modVestingInfo.completed == false, "release: you already completed");
         uint256 releasable = releaseAmount(_proofId);
-        depositedToken.safeTransfer(msg.sender, releasable);
         modVestingInfo.released += releasable;
 
         if (modVestingInfo.amount == modVestingInfo.released) {
             modVestingInfo.completed = true;
         }
+
+        depositedToken.safeTransfer(msg.sender, releasable);
 
         emit Released(msg.sender, _proofId, releasable);
     }
@@ -111,8 +112,8 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     function revoke(bytes32 _proofId) public virtual {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
-        depositedToken.safeTransfer(address(msg.sender), modVestingInfo.amount);
         modVestingInfo.completed = true;
+        depositedToken.safeTransfer(address(msg.sender), modVestingInfo.amount);
         emit Revoked(msg.sender, _proofId);
     }
 
