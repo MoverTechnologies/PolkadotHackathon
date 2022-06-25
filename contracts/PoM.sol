@@ -1,6 +1,4 @@
 //SPDX-License-Identifier: 0BSD
-// Copyright Knot, inc.
-// Author tomo@knot.inc
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";

@@ -1,7 +1,4 @@
 //SPDX-License-Identifier: 0BSD
-// Copyright Knot, inc.
-// Author tomo@knot.inc
-
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
@@ -42,7 +39,7 @@ contract AgreementContract is
     // Decremented when agreemenet is cancelled
     CountersUpgradeable.Counter private _totalAgreements;
 
-    bytes32 public constant AUTH_ROLE = keccak256("AUTH_ROLE");
+    bytes32 private constant AUTH_ROLE = keccak256("AUTH_ROLE");
 
     /*************************************
      * Modifier
