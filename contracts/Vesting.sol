@@ -44,6 +44,14 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     );
 
     /*************************************
+     * Modifier
+     *************************************/
+    modifier proofExists(bytes32 _proofId) {
+        require(modInfoVesting[_proofId].founderAddress != address(0), "Proof doesn't exist");
+        _;
+    }
+
+    /*************************************
      * Functions
      *************************************/
     function initialize(
@@ -76,7 +84,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     }
 
     // mod が実行する
-    function release(bytes32 _proofId) public virtual {
+    function release(bytes32 _proofId) public virtual proofExists(_proofId) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         require(block.timestamp > modVestingInfo.jobEndTime, "now must be > jobEndTime");
         require(modVestingInfo.modAddress == msg.sender, "msg.sender must be modAddress");
@@ -93,7 +101,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         emit Released(msg.sender, _proofId, releasable);
     }
 
-    function releaseAmount(bytes32 _proofId) public view virtual returns (uint256) {
+    function releaseAmount(bytes32 _proofId) public view virtual proofExists(_proofId) returns (uint256) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         if (block.timestamp < modVestingInfo.jobEndTime) {
             return 0;
@@ -109,7 +117,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     }
 
     // founder が実行する（ここもコントラクトからの処理の可能性あり）
-    function revoke(bytes32 _proofId) public virtual {
+    function revoke(bytes32 _proofId) public virtual proofExists(_proofId) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
         modVestingInfo.completed = true;
