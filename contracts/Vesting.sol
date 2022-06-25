@@ -71,7 +71,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         require(_duration > 0, "duration must be > 0");
 
         depositedToken.safeTransferFrom(_founderAddress, address(this), _amount);
-
+        
         modInfoVesting[_proofId] = ModInfoVesting({
             founderAddress: _founderAddress,
             modAddress: _modAddress,
@@ -97,7 +97,6 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         }
 
         depositedToken.safeTransfer(msg.sender, releasable);
-
         emit Released(msg.sender, _proofId, releasable);
     }
 
@@ -121,6 +120,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
         modVestingInfo.completed = true;
+
         depositedToken.safeTransfer(address(msg.sender), modVestingInfo.amount);
         emit Revoked(msg.sender, _proofId);
     }
