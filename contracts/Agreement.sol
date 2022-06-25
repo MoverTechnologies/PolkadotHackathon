@@ -5,6 +5,7 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import {PoM} from "./PoM.sol";
 import {Vesting} from "./Vesting.sol";
@@ -13,6 +14,7 @@ import "./libs/SharedStructs.sol";
 contract AgreementContract is
     Initializable,
     AccessControlUpgradeable,
+    PausableUpgradeable,
     SharedStructs
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -231,14 +233,20 @@ contract AgreementContract is
     }
 
     /*************************************
-     ************* Admin Only ************
+     *  Admin
      *************************************/
-
-    function grantAuth(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setupRole(AUTH_ROLE, user);
+    /**
+     * @notice Changes _paused status to true
+     *         Prevents writing agreement states under emergency situations
+     */
+    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
     }
 
-    function revokeAuth(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _revokeRole(AUTH_ROLE, user);
+    /**
+     * @notice Changes _paused status to false
+     */
+    function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _unpause();
     }
 }
