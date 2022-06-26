@@ -10,6 +10,7 @@
         "size": "TS_NODE_TRANSPILE_ONLY=1 npx hardhat size-contracts",
         "test": "TS_NODE_TRANSPILE_ONLY=1 npx hardhat test",
         "abi": "npx hardhat export-abi --no-compile",
+        "slither": "slither ./contracts --solc-remaps '@openzeppelin=node_modules/@openzeppelin hardhat=node_modules/hardhat' --exclude naming-convention,external-function,low-level-calls --buidler-ignore-compile",
         "pow:rinkeby:deploy": "npx hardhat run --network rinkeby scripts/deploy-pow.ts",
         "proof:rinkeby:deploy": "npx hardhat run --network rinkeby scripts/deploy-proof.ts",
         "pow:matic:deploy": "ENV=prod npx hardhat run --network matic scripts/deploy-pow.ts",
