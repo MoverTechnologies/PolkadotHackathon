@@ -14,6 +14,9 @@ const daoNameParam = ethers.utils.zeroPad(
     22
 );
 
+const START_TIME = 1656676800; // 2022/7/1 12:00:00
+const END_TIME = 1659355200; // 2022/8/1 12:00:00
+
 describe("PoM", () => {
     let pomContract: PoM;
     let agreementContract: AgreementContract;
@@ -28,9 +31,8 @@ describe("PoM", () => {
     beforeEach(async () => {
         pomContract = await deployPoMContract();
 
-        await pomContract.initialize("PoM", "POM", "BASE_URL");
+        await pomContract.initialize("ProofOfModerate", "POM", "BASE_URL");
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const contracts = await deployVestingAndTokenContracts();
         vestingContract = contracts.vestingContract;
 
@@ -48,9 +50,8 @@ describe("PoM", () => {
         const agreementContractAddress =
             await agreementContract.signer.getAddress();
 
-        // For the testing purpose
-        // When production contract address should be given
-        // To see if this works fine in app, passing tests in agreement.test.ts should prove it
+        // For the testing purpose contract signer address is set
+        // When production, contract address should be given
         await pomContract.setAgreementContractAddress(agreementContractAddress);
 
         [owner, founder, moderator, ...otherSigners] =
@@ -58,8 +59,8 @@ describe("PoM", () => {
         agreement = {
             id: ethers.utils.formatBytes32String("agreementId"),
             daoName: daoNameParam,
-            startTime: BigNumber.from(1640592293),
-            endTime: BigNumber.from(1640592300),
+            startTime: BigNumber.from(START_TIME),
+            endTime: BigNumber.from(END_TIME),
             isCompleted: false,
             rewardAmount: BigNumber.from(10),
             founder: founder.address,
@@ -67,104 +68,94 @@ describe("PoM", () => {
         };
     });
 
-    // describe("initialize", () => {
-    //     it("should initialize", async () => {
-    //         await pomContract.initialize("ProofOfModerate", "PoM", "baseURI");
-    //         await expect(
-    //             await pomContract.hasRole(
-    //                 await pomContract.DEFAULT_ADMIN_ROLE(),
-    //                 owner.address
-    //             )
-    //         ).to.be.true;
-    //         expect(await pomContract.name()).to.equal("ProofOfModerate");
-    //         expect(await pomContract.symbol()).to.equal("PoM");
-    //         expect(await pomContract.getIsMintActive()).to.equal(true);
-    //     });
-    // });
+    describe("initialize", () => {
+        it("should initialize", async () => {
+            // Initialized in beforeEach
+            await expect(
+                await pomContract.hasRole(
+                    await pomContract.DEFAULT_ADMIN_ROLE(),
+                    owner.address
+                )
+            ).to.be.true;
+            expect(await pomContract.name()).to.equal("ProofOfModerate");
+            expect(await pomContract.symbol()).to.equal("POM");
+            expect(await pomContract.paused()).to.equal(false);
+        });
+    });
 
     describe("mintToken", () => {
         it("should mint token", async () => {
-            const result = await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, agreement);
+            const result = await pomContract.mintToken(
+                moderator.address,
+                agreement
+            );
+
+            await expect(await result).to.emit(pomContract, "Attest");
+
+            expect(await pomContract.balanceOf(moderator.address)).to.equal(1);
 
             const expected = [
                 founder.address,
-                1640592293,
-                1640592300,
+                START_TIME,
+                END_TIME,
                 "0x00000000000000000000000000000064616f4e616d65", // hex value of string "daoName"
                 BigNumber.from(10),
                 "",
             ];
-
-            await expect(await result).to.emit(pomContract, "MintPoM");
-
             const proof = await pomContract.getProofDetail(1);
-
-            expect(await pomContract.balanceOf(moderator.address)).to.equal(1);
             expect(proof).to.deep.equal(expected);
-        });
-
-        it("should leave review with empty string", async () => {
-            await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, agreement);
-
-            const proof = await pomContract.getProofDetail(1);
-            expect(proof.review).to.equal("");
         });
 
         it("should increment counter by 1", async () => {
             expect(await pomContract.totalSupply()).to.equal(0);
 
-            await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, agreement);
+            await pomContract.mintToken(moderator.address, agreement);
 
             expect(await pomContract.totalSupply()).to.equal(1);
         });
 
-        it("should revert if proofId already exists", async () => {
-            await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, agreement);
-
-            await expect(
-                pomContract
-                    .connect(agreementContract.signer)
-                    .mintToken(moderator.address, agreement)
-            ).to.be.revertedWith("ProofId exists");
-        });
-
-        it("should revert if isMintActive is false", async () => {
-            await pomContract.connect(owner).setIsMintActive(false);
+        it("should revert if paused", async () => {
+            await pomContract.connect(owner).pause();
 
             await expect(
                 pomContract.mintToken(moderator.address, agreement)
-            ).to.be.revertedWith("Mint not active");
+            ).to.be.revertedWith("Pausable: paused");
         });
 
-        it("should revert if not from Agreement contract", async () => {
-            await pomContract.connect(owner).setIsMintActive(false);
-
+        it("should revert if from an invalid caller", async () => {
             await expect(
                 pomContract
                     .connect(otherSigners[0])
                     .mintToken(moderator.address, agreement)
-            ).to.be.revertedWith("Mint not active");
+            ).to.be.revertedWith("Invalid caller");
+        });
+
+        it("should revert if mint to zero address", async () => {
+            await expect(
+                pomContract
+                    .connect(agreementContract.signer)
+                    .mintToken(ethers.constants.AddressZero, agreement)
+            ).to.be.revertedWith("Mint to the zero address");
+        });
+
+        it("should revert if proofId already exists", async () => {
+            await pomContract.mintToken(moderator.address, agreement);
+
+            await expect(
+                pomContract.mintToken(moderator.address, agreement)
+            ).to.be.revertedWith("ProofId exists");
         });
     });
 
     describe("addReview", () => {
         beforeEach(async () => {
-            await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, agreement);
+            await pomContract.mintToken(moderator.address, agreement);
         });
         it("should add review", async () => {
-            const result = await pomContract
-                .connect(agreementContract.signer)
-                .addReview(agreement.id, "this is review");
+            const result = await pomContract.addReview(
+                agreement.id,
+                "this is review"
+            );
 
             await expect(await result).to.emit(pomContract, "ModifiyPoM");
 
@@ -182,20 +173,27 @@ describe("PoM", () => {
             expect(await pomContract.totalSupply()).to.equal(1);
         });
 
-        it("should revert if not from Agreement contract", async () => {
+        it("should revert if from an invalid caller", async () => {
             await expect(
                 pomContract
                     .connect(otherSigners[0])
                     .addReview(agreement.id, "this is review")
-            ).to.be.revertedWith("Not authorized");
+            ).to.be.revertedWith("Invalid caller");
+        });
+
+        it("should revert if token does not exist", async () => {
+            await expect(
+                pomContract.addReview(
+                    ethers.utils.formatBytes32String("randomAgreemendId"),
+                    "this is review"
+                )
+            ).to.be.revertedWith("ERC4973: invalid token ID");
         });
     });
 
     describe("burnToken", () => {
         beforeEach(async () => {
-            await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, agreement);
+            await pomContract.mintToken(moderator.address, agreement);
         });
 
         it("should burn token", async () => {
@@ -205,28 +203,26 @@ describe("PoM", () => {
                 .connect(founder)
                 .burnToken(agreement.id);
 
-            await expect(await result).to.emit(pomContract, "BurnPoM");
+            await expect(await result).to.emit(pomContract, "Revoke");
 
             expect(await pomContract.balanceOf(moderator.address)).to.equal(0);
             await expect(pomContract.getProofDetail(1)).to.be.revertedWith(
                 "Proof doesn't exist"
             );
             await expect(pomContract.tokenID(agreement.id)).to.be.revertedWith(
-                "Token doesn't exist"
+                "Invalid proofId"
             );
-            expect(
-                await pomContract.getAllTokenIds(moderator.address)
-            ).to.deep.equal([]);
+            await expect(
+                pomContract.getAllTokenIds(moderator.address)
+            ).to.be.revertedWith("No tokens");
         });
 
         it("should return token if they have other tokens after one burnt", async () => {
+            // Add another token
             const secondAgreement = Object.assign({}, agreement);
             secondAgreement.id =
-                ethers.utils.formatBytes32String("secondToken");
-            // Add another token
-            await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, secondAgreement);
+                ethers.utils.formatBytes32String("secondAgreementId");
+            await pomContract.mintToken(moderator.address, secondAgreement);
 
             expect(await pomContract.balanceOf(moderator.address)).to.equal(2);
             expect(
@@ -237,21 +233,26 @@ describe("PoM", () => {
                 .connect(founder)
                 .burnToken(agreement.id);
 
-            await expect(await result).to.emit(pomContract, "BurnPoM");
+            expect(result).to.emit(pomContract, "Revoke");
+            expect(await pomContract.balanceOf(moderator.address)).to.equal(1);
 
+            // Check token related to agreement1
+            await expect(pomContract.getProofDetail(1)).to.be.revertedWith(
+                "Proof doesn't exist"
+            );
+            await expect(pomContract.tokenID(agreement.id)).to.be.revertedWith(
+                "Invalid proofId"
+            );
+
+            // Check token related to second agreement
             const remainedProof = [
                 founder.address,
-                1640592293, // startTime
-                1640592300, // endTime
+                START_TIME, // startTime
+                END_TIME, // endTime
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes hash of "daoName"
                 BigNumber.from(10), // rewardAmount
                 "", // review
             ];
-
-            expect(await pomContract.balanceOf(moderator.address)).to.equal(1);
-            await expect(pomContract.getProofDetail(1)).to.be.revertedWith(
-                "Proof doesn't exist"
-            );
             expect(await pomContract.getProofDetail(2)).to.deep.equal(
                 remainedProof
             );
@@ -264,11 +265,18 @@ describe("PoM", () => {
             ).to.deep.equal([BigNumber.from(2)]);
         });
 
-        it("should decrement count", async () => {
+        it("should decrement total count", async () => {
             expect(await pomContract.totalSupply()).to.equal(1);
 
             await pomContract.connect(founder).burnToken(agreement.id);
             expect(await pomContract.totalSupply()).to.equal(0);
+        });
+
+        it("should revert if paused", async () => {
+            await pomContract.pause();
+            await expect(
+                pomContract.connect(founder).burnToken(agreement.id)
+            ).to.be.revertedWith("Pausable: paused");
         });
 
         it("should revert if not founder", async () => {
@@ -288,8 +296,8 @@ describe("PoM", () => {
         it("should return proofDetail", async () => {
             const expected = [
                 founder.address,
-                1640592293, // startTime
-                1640592300, // endTime
+                START_TIME, // startTime
+                END_TIME, // endTime
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes hash of "daoName"
                 BigNumber.from(10), // rewardAmount
                 "", // review
@@ -324,19 +332,16 @@ describe("PoM", () => {
             ).to.deep.equal(expected);
         });
 
-        it("should return empty array[]", async () => {
-            const expected = [];
+        it("should revert if holder has no tokens", async () => {
             await expect(
-                await pomContract.getAllTokenIds(moderator.address)
-            ).to.deep.equal(expected);
+                pomContract.getAllTokenIds(moderator.address)
+            ).to.be.revertedWith("No tokens");
         });
     });
 
     describe("tokenID", () => {
         beforeEach(async () => {
-            await pomContract
-                .connect(agreementContract.signer)
-                .mintToken(moderator.address, agreement);
+            await pomContract.mintToken(moderator.address, agreement);
         });
 
         it("should return tokenID", async () => {
@@ -349,7 +354,84 @@ describe("PoM", () => {
                 pomContract.tokenID(
                     ethers.utils.formatBytes32String("randomAgreementId")
                 )
-            ).to.be.revertedWith("Token doesn't exist");
+            ).to.be.revertedWith("Invalid proofId");
+        });
+    });
+
+    describe("getAgreementContractAddress", () => {
+        it("should return agreementContractAddress", async () => {
+            await pomContract.setAgreementContractAddress(
+                otherSigners[0].address
+            );
+            expect(await pomContract.getAgreementContractAddress()).to.equal(
+                otherSigners[0].address
+            );
+        });
+    });
+
+    describe("setAgreementContractAddress", () => {
+        it("should change agreementContractAddress", async () => {
+            expect(await pomContract.getAgreementContractAddress()).to.equal(
+                owner.address
+            );
+
+            await pomContract.setAgreementContractAddress(
+                otherSigners[0].address
+            );
+            expect(await pomContract.getAgreementContractAddress()).to.equal(
+                otherSigners[0].address
+            );
+        });
+
+        it("should revert if not admin", async () => {
+            await expect(
+                pomContract
+                    .connect(otherSigners[0])
+                    .setAgreementContractAddress(otherSigners[0].address)
+            ).to.be.reverted;
+        });
+    });
+
+    describe("pause", () => {
+        it("should pause", async () => {
+            expect(await pomContract.paused()).to.equal(false);
+            await pomContract.connect(owner).pause();
+            expect(await pomContract.paused()).to.equal(true);
+        });
+
+        it("should revert if not admin", async () => {
+            await expect(pomContract.connect(otherSigners[0]).pause()).to.be
+                .reverted;
+        });
+
+        it("should revert if already paused", async () => {
+            pomContract.connect(owner).pause();
+            await expect(pomContract.connect(owner).pause()).to.be.revertedWith(
+                "Pausable: paused"
+            );
+        });
+    });
+
+    describe("unpause", () => {
+        beforeEach(async () => {
+            await pomContract.pause();
+        });
+        it("should unpause", async () => {
+            expect(await pomContract.paused()).to.equal(true);
+            await pomContract.unpause();
+            expect(await pomContract.paused()).to.equal(false);
+        });
+
+        it("should revert if not admin", async () => {
+            await expect(pomContract.connect(otherSigners[0]).unpause()).to.be
+                .reverted;
+        });
+
+        it("should revert if already unpaused", async () => {
+            await pomContract.connect(owner).unpause();
+            await expect(
+                pomContract.connect(owner).unpause()
+            ).to.be.revertedWith("Pausable: not paused");
         });
     });
 
