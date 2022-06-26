@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import "./libs/ERC4973Upgradeable.sol";
 import "./libs/SharedStructs.sol";
@@ -15,6 +16,7 @@ contract PoM is
     ERC4973Upgradeable,
     AccessControlUpgradeable,
     ReentrancyGuardUpgradeable,
+    PausableUpgradeable,
     SharedStructs
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -28,11 +30,8 @@ contract PoM is
     // Last Used id (used to generate new token ids)
     uint256 private _lastId;
 
-    // mint status
-    bool private _isMintActive;
-
     // Agreement contract address
-    // To restrict minting function to its address
+    // To restrict minting function to this address
     address private _agreementContractAddress;
 
     // actualTokenURI for each tokenId
@@ -60,16 +59,8 @@ contract PoM is
         );
         _;
     }
-    modifier proofIdNotExists(bytes32 proofId) {
-        require(!(_proofIdToTokenId[proofId] > 0), "ProofId exists");
-        _;
-    }
-    modifier proofExists(uint256 tokenId) {
-        require(_proofs[tokenId].founder != address(0), "Proof doesn't exist");
-        _;
-    }
-    modifier tokenExists(bytes32 proofId) {
-        require(_proofIdToTokenId[proofId] > 0, "Token doesn't exist");
+    modifier onlyFromAgreement() {
+        require(_agreementContractAddress == msg.sender, "Invalid caller");
         _;
     }
 
@@ -84,104 +75,45 @@ contract PoM is
         __ERC4973_init(_name, _symbol);
         __AccessControl_init();
         __ReentrancyGuard_init();
+        __Pausable_init();
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _baseURIForPoM = _baseURI;
-        _isMintActive = true;
-    }
-
-    /**
-     * @dev Gets the token uri
-     * @return string representing the token uri
-     */
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
-        return _strConcat(_baseURIForPoM, _actualTokenURI[tokenId]);
-    }
-
-    /**
-     * @dev Gets the tokenId
-     * @return tokenId from proofId
-     */
-    function tokenID(bytes32 proofId)
-        public
-        view
-        tokenExists(proofId)
-        returns (uint256)
-    {
-        return _proofIdToTokenId[proofId];
     }
 
     /**
      * @notice agreement.id is equivalent to proofId
-     *         Only allows founder to call
+     *         Only allows Agreement contract to call
      * @dev Function to mint tokens
      * @param to The address that will receive the minted tokens.
      * @param agreement agreement details to store in proof
-     * @return A boolean that indicates if the operation was successful.
+     *         emit Event Atest(to address, tokenId uint256)
      */
     function mintToken(address to, Agreement calldata agreement)
         external
         nonReentrant
-        proofIdNotExists(agreement.id)
-        returns (bool)
+        whenNotPaused
+        onlyFromAgreement
     {
-        require(_isMintActive, "Mint not active");
-        require(_agreementContractAddress == msg.sender, "Not authorized");
+        require(to != address(0), "Mint to the zero address");
+        require(!(_proofIdToTokenId[agreement.id] > 0), "ProofId exists");
 
         _lastId += 1;
-        return _mintToken(_lastId, to, agreement);
+        counter.increment();
+
+        _mintToken(_lastId, to, agreement);
     }
 
     /**
-     * @dev Function to set baseURI
-     * @param baseURI baseURI e.g. "https://mover.com/pom/"
+     * @dev Creates proof info accosiated with tokenId
+     * @param tokenId uint256
+     * @param to address, token holder
+     * @param agreement Agreement, agreement info that will stored in proof
      */
-    function setBaseURI(string memory baseURI) public {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Not authorized");
-        _baseURIForPoM = baseURI;
-    }
-
-    /**
-     * @dev Set mint activity. Pause mint in case of hack
-     * @param isMintActive mint activity
-     */
-    function setIsMintActive(bool isMintActive) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Not authorized");
-        _isMintActive = isMintActive;
-    }
-
-    function getIsMintActive() external view returns (bool) {
-        return _isMintActive;
-    }
-
-    function setAgreementContractAddress(address contractAddr) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Not authorized");
-        _agreementContractAddress = contractAddr;
-    }
-
-    function totalSupply() external view returns (uint256) {
-        return counter.current();
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC4973Upgradeable, AccessControlUpgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-
     function _mintToken(
         uint256 tokenId,
         address to,
         Agreement memory agreement
-    ) private returns (bool) {
+    ) private {
         // _actualTokenURI[tokenId] = agreement.id;
         _proofIdToTokenId[agreement.id] = tokenId;
         _holderToTokenIds[to].push(tokenId);
@@ -195,11 +127,6 @@ contract PoM is
         });
 
         _safeMint(to, tokenId);
-
-        counter.increment();
-        emit MintPoM(tokenId, to);
-
-        return true;
     }
 
     /**
@@ -207,10 +134,13 @@ contract PoM is
      * @param proofId bytes32, proofId equal to agreementId
      * @param review string, review about moderator's work
      */
-    function addReview(bytes32 proofId, string memory review) external {
-        require(_agreementContractAddress == msg.sender, "Not authorized");
-
+    function addReview(bytes32 proofId, string memory review)
+        external
+        onlyFromAgreement
+    {
         uint256 tokenId = _proofIdToTokenId[proofId];
+        _requireMinted(tokenId);
+
         Proof storage proof = _proofs[tokenId];
         proof.review = review;
         emit ModifiyPoM(tokenId, ownerOf(tokenId));
@@ -220,22 +150,24 @@ contract PoM is
      * @notice Only founder, NOT moderator (holder), can burn the token
      * @dev Burns token
      * @param proofId bytes32, proofId equal to agreementId
+     * onlyFounder checks its caller and existence of proof
      */
     function burnToken(bytes32 proofId)
         external
-        tokenExists(proofId)
+        whenNotPaused
         onlyFounder(proofId)
     {
         uint256 tokenId = _proofIdToTokenId[proofId];
+
         address holder = ownerOf(tokenId);
-        burn(tokenId);
 
         // Delete tokenId and proof info stored in storage
         delete _proofs[tokenId];
         delete _proofIdToTokenId[proofId];
         removeTokenFromAddress(holder, tokenId);
+
         counter.decrement();
-        emit BurnPoM(tokenId, holder);
+        _burn(tokenId);
     }
 
     /**
@@ -243,30 +175,13 @@ contract PoM is
      * @dev Burns token
      * @param tokenId uint256, tokenId
      */
-    function burn(uint256 tokenId) public override {
-        require(msg.sender == _proofs[tokenId].founder, "Not authorized");
-
-        _burn(tokenId);
+    function burn(uint256 tokenId) public view override {
+        require(msg.sender == address(0), "Method prohibited");
     }
 
-    /**
-     * @dev Remove tokenId from token id array associated with holder address
-     * @param holder address, holder address
-     * @param tokenId uint256, tokenId
-     */
-    function removeTokenFromAddress(address holder, uint256 tokenId) private {
-        uint256[] storage tokenIds = _holderToTokenIds[holder];
-        int256 index = findIndexOfTokenId(tokenIds, tokenId);
-
-        require(index >= 0, "Token does not exist");
-
-        for (uint256 i = uint256(index); i < tokenIds.length - 1; i++) {
-            tokenIds[i] = tokenIds[i + 1];
-        }
-
-        // remove duplicated last two elements from the above loop
-        tokenIds.pop();
-    }
+    /*************************************
+     *  View Functions
+     *************************************/
 
     /**
      * @dev Returns proof details accociated with tokenId
@@ -276,14 +191,14 @@ contract PoM is
     function getProofDetail(uint256 tokenId)
         external
         view
-        proofExists(tokenId)
         returns (Proof memory)
     {
+        require(_proofs[tokenId].founder != address(0), "Proof doesn't exist");
         return _proofs[tokenId];
     }
 
     /**
-     * @dev Remove tokenId from token id array associated with holder address
+     * @dev Returns token id array associated with holder address
      * @param holder address, holder address
      * @return tokenId array uint256[], tokenId
      */
@@ -292,7 +207,55 @@ contract PoM is
         view
         returns (uint256[] memory)
     {
+        require(_holderToTokenIds[holder].length > 0, "No tokens");
         return _holderToTokenIds[holder];
+    }
+
+    /**
+     * @dev Gets the tokenId
+     * @param proofId bytes32, proof id (equivalent to agreementId)
+     * @return tokenId from proofId
+     */
+    function tokenID(bytes32 proofId) external view returns (uint256) {
+        if (!_exists(_proofIdToTokenId[proofId])) {
+            revert("Invalid proofId");
+        }
+        return _proofIdToTokenId[proofId];
+    }
+
+    /**
+     * @dev Returns Agreement contract address
+     */
+    function getAgreementContractAddress() external view returns (address) {
+        return _agreementContractAddress;
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC4973Upgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    function totalSupply() external view returns (uint256) {
+        return counter.current();
+    }
+
+    /**
+     * @dev Gets the token uri
+     * @return string representing the token uri
+     */
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        _requireMinted(tokenId);
+        return _strConcat(_baseURIForPoM, _actualTokenURI[tokenId]);
     }
 
     /*************************************
@@ -325,13 +288,33 @@ contract PoM is
 
     /**
      * @dev Remove tokenId from token id array associated with holder address
+     * @param holder address, holder address
+     * @param tokenId uint256, tokenId
+     */
+    function removeTokenFromAddress(address holder, uint256 tokenId) private {
+        uint256[] storage tokenIds = _holderToTokenIds[holder];
+        int256 index = findIndexOfTokenId(_holderToTokenIds[holder], tokenId);
+
+        require(index >= 0, "Token does not exist");
+
+        for (uint256 i = uint256(index); i < tokenIds.length - 1; i++) {
+            tokenIds[i] = tokenIds[i + 1];
+        }
+
+        // Remove duplicated last two elements from the above loop
+        tokenIds.pop();
+    }
+
+    /**
+     * @dev Remove tokenId from token id array associated with holder address
      * @param array uint256[], token id list
      * @param tokenId utin256, tokenId that should be removed
      * @return index number int256, index of tokenId that will be removed
+     *               will return -1 if not token index found
      */
-    function findIndexOfTokenId(uint256[] storage array, uint256 tokenId)
+    function findIndexOfTokenId(uint256[] memory array, uint256 tokenId)
         private
-        view
+        pure
         returns (int256)
     {
         for (uint256 i = 0; i < array.length; i++) {
@@ -341,5 +324,45 @@ contract PoM is
         }
 
         return -1;
+    }
+
+    /*************************************
+     *  Admin
+     *************************************/
+
+    /**
+     * @dev Sets the Agreement contract address to allow it to mint token
+     * @param contractAddr address, AgreeemntContract address
+     */
+    function setAgreementContractAddress(address contractAddr)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        _agreementContractAddress = contractAddr;
+    }
+
+    /**
+     * @dev Function to set baseURI
+     * @param baseURI baseURI e.g. "https://mover.com/pom/"
+     */
+    function setBaseURI(string memory baseURI)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        _baseURIForPoM = baseURI;
+    }
+
+    /**
+     * @notice Changes _paused status to true under emergency situations
+     */
+    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
+    }
+
+    /**
+     * @notice Changes _paused status to false
+     */
+    function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _unpause();
     }
 }

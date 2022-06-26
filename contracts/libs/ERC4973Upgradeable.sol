@@ -112,8 +112,6 @@ abstract contract ERC4973Upgradeable is
     /**
      * @dev Returns whether `tokenId` exists.
      *
-     * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
-     *
      * Tokens start existing when they are minted (`_mint`),
      * and stop existing when they are burned (`_burn`).
      */
@@ -229,7 +227,7 @@ abstract contract ERC4973Upgradeable is
                 : "";
     }
 
-    function burn(uint256 _tokenId) public virtual override {
+    function burn(uint256 _tokenId) external virtual override {
         _burn(_tokenId);
     }
 
