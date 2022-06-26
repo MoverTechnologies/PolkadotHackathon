@@ -57,6 +57,7 @@ contract AgreementContract is
      *************************************/
     function initialize(address _pom, address _vesting) public initializer {
         __AccessControl_init();
+        __Pausable_init();
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         pom = PoM(_pom);
         vesting = Vesting(_vesting);
