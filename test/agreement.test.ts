@@ -9,12 +9,13 @@ import {
     deployVestingAndTokenContracts,
 } from "./helpers";
 
-const daoNameParam = ethers.utils.zeroPad(
+const DAO_NAME_PARAM = ethers.utils.zeroPad(
     ethers.utils.toUtf8Bytes("daoName"),
     22
 );
-
-const date = Math.floor(new Date().getTime() / 1000);
+const START_TIME = 1656676800; // 2022/7/1 12:00:00
+const END_TIME = 1659355200; // 2022/8/1 12:00:00
+const ETHER_10 = ethers.utils.parseEther("10");
 
 describe("AgreementContract", function () {
     let agreementContract: AgreementContract;
@@ -67,6 +68,7 @@ describe("AgreementContract", function () {
             latestBlock.timestamp + 100,
         ]);
 
+        // Create agreement id based on above block time and other info
         const hash = ethers.utils.solidityPack(
             ["address", "address", "uint256", "bytes32"],
             [
@@ -76,7 +78,6 @@ describe("AgreementContract", function () {
                 latestBlock.hash,
             ]
         );
-
         agreementId = ethers.utils.keccak256(hash);
     };
 
@@ -120,10 +121,10 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
-                    ethers.utils.parseEther("10"),
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
+                    ETHER_10,
                     5184000
                 );
 
@@ -142,8 +143,8 @@ describe("AgreementContract", function () {
             const expected = [
                 id,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                1640592293,
-                date + 2000,
+                START_TIME,
+                END_TIME,
                 false,
                 ethers.utils.parseEther("10"),
                 founder.address,
@@ -164,9 +165,9 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -182,9 +183,9 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -193,27 +194,93 @@ describe("AgreementContract", function () {
         });
 
         it("should increase id count by 1 for both founder and moderator", async () => {
-            let founderIds = await agreementContract.getAllIds(founder.address);
-            let moderatorIds = await agreementContract.getAllIds(
-                moderator.address
-            );
-            expect(founderIds.length).to.be.equal(0);
-            expect(moderatorIds.length).to.be.equal(0);
+            // Reverts when holders have no agreementIds
+            await expect(agreementContract.getAllIds(founder.address)).to.be
+                .reverted;
+            await expect(agreementContract.getAllIds(moderator.address)).to.be
+                .reverted;
 
             await agreementContract
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
-            founderIds = await agreementContract.getAllIds(founder.address);
-            moderatorIds = await agreementContract.getAllIds(moderator.address);
+            const founderIds = await agreementContract.getAllIds(
+                founder.address
+            );
+            const moderatorIds = await agreementContract.getAllIds(
+                moderator.address
+            );
             expect(founderIds.length).to.be.equal(1);
             expect(moderatorIds.length).to.be.equal(1);
+        });
+
+        it("should revert if it is to address zero", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
+            await network.provider.send("evm_setNextBlockTimestamp", [
+                latestBlock.timestamp + 100,
+            ]);
+            // await ethers.provider.incr
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .createAgreement(
+                        ethers.constants.AddressZero,
+                        DAO_NAME_PARAM,
+                        START_TIME,
+                        END_TIME,
+                        ETHER_10,
+                        5184000
+                    )
+            ).to.be.revertedWith("moderator is the zero address");
+        });
+
+        it("should revert if current time is after startTime", async () => {
+            await expect(
+                agreementContract.connect(founder).createAgreement(
+                    moderator.address,
+                    DAO_NAME_PARAM,
+                    1625140800, // 2021/7/1 12:00:00
+                    END_TIME,
+                    ETHER_10,
+                    5184000
+                )
+            ).to.be.revertedWith("startTime must be after now");
+        });
+
+        it("should revert if startTime is after endTime", async () => {
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .createAgreement(
+                        moderator.address,
+                        DAO_NAME_PARAM,
+                        END_TIME,
+                        START_TIME,
+                        ETHER_10,
+                        5184000
+                    )
+            ).to.be.revertedWith("endTime must be after startTime");
+        });
+
+        it("should revert if rewardAmount is 0", async () => {
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .createAgreement(
+                        moderator.address,
+                        DAO_NAME_PARAM,
+                        START_TIME,
+                        END_TIME,
+                        0,
+                        5184000
+                    )
+            ).to.be.revertedWith("rewardAmount must be > 0");
         });
     });
 
@@ -224,9 +291,9 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -236,16 +303,16 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .updateAgreement(
                     agreementId,
-                    1640592294,
-                    1640592301,
+                    START_TIME + 100,
+                    END_TIME + 100,
                     ethers.utils.parseEther("12")
                 );
 
             const expected = [
                 agreementId,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                1640592294,
-                1640592301,
+                START_TIME + 100,
+                END_TIME + 100,
                 false,
                 ethers.utils.parseEther("12"),
                 founder.address,
@@ -267,14 +334,14 @@ describe("AgreementContract", function () {
         it("should update agreement only rewardAmount property", async () => {
             await agreementContract.connect(founder).updateAgreement(
                 agreementId,
-                0, // startTime property
-                0, // endTime property
+                0, // startTime param
+                0, // endTime param
                 12
             );
 
             const expected = {
-                startTime: BigNumber.from(1640592293),
-                endTime: BigNumber.from(date + 2000),
+                startTime: BigNumber.from(START_TIME),
+                endTime: BigNumber.from(END_TIME),
                 rewardAmount: BigNumber.from(12),
             };
 
@@ -290,28 +357,31 @@ describe("AgreementContract", function () {
         it("should update agreement only startTime and endTime properties", async () => {
             let proof = await agreementContract.getAgreementDetail(agreementId);
 
-            expect(proof.startTime).equal(BigNumber.from(1640592293));
-            expect(proof.endTime).equal(BigNumber.from(date + 2000));
+            expect(proof.startTime).equal(BigNumber.from(START_TIME));
+            expect(proof.endTime).equal(BigNumber.from(END_TIME));
             expect(proof.rewardAmount).equal(ethers.utils.parseEther("10"));
 
             await agreementContract.connect(founder).updateAgreement(
                 agreementId,
-                1640592295,
-                1640592304,
+                START_TIME + 100,
+                END_TIME + 100,
                 0 // rewardAmount property
             );
 
-            const expected = {
-                startTime: BigNumber.from(1640592295),
-                endTime: BigNumber.from(1640592304),
-                rewardAmount: ethers.utils.parseEther("10"),
-            };
-
             proof = await agreementContract.getAgreementDetail(agreementId);
 
-            expect(await proof.startTime).equal(expected.startTime);
-            expect(await proof.endTime).equal(expected.endTime);
-            expect(await proof.rewardAmount).equal(expected.rewardAmount);
+            expect(proof.startTime).equal(START_TIME + 100);
+            expect(proof.endTime).equal(END_TIME + 100);
+            expect(proof.rewardAmount).equal(ethers.utils.parseEther("10"));
+        });
+
+        it("should revert if paused", async () => {
+            await agreementContract.connect(owner).pause();
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .updateAgreement(agreementId, 0, 0, 12)
+            ).to.be.revertedWith("Pausable: paused");
         });
 
         it("should revert if called by not the founder", async () => {
@@ -322,15 +392,85 @@ describe("AgreementContract", function () {
             ).to.be.revertedWith("Not authorized");
         });
 
-        it("should revert if agreement does not exists", async () => {
+        it("should revert if agreement does not exist", async () => {
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .updateAgreement(
+                        ethers.utils.keccak256(
+                            ethers.utils.solidityPack(
+                                ["string"],
+                                ["randomAgreemendId"]
+                            )
+                        ),
+                        1640592294,
+                        1640592301,
+                        12
+                    )
+            ).to.be.revertedWith("Not authorized");
+        });
+
+        it("should revert if start time is set before current time", async () => {
+            // move the time forward
+            await ethers.provider.send("evm_increaseTime", [2678400]);
+            await ethers.provider.send("evm_mine", []);
+
             await expect(
                 agreementContract.connect(founder).updateAgreement(
-                    ethers.utils.formatBytes32String("agreementId"), // generate random agreementId
-                    1640592294,
-                    1640592301,
+                    agreementId,
+                    START_TIME + 100,
+                    0, // 2022/6/1 12:00:00
+                    0
+                )
+            ).to.be.revertedWith("startTime must be after now");
+
+            // Move the time to normal
+            await ethers.provider.send("evm_increaseTime", [-2678400]);
+            await ethers.provider.send("evm_mine", []);
+        });
+
+        it("should revert if startTime is before currenct block time", async () => {
+            await expect(
+                agreementContract.connect(founder).updateAgreement(
+                    agreementId,
+                    1625140800, // 2021/7/1 12:00:00
+                    END_TIME + 100,
                     12
                 )
-            ).to.be.revertedWith("Not authorized");
+            ).to.be.revertedWith("startTime must be after now");
+        });
+
+        it("should revert if starTime is after endTime already set", async () => {
+            await expect(
+                agreementContract.connect(founder).updateAgreement(
+                    agreementId,
+                    1688212800, // 2023/7/1 12:00:00
+                    0,
+                    0
+                )
+            ).to.be.revertedWith("startTime must be before endTime set");
+        });
+
+        it("should revert if endTime is before startTime param", async () => {
+            await expect(
+                agreementContract.connect(founder).updateAgreement(
+                    agreementId,
+                    1688212800, // 2023/7/1 12:00:00
+                    1685620800, // 2023/6/1 12:00:00
+                    0
+                )
+            ).to.be.revertedWith("startTime must be before endTime");
+        });
+
+        it("should revert if endTime is before startTime already set", async () => {
+            await expect(
+                agreementContract.connect(founder).updateAgreement(
+                    agreementId,
+                    0,
+                    1654084800, // 2022/6/1 12:00:00
+                    0
+                )
+            ).to.be.revertedWith("endTime must be after startTime");
         });
     });
 
@@ -341,17 +481,17 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
-            await ethers.provider.send("evm_increaseTime", [12000]);
+            await ethers.provider.send("evm_increaseTime", [3199178]);
             await ethers.provider.send("evm_mine", []);
         });
         afterEach(async () => {
-            await ethers.provider.send("evm_increaseTime", [-12000]);
+            await ethers.provider.send("evm_increaseTime", [-3199178]);
             await ethers.provider.send("evm_mine", []);
         });
         it("should complete agreement", async () => {
@@ -366,8 +506,8 @@ describe("AgreementContract", function () {
             const expected = [
                 agreementId,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                1640592293,
-                date + 2000,
+                START_TIME,
+                END_TIME,
                 true, // isCompleted property
                 ethers.utils.parseEther("10"),
                 founder.address,
@@ -395,6 +535,19 @@ describe("AgreementContract", function () {
                     .completeAgreement(agreementId, "this is review")
             ).to.be.revertedWith("Contract not ended");
         });
+
+        it("should revert if agreement has already completed", async () => {
+            // Set time much later than current block time
+            await agreementContract
+                .connect(founder)
+                .completeAgreement(agreementId, "this is review");
+
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .completeAgreement(agreementId, "this is review")
+            ).to.be.revertedWith("Agreement already completed");
+        });
     });
 
     describe("getAllAgreements", () => {
@@ -404,9 +557,9 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -426,9 +579,9 @@ describe("AgreementContract", function () {
                 .connect(otherSigners[0])
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("12"),
                     5184000
                 );
@@ -443,8 +596,8 @@ describe("AgreementContract", function () {
             const expected = [
                 agreementId,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                1640592293,
-                date + 2000,
+                START_TIME,
+                END_TIME,
                 false, // isCompleted property
                 ethers.utils.parseEther("10"),
                 founder.address,
@@ -466,11 +619,12 @@ describe("AgreementContract", function () {
             await expect(founderResult2.length).equal(1);
         });
 
-        it("should return 0 agreement if address does not hold agreements", async () => {
-            const result = await agreementContract
-                .connect(otherSigners[1])
-                .getAllAgreements(otherSigners[1].address);
-            await expect(result.length).equal(0);
+        it("should revert if address does not hold agreements", async () => {
+            await expect(
+                agreementContract
+                    .connect(otherSigners[1])
+                    .getAllAgreements(otherSigners[1].address)
+            ).to.be.revertedWith("Agreement not exists");
         });
     });
 
@@ -482,9 +636,9 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -504,9 +658,9 @@ describe("AgreementContract", function () {
                 .connect(otherSigners[0])
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 2000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -516,7 +670,7 @@ describe("AgreementContract", function () {
             const result = await agreementContract
                 .connect(moderator)
                 .getAllIds(moderator.address);
-            await expect(result.length).equal(2);
+            expect(result.length).equal(2);
         });
 
         it("should return 1 id for founder and another founder", async () => {
@@ -527,14 +681,15 @@ describe("AgreementContract", function () {
             const founderResult2 = await agreementContract
                 .connect(otherSigners[0])
                 .getAllIds(otherSigners[0].address);
-            await expect(founderResult2.length).equal(1);
+            expect(founderResult2.length).equal(1);
         });
 
-        it("should return 0 id if address does not hold agreements", async () => {
-            const result = await agreementContract
-                .connect(otherSigners[1])
-                .getAllIds(otherSigners[1].address);
-            await expect(result.length).equal(0);
+        it("should reverts if address does not hold agreements", async () => {
+            await expect(
+                agreementContract
+                    .connect(otherSigners[1])
+                    .getAllIds(otherSigners[1].address)
+            ).to.be.revertedWith("Agreement not exists");
         });
     });
 
@@ -554,14 +709,14 @@ describe("AgreementContract", function () {
                 );
         });
 
-        it("should return 2 after 2 agreements are made", async () => {
+        it("should return 2 after 2 agreements are created", async () => {
             await agreementContract
                 .connect(founder)
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 12000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -570,90 +725,104 @@ describe("AgreementContract", function () {
                 .connect(otherSigners[0])
                 .createAgreement(
                     moderator.address,
-                    daoNameParam,
-                    1640592293,
-                    date + 12000,
+                    DAO_NAME_PARAM,
+                    START_TIME,
+                    END_TIME,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
             const result = await agreementContract
                 .connect(moderator)
                 .getTotalAgreements();
-            await expect(result).equal(2);
+            expect(result).equal(2);
         });
 
-        it("should return 0 if no agreements are made", async () => {
+        it("should return 0 if no agreements are created", async () => {
             const result = await agreementContract
                 .connect(moderator)
                 .getTotalAgreements();
-            await expect(result).equal(0);
+            expect(result).equal(0);
         });
     });
 
-    describe("forked methods", () => {
-        const adminErrorMessage = (address: string, role: string) =>
-            `AccessControl: account ${address.toLowerCase()} is missing role ${role}`;
-        describe("grantAuth", () => {
-            beforeEach(async () => {
-                await setUp();
-            });
-            it("should set AUTH_ROLE", async () => {
-                await agreementContract.grantAuth(otherSigners[0].address);
-
-                await expect(
-                    await agreementContract.hasRole(
-                        await agreementContract.AUTH_ROLE(),
-                        otherSigners[0].address
-                    )
-                ).to.be.true;
-            });
-            it("should revert if not admin", async () => {
-                // https://github.com/ethers-io/ethers.js/issues/1449
-                // transaction signer should be updated by reconnecting
-                await expect(
-                    agreementContract
-                        .connect(otherSigners[3])
-                        .grantAuth(otherSigners[4].address)
-                ).to.be.revertedWith(
-                    adminErrorMessage(
-                        otherSigners[3].address,
-                        await agreementContract.DEFAULT_ADMIN_ROLE()
-                    )
-                );
-            });
+    describe("pause", () => {
+        beforeEach(async () => {
+            await setUp();
         });
 
-        describe("revokeAuth", () => {
-            beforeEach(async () => {
-                await setUp();
-                await agreementContract.grantRole(
-                    await agreementContract.AUTH_ROLE(),
-                    otherSigners[3].address
-                );
-            });
-            it("should revoke AUTH_ROLE", async () => {
-                await agreementContract.revokeAuth(otherSigners[3].address);
-
-                await expect(
-                    await agreementContract.hasRole(
-                        await agreementContract.AUTH_ROLE(),
-                        otherSigners[3].address
+        it("should not create agreement", async () => {
+            await agreementContract.connect(owner).pause();
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .createAgreement(
+                        moderator.address,
+                        DAO_NAME_PARAM,
+                        START_TIME,
+                        END_TIME,
+                        ethers.utils.parseEther("10"),
+                        5184000
                     )
-                ).to.be.false;
-            });
+            ).to.be.revertedWith("Pausable: paused");
+        });
 
-            it("should revert if not admin", async () => {
-                await expect(
-                    agreementContract
-                        .connect(otherSigners[3])
-                        .grantAuth(otherSigners[4].address)
-                ).to.be.revertedWith(
-                    adminErrorMessage(
-                        otherSigners[3].address,
-                        await agreementContract.DEFAULT_ADMIN_ROLE()
+        it("should revert if not admin", async () => {
+            await expect(agreementContract.connect(otherSigners[0]).pause()).to
+                .be.reverted;
+        });
+
+        it("should revert if already paused", async () => {
+            agreementContract.connect(owner).pause();
+            await expect(
+                agreementContract.connect(owner).pause()
+            ).to.be.revertedWith("Pausable: paused");
+        });
+    });
+
+    describe("unpause", () => {
+        beforeEach(async () => {
+            await setUp();
+            await agreementContract.connect(owner).pause();
+        });
+
+        it("should create agreement", async () => {
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .createAgreement(
+                        moderator.address,
+                        DAO_NAME_PARAM,
+                        START_TIME,
+                        END_TIME,
+                        ethers.utils.parseEther("10"),
+                        5184000
                     )
-                );
-            });
+            ).to.be.revertedWith("Pausable: paused");
+            await agreementContract.connect(owner).unpause();
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .createAgreement(
+                        moderator.address,
+                        DAO_NAME_PARAM,
+                        START_TIME,
+                        END_TIME,
+                        ethers.utils.parseEther("10"),
+                        5184000
+                    )
+            ).not.to.be.reverted;
+        });
+
+        it("should revert if not admin", async () => {
+            await expect(agreementContract.connect(otherSigners[0]).unpause())
+                .to.be.reverted;
+        });
+
+        it("should revert if already unpaused", async () => {
+            agreementContract.connect(owner).unpause();
+            await expect(
+                agreementContract.connect(owner).unpause()
+            ).to.be.revertedWith("Pausable: not paused");
         });
     });
 });
