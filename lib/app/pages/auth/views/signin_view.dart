@@ -314,7 +314,6 @@ class _SignInViewState extends State<SignInView> {
   }
 
   _emailValidate(String _email) {
-    print('email: $_email');
     if (false == EmailValidator.validate(_email)) {
       setState(() {
         _emailIcon = const Icon(
@@ -335,7 +334,6 @@ class _SignInViewState extends State<SignInView> {
   }
 
   _passwordValidate(String _password) {
-    print('password: $_password');
     if (_password.length < _passwordMinLength) {
       setState(() {
         _passwordIcon = const Icon(
