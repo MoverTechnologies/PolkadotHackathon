@@ -27,20 +27,29 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
 
     // Agreement contract address
     // To restrict addVestingInfo function to its address
-    // address private _agreementContractAddress;
+    address private agreementContractAddress;
 
     // proof id (bytes32) -> vesting info
     mapping (bytes32 =>  ModInfoVesting) public modInfoVesting;
 
-    event Released(
-        address indexed mod,
+    event AddVestingInfo(
         bytes32 indexed proofId,
-        uint256 indexed releaseAmount
+        address indexed founder
+    );
+
+    event UpdateVestingInfo(
+        bytes32 indexed proofId
+    );
+
+    event Released(
+        bytes32 indexed proofId,
+        address indexed mod,
+        uint256 indexed reward
     );
 
     event Revoked(
-        address indexed founder,
-        bytes32 indexed proofId
+        bytes32 indexed proofId,
+        address indexed founder
     );
 
     /*************************************
@@ -62,14 +71,22 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         depositedToken = IERC20Upgradeable(_depositedToken);
     }
 
+    /**
+     * @param _proofId bytes32
+     * @param _founderAddress address
+     * @param _modAddress address
+     * @param _amount uint256 
+     * @param _jobEndTime uint32 
+     * @param _duration uint256
+     */
     function addVestingInfo(bytes32 _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint32 _jobEndTime, uint256 _duration) public {
-        // require(_agreementContractAddress == msg.sender, "Not authorized");
+        // require(agreementContractAddress == msg.sender, "Not authorized");
         require(_founderAddress != address(0), "founder is the zero address");
         require(_modAddress != address(0), "mod is the zero address");
-        require(_amount > 0, "amount must be > 0");
+        require(_amount != 0, "amount must be > 0");
         require(depositedToken.balanceOf(_founderAddress) >= _amount, "insufficient token balance");
         require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
-        require(_duration > 0, "duration must be > 0");
+        // require(_duration != 0, "duration must be > 0");
 
         depositedToken.safeTransferFrom(_founderAddress, address(this), _amount);
         
@@ -82,19 +99,31 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
             duration: _duration,
             completed: false
         });
+
+        emit AddVestingInfo(_proofId, _founderAddress);
     }
 
+    /**
+     * @param _proofId bytes32
+     * @param _amount uint256
+     * @param _jobEndTime uint32 
+     */
     function updateVestingInfo(bytes32 _proofId, uint256 _amount, uint32 _jobEndTime) public proofExists(_proofId) {
-        require(_amount > 0, "amount must be > 0");
+        require(_amount != 0, "amount must be > 0");
         require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
 
         modVestingInfo.amount = _amount;
         modVestingInfo.jobEndTime = _jobEndTime;
+
+        emit UpdateVestingInfo(_proofId);
     }
 
     // mod が実行する
-    function release(bytes32 _proofId) public virtual proofExists(_proofId) {
+    /**
+     * @param _proofId bytes32
+     */
+    function release(bytes32 _proofId) external virtual proofExists(_proofId) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         require(block.timestamp > modVestingInfo.jobEndTime, "now must be > jobEndTime");
         require(modVestingInfo.modAddress == msg.sender, "msg.sender must be modAddress");
@@ -107,9 +136,12 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         }
 
         depositedToken.safeTransfer(msg.sender, releasable);
-        emit Released(msg.sender, _proofId, releasable);
+        emit Released(_proofId, msg.sender, releasable);
     }
 
+    /**
+     * @param _proofId bytes32
+     */
     function releaseAmount(bytes32 _proofId) public view virtual proofExists(_proofId) returns (uint256) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         if (block.timestamp < modVestingInfo.jobEndTime) {
@@ -126,20 +158,29 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     }
 
     // founder が実行する（ここもコントラクトからの処理の可能性あり）
-    function revoke(bytes32 _proofId) public virtual proofExists(_proofId) {
+    /**
+     * @param _proofId bytes32
+     */
+    function revoke(bytes32 _proofId) external virtual proofExists(_proofId) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
         modVestingInfo.completed = true;
 
         depositedToken.safeTransfer(address(msg.sender), modVestingInfo.amount);
-        emit Revoked(msg.sender, _proofId);
+        emit Revoked(_proofId, msg.sender);
     }
 
+    /**
+     * @param _depositedToken address
+     */
     function setDepoistedToken(address _depositedToken) public onlyOwner {
         depositedToken = IERC20Upgradeable(_depositedToken);
     }
 
-    // function setAgreementContractAddress(address contractAddr) public onlyOwner {
-    //     _agreementContractAddress = contractAddr;
-    // }
+    /**
+     * @param _contractAddr address
+     */
+    function setAgreementContractAddress(address _contractAddr) public onlyOwner {
+        agreementContractAddress = _contractAddr;
+    }
 }
