@@ -45,6 +45,11 @@ const config: HardhatUserConfig = {
                     ? [process.env.PRIVATE_KEY]
                     : [],
         },
+        mumbai: {
+            url: "https://speedy-nodes-nyc.moralis.io/542a14cec1890a25e44d9fb6/polygon/mumbai",
+            chainId: 80001,
+            accounts: [privateKey],
+        },
         matic: {
             url: process.env.POLYGON_MAINNET_URL || "",
             accounts:

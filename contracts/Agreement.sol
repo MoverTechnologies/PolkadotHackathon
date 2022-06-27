@@ -1,13 +1,11 @@
 //SPDX-License-Identifier: 0BSD
-// Copyright Knot, inc.
-// Author tomo@knot.inc
-
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import {PoM} from "./PoM.sol";
 import {Vesting} from "./Vesting.sol";
@@ -16,6 +14,7 @@ import "./libs/SharedStructs.sol";
 contract AgreementContract is
     Initializable,
     AccessControlUpgradeable,
+    PausableUpgradeable,
     SharedStructs
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -42,8 +41,6 @@ contract AgreementContract is
     // Decremented when agreemenet is cancelled
     CountersUpgradeable.Counter private _totalAgreements;
 
-    bytes32 public constant AUTH_ROLE = keccak256("AUTH_ROLE");
-
     /*************************************
      * Modifier
      *************************************/
@@ -54,16 +51,13 @@ contract AgreementContract is
         );
         _;
     }
-    modifier agreementExists(bytes32 agreementId) {
-        require(_agreements[agreementId].id > 0, "Agreement not exists");
-        _;
-    }
 
     /*************************************
      * Functions
      *************************************/
     function initialize(address _pom, address _vesting) public initializer {
         __AccessControl_init();
+        __Pausable_init();
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         pom = PoM(_pom);
         vesting = Vesting(_vesting);
@@ -86,8 +80,11 @@ contract AgreementContract is
         uint32 endTime,
         uint256 rewardAmount,
         uint256 vestingDuration
-    ) external {
+    ) external whenNotPaused {
+        require(moderator != address(0), "moderator is the zero address");
+        require(block.timestamp < startTime, "startTime must be after now");
         require(startTime < endTime, "endTime must be after startTime");
+        require(rewardAmount != 0, "rewardAmount must be > 0");
 
         // Create unique id for agreement
         bytes32 id = keccak256(
@@ -99,8 +96,11 @@ contract AgreementContract is
             )
         );
 
-        // make sure there is no duplicated agreementIds
-        require(_agreements[id].id != id, "agreementId already exists");
+        // Make sure there is no duplicated agreementIds
+        require(
+            _agreements[id].moderator == address(0),
+            "agreementId already exists"
+        );
 
         _holderToIds[msg.sender].push(id);
         _holderToIds[moderator].push(id);
@@ -143,13 +143,26 @@ contract AgreementContract is
         uint32 startTime,
         uint32 endTime,
         uint256 rewardAmount
-    ) external onlyFounder(agreementId) agreementExists(agreementId) {
+    ) external whenNotPaused onlyFounder(agreementId) {
         Agreement storage agreement = _agreements[agreementId];
         if (startTime != 0) {
+            require(startTime > block.timestamp, "startTime must be after now");
+
+            if (endTime == 0 && agreement.endTime < startTime) {
+                revert("startTime must be before endTime set");
+            }
+            if (endTime != 0 && endTime < startTime) {
+                revert("startTime must be before endTime");
+            }
             agreement.startTime = startTime;
         }
         if (endTime != 0) {
+            require(
+                agreement.startTime < endTime,
+                "endTime must be after startTime"
+            );
             agreement.endTime = endTime;
+            // TODO: call Vesting contract to change endTime
         }
         if (rewardAmount != 0) {
             agreement.rewardAmount = rewardAmount;
@@ -166,14 +179,17 @@ contract AgreementContract is
      */
     function completeAgreement(bytes32 agreementId, string memory review)
         external
+        whenNotPaused
         onlyFounder(agreementId)
-        agreementExists(agreementId)
     {
         require(
             block.timestamp > _agreements[agreementId].endTime,
             "Contract not ended"
         );
+
         Agreement storage agreement = _agreements[agreementId];
+
+        require(agreement.isCompleted == false, "Agreement already completed");
         agreement.isCompleted = true;
 
         pom.addReview(agreementId, review);
@@ -193,6 +209,8 @@ contract AgreementContract is
         returns (Agreement[] memory)
     {
         bytes32[] memory ids = _holderToIds[holder];
+        require(ids.length > 0, "Agreement not exists");
+
         Agreement[] memory agreements = new Agreement[](ids.length);
         for (uint256 i = 0; i < ids.length; i++) {
             agreements[i] = _agreements[ids[i]];
@@ -203,7 +221,7 @@ contract AgreementContract is
 
     /**
      * @dev Gets agreement specified by agreementId
-     * @notice return agreement details
+     * @notice Returns agreement details and reverts if a holder has no agreements
      * @param holder address, holder address (founder or moderator)
      * @return id list bytes32[], agreement id array
      */
@@ -212,12 +230,14 @@ contract AgreementContract is
         view
         returns (bytes32[] memory)
     {
+        require(_holderToIds[holder].length > 0, "Agreement not exists");
+
         return _holderToIds[holder];
     }
 
     /**
      * @dev Gets agreement specified by agreementId
-     * @notice return agreement details
+     * @notice Returns agreement details and reverts if agreement does not exist
      * @param agreementId bytes32, agreement id that specifies agreement
      * @return agreement Agreement, single agreement specified with agreementId
      */
@@ -226,22 +246,36 @@ contract AgreementContract is
         view
         returns (Agreement memory)
     {
+        require(
+            _agreements[agreementId].moderator != address(0),
+            "Agreement not exists"
+        );
         return _agreements[agreementId];
     }
 
+    /**
+     * @dev Gets total agreement count
+     * @return count uint256, total agreement count
+     */
     function getTotalAgreements() external view returns (uint256) {
         return _totalAgreements.current();
     }
 
     /*************************************
-     ************* Admin Only ************
+     *  Admin
      *************************************/
-
-    function grantAuth(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setupRole(AUTH_ROLE, user);
+    /**
+     * @notice Changes _paused status to true
+     *         Prevents writing agreement states under emergency situations
+     */
+    function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _pause();
     }
 
-    function revokeAuth(address user) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _revokeRole(AUTH_ROLE, user);
+    /**
+     * @notice Changes _paused status to false
+     */
+    function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _unpause();
     }
 }
