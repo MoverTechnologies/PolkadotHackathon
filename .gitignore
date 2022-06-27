@@ -9,3 +9,5 @@ private.json
 cache
 artifacts
 abi
+
+.DS_Store
