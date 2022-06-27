@@ -72,6 +72,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     }
 
     /**
+     * @notice Only allows Agreement contract to call
      * @param _proofId bytes32
      * @param _founderAddress address
      * @param _modAddress address
@@ -104,6 +105,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     }
 
     /**
+     * @notice Only allows Agreement contract to call
      * @param _proofId bytes32
      * @param _amount uint256
      * @param _jobEndTime uint32 
@@ -120,8 +122,8 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         emit UpdateVestingInfo(_proofId);
     }
 
-    // mod が実行する
     /**
+     * @notice Only allows mods to call
      * @param _proofId bytes32
      */
     function release(bytes32 _proofId) external virtual proofExists(_proofId) {
@@ -142,6 +144,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
 
     /**
      * @param _proofId bytes32
+     * @return remainingamount remaining work rewards
      */
     function releaseAmount(bytes32 _proofId) public view virtual proofExists(_proofId) returns (uint256) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
@@ -158,14 +161,15 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         }
     }
 
-    // founder が実行する（ここもコントラクトからの処理の可能性あり）
     /**
+     * @notice Only allows Agreement contract to call
      * @param _proofId bytes32
      */
     function revoke(bytes32 _proofId) external virtual proofExists(_proofId) {
         require(agreementContractAddress == msg.sender, "Not authorized");
         // require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
+        require(modVestingInfo.completed == false, "revoke: you already completed");
         modVestingInfo.completed = true;
 
         depositedToken.safeTransfer(address(msg.sender), modVestingInfo.amount);
