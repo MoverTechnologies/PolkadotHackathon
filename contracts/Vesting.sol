@@ -79,8 +79,8 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
      * @param _jobEndTime uint32 
      * @param _duration uint256
      */
-    function addVestingInfo(bytes32 _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint32 _jobEndTime, uint256 _duration) public {
-        // require(agreementContractAddress == msg.sender, "Not authorized");
+    function addVestingInfo(bytes32 _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint32 _jobEndTime, uint256 _duration) external {
+        require(agreementContractAddress == msg.sender, "Not authorized");
         require(_founderAddress != address(0), "founder is the zero address");
         require(_modAddress != address(0), "mod is the zero address");
         require(_amount != 0, "amount must be > 0");
@@ -108,7 +108,8 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
      * @param _amount uint256
      * @param _jobEndTime uint32 
      */
-    function updateVestingInfo(bytes32 _proofId, uint256 _amount, uint32 _jobEndTime) public proofExists(_proofId) {
+    function updateVestingInfo(bytes32 _proofId, uint256 _amount, uint32 _jobEndTime) external proofExists(_proofId) {
+        require(agreementContractAddress == msg.sender, "Not authorized");
         require(_amount != 0, "amount must be > 0");
         require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
@@ -125,8 +126,8 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
      */
     function release(bytes32 _proofId) external virtual proofExists(_proofId) {
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
-        require(block.timestamp > modVestingInfo.jobEndTime, "now must be > jobEndTime");
         require(modVestingInfo.modAddress == msg.sender, "msg.sender must be modAddress");
+        require(block.timestamp > modVestingInfo.jobEndTime, "now must be > jobEndTime");
         require(modVestingInfo.completed == false, "release: you already completed");
         uint256 releasable = releaseAmount(_proofId);
         modVestingInfo.released += releasable;
@@ -162,8 +163,9 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
      * @param _proofId bytes32
      */
     function revoke(bytes32 _proofId) external virtual proofExists(_proofId) {
+        require(agreementContractAddress == msg.sender, "Not authorized");
+        // require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
-        require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
         modVestingInfo.completed = true;
 
         depositedToken.safeTransfer(address(msg.sender), modVestingInfo.amount);
@@ -173,14 +175,14 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
     /**
      * @param _depositedToken address
      */
-    function setDepoistedToken(address _depositedToken) public onlyOwner {
+    function setDepoistedToken(address _depositedToken) external onlyOwner {
         depositedToken = IERC20Upgradeable(_depositedToken);
     }
 
     /**
      * @param _contractAddr address
      */
-    function setAgreementContractAddress(address _contractAddr) public onlyOwner {
+    function setAgreementContractAddress(address _contractAddr) external onlyOwner {
         agreementContractAddress = _contractAddr;
     }
 }
