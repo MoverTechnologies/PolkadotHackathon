@@ -1,4 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:mover/app/common/endpoint/amplify_endpoint.dart';
+import 'package:mover/models/ModelProvider.dart';
+
+import '../models/task_status_model.dart';
 
 class TaskStatusProvider with ChangeNotifier {
   int _currentStep = 0;
@@ -7,20 +13,29 @@ class TaskStatusProvider with ChangeNotifier {
 
   TaskStatusModel? _taskStatus;
   TaskStatusModel? get taskStatus => _taskStatus;
+  EmploymentRequest? _employmentRequest;
 
   bool inProgress = false;
 
-  updateStatus() async {
-    inProgress = true;
-    notifyListeners();
-
-    // TODO: fetch from DB
-    await Future.delayed(Duration(seconds: 1));
-    _taskStatus = __testData;
-    refreshCurrentStep();
-    print("$_currentStep $stepLength");
-    inProgress = false;
-    notifyListeners();
+  setTaskStatus(EmploymentRequest _request) {
+    if (null == _request.progressStatus) {
+      return;
+    }
+    try {
+      _taskStatus =
+          TaskStatusModel.fromJson(jsonDecode(_request.progressStatus!));
+      _employmentRequest = _request;
+      for (var i = 0; i < _taskStatus!.taskStatusList.length; i++) {
+        if (null == _taskStatus!.taskStatusList[i].completedDate) {
+          // find the first uncompleted step
+          _currentStep = i;
+          break;
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      print("##### Error in setTaskStatus ##### $e");
+    }
   }
 
   approve() async {
@@ -36,17 +51,20 @@ class TaskStatusProvider with ChangeNotifier {
     if (_currentStep < 1) {
       // not started
       _taskStatus!.isStarted = true;
-      //TODO: write DB
+      AmplifyEndpoint().updateTaskStatus(
+          _employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
     } else if (_currentStep < (stepLength - 1)) {
       // started but not complete
       _taskStatus!.taskStatusList[_currentStep - 1].completedDate =
           DateTime.now();
-      //TODO: write DB
+      AmplifyEndpoint().updateTaskStatus(
+          _employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
     } else if (_currentStep < (stepLength)) {
       // complete
       _taskStatus!.isComplete = true;
       _taskStatus!.completedDate = DateTime.now();
-      //TODO: write DB
+      AmplifyEndpoint().updateTaskStatus(
+          _employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
     } else {
       // already complete
       // nop
@@ -67,14 +85,14 @@ class TaskStatusProvider with ChangeNotifier {
 
     if (_currentStep < 1) {
       // not started
-      _ret = _taskStatus!.start.isBefore(_now);
+      _ret = _employmentRequest!.start!.getDateTimeInUtc().isBefore(_now);
     } else if (_currentStep < (stepLength - 1)) {
       // started but not complete
       _ret =
           _taskStatus!.taskStatusList[_currentStep - 1].deadline.isBefore(_now);
     } else if (_currentStep < (stepLength)) {
       // complete
-      _ret = _taskStatus!.end.isBefore(_now);
+      _ret = _employmentRequest!.end!.getDateTimeInUtc().isBefore(_now);
     } else {
       // already complete
       // nop
@@ -103,72 +121,5 @@ class TaskStatusProvider with ChangeNotifier {
     }
     _currentStep = stepLength - 1;
     return;
-  }
-}
-
-final _now = DateTime.now();
-
-TaskStatusModel __testData = TaskStatusModel(
-    id: "demo00000000",
-    name: "Demo Task",
-    start: _now.add(Duration(days: -11)),
-    end: _now,
-    completedDate: null,
-    isComplete: false,
-    isStarted: false,
-    taskStatusList: [
-      TaskStatusItemModel(
-        name: "Check Point",
-        deadline: _now.add(Duration(days: -6)),
-        completedDate: null,
-      ),
-      TaskStatusItemModel(
-        name: "Check Point",
-        deadline: _now.add(Duration(days: -5)),
-        completedDate: null,
-      ),
-      TaskStatusItemModel(
-        name: "Check Point",
-        deadline: _now.add(Duration(days: -1)),
-        completedDate: null,
-      ),
-    ]);
-
-class TaskStatusModel {
-  final String id;
-  final String name;
-  final DateTime start;
-  final DateTime end;
-  DateTime? completedDate;
-  bool isComplete;
-  bool isStarted;
-  List<TaskStatusItemModel> taskStatusList;
-
-  TaskStatusModel({
-    required this.id,
-    required this.name,
-    required this.start,
-    required this.end,
-    required this.completedDate,
-    required this.isComplete,
-    required this.isStarted,
-    required this.taskStatusList,
-  });
-}
-
-class TaskStatusItemModel {
-  final String name;
-  final DateTime deadline;
-  DateTime? completedDate;
-
-  TaskStatusItemModel({
-    required this.name,
-    required this.deadline,
-    required this.completedDate,
-  });
-
-  @override
-  String toString() {
-    return 'TaskStatusItemModel{name: $name, deadline: $deadline, completedDate: $completedDate}';
   }
 }

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:mover/app/common/providers/user_provider.dart';
-import 'package:mover/app/pages/mod_order/providers/mod_search_provider.dart';
+import 'package:mover/app/pages/mod_order/models/mod_model.dart';
 import 'package:mover/app/pages/task_status/views/task_status_view.dart';
 import 'package:mover/app/pages/top_view/views/top_view.dart';
+import 'package:mover/models/EmploymentRequest.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:lottie/lottie.dart';
 
 class ModTaskStatusView extends StatefulWidget {
-  ModTaskStatusView({Key? key, required this.mod}) : super(key: key);
+  ModTaskStatusView({Key? key, required this.mod, required this.request})
+      : super(key: key);
 
   final ModModel mod;
+  final EmploymentRequest request;
 
   @override
   State<ModTaskStatusView> createState() => _ModTaskStatusViewState();
@@ -36,7 +39,7 @@ class _ModTaskStatusViewState extends State<ModTaskStatusView> {
               color: Theme.of(context).primaryIconTheme.color),
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => TopView()),
+            MaterialPageRoute(builder: (context) => const TopView()),
           ),
         ),
         actions: [
@@ -47,7 +50,7 @@ class _ModTaskStatusViewState extends State<ModTaskStatusView> {
                 backgroundColor: Colors.grey,
                 radius: 50,
                 backgroundImage: NetworkImage(
-                  context.watch<UserProvider>().user!.iconUrl!,
+                  context.watch<UserProvider>().user!.iconUrl,
                 ),
               ),
             ),
@@ -83,7 +86,7 @@ class _ModTaskStatusViewState extends State<ModTaskStatusView> {
                       ),
                     ),
                   ),
-                  Text(widget.mod.user.name)
+                  Text(widget.mod.user.nickname)
                 ]),
                 onTap: () {
                   // Navigator.of(context).push(MaterialPageRoute(
@@ -94,7 +97,7 @@ class _ModTaskStatusViewState extends State<ModTaskStatusView> {
                   textAlign: TextAlign.center,
                 ),
                 leading: Text(
-                  "${widget.mod.employmentRequests.first.periodOfMonth}\nmon",
+                  "${widget.request.periodMonth}\nmon",
                   style: TextStyle(
                     fontSize: 20,
                   ),
@@ -102,11 +105,11 @@ class _ModTaskStatusViewState extends State<ModTaskStatusView> {
                 ),
                 onLongPress: () => {},
                 trailing: Text(
-                  "\$${widget.mod.employmentRequests.first.price}",
+                  "\$${widget.request.price}",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               )),
-          TaskStatusView()
+          TaskStatusView(request: widget.request, mod: widget.mod),
         ]),
       ),
     );

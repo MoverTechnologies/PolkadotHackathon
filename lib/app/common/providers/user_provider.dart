@@ -8,7 +8,12 @@ class UserProvider with ChangeNotifier {
   MoverUser? get user => _user;
 
   setUser(String walletID) async {
-    _user = await AmplifyEndpoint().getUser(walletID);
+    print("setUser");
+    while (null == _user) {
+      _user = await AmplifyEndpoint().getUser(walletID);
+      await Future.delayed(Duration(seconds: 1));
+      print("setUser: $_user");
+    }
     notifyListeners();
   }
 }

@@ -139,7 +139,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                         ),
                                       ),
                                     ),
-                                    Text(e.value.user.name)
+                                    Text(e.value.user.nickname)
                                   ]),
                                   onTap: () {
                                     Navigator.of(context).push(
@@ -152,7 +152,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                     textAlign: TextAlign.center,
                                   ),
                                   leading: Text(
-                                    "${e.value.employmentRequests.first.periodOfMonth}\nmon",
+                                    "${e.value.employmentRequests.first.periodMonth}\nmon",
                                     style: TextStyle(
                                       fontSize: 20,
                                     ),
@@ -160,7 +160,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                   ),
                                   onLongPress: () => {},
                                   trailing: Text(
-                                    "\$${e.value.employmentRequests.first.price}",
+                                    "\$${e.value.employmentRequests.last.price}",
                                     style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),

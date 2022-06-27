@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mover/app/common/endpoint/amplify_endpoint.dart';
-import 'package:mover/app/common/providers/user_provider.dart';
 import 'package:mover/app/common/providers/wallet_provider.dart';
-import 'package:mover/app/common/utils/notification.dart';
-import 'package:mover/app/pages/welcome/views/welcome_view.dart';
+import 'package:mover/app/pages/wallet/views/import_wallet_view.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -57,7 +54,7 @@ class ConnectWalletView extends StatelessWidget {
                         highlightColor: Color.fromARGB(255, 187, 187, 187),
                         child: Center(
                           child: Text(
-                            AppLocalizations.of(context)!.connectWallet,
+                            AppLocalizations.of(context)!.importWallet,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                         )),
@@ -66,28 +63,11 @@ class ConnectWalletView extends StatelessWidget {
                           .select((WalletProvider _model) => _model.inProgress))
                       ? null
                       : () async {
-                          context
-                              .read<WalletProvider>()
-                              .startConnect(context)
-                              .then((value) async {
-                            await AmplifyEndpoint().registerUser(
-                                context
-                                    .read<WalletProvider>()
-                                    .connectedWalletID!,
-                                firebaseTokenID: Notifications.token);
-                            await context.read<UserProvider>().setUser(context
-                                .read<WalletProvider>()
-                                .connectedWalletID!);
-
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const WelcomeView()),
-                                (route) => false);
-                          }, onError: (e) {
-                            _showYesDialog(context,
-                                AppLocalizations.of(context)!.connectWallet, e);
-                          });
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ImportWalletView()));
                         }),
             ]))
       ],

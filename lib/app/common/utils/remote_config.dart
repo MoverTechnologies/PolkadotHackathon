@@ -7,25 +7,16 @@ class RemoteConfigService {
   static final FirebaseRemoteConfig _remoteConfig =
       FirebaseRemoteConfig.instance;
 
-  static const Map<String, dynamic> _defaultRemoteConfig = {
-    "BlockStats":
-        "{\"url\":\"https://api.subquery.network/sq/AstarStats/astarstats-aggregate-block-data__QXN0Y\"}"
-  };
-
   static Future<void> fetchRemoteConfig() async {
     await _remoteConfig.setConfigSettings(RemoteConfigSettings(
       fetchTimeout: const Duration(minutes: 10),
-      minimumFetchInterval: const Duration(hours: 1),
+      minimumFetchInterval: const Duration(seconds: 1),
     ));
     await _remoteConfig.fetchAndActivate();
   }
 
-  static Future<void> setDefaultBlockStatsConfig() async {
-    await _remoteConfig.setDefaults(_defaultRemoteConfig);
-  }
-
   static ModSearchConfig getModSearchRequestConfig() {
-    final decoded = _getConfig('modSearchRequest');
+    final decoded = _getConfig('modSearchRequestForPoloygon');
     final _modSearchRequest = ModSearchConfig.fromJson(decoded);
     return _modSearchRequest;
   }

@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mover/app/pages/mod_order/models/mod_model.dart';
+import 'package:mover/app/pages/mod_pay/views/mod_pay_view.dart';
+import 'package:mover/models/EmploymentRequest.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
+import '../models/task_status_model.dart';
 import '../providers/task_status_provider.dart';
 import "package:intl/intl.dart";
 
-class TaskStatusView extends StatefulWidget {
-  TaskStatusView({Key? key}) : super(key: key);
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+class TaskStatusView extends StatefulWidget {
+  TaskStatusView({Key? key, required this.mod, required this.request})
+      : super(key: key);
+
+  final ModModel mod;
+  final EmploymentRequest request;
   @override
   State<TaskStatusView> createState() => _TaskStatusViewState();
 }
@@ -16,7 +26,7 @@ class _TaskStatusViewState extends State<TaskStatusView> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TaskStatusProvider>().updateStatus();
+      context.read<TaskStatusProvider>().setTaskStatus(widget.request);
     });
   }
 
@@ -75,6 +85,46 @@ class _TaskStatusViewState extends State<TaskStatusView> {
                     },
                     steps: _steps,
                   )),
+              // if (_taskStatus.isComplete)
+              TextButton(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    margin: const EdgeInsets.symmetric(horizontal: 30),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color.fromARGB(255, 206, 219, 26),
+                          Color.fromARGB(255, 113, 211, 34)
+                        ],
+                        begin: FractionalOffset.centerLeft,
+                        end: FractionalOffset.centerRight,
+                      ),
+                    ),
+                    child: Shimmer.fromColors(
+                        baseColor: Color.fromARGB(255, 102, 102, 102),
+                        highlightColor: Color.fromARGB(255, 187, 187, 187),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.complete,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const Icon(Icons.arrow_forward)
+                          ],
+                        )),
+                  ),
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ModPayCheckView(
+                                  mod: widget.mod,
+                                  request: widget.request,
+                                )),
+                        (route) => false);
+                  }),
             ],
           );
   }
@@ -87,7 +137,10 @@ class _TaskStatusViewState extends State<TaskStatusView> {
     // start
     steps.add(Step(
       title: Column(
-        children: [Text("Start ${_formatter.format(_taskStatusModel.start)}")],
+        children: [
+          Text(
+              "Start ${_formatter.format(widget.request.start!.getDateTimeInUtc())}")
+        ],
       ),
       content: Align(
           alignment: Alignment.topLeft,
@@ -118,7 +171,21 @@ class _TaskStatusViewState extends State<TaskStatusView> {
             alignment: Alignment.topLeft,
             child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Text("Approve Mod works!"))),
+                child: (context.read<TaskStatusProvider>().isEnableApprove)
+                    ? Text(
+                        "Approve Mod works!",
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1!
+                            .copyWith(color: Colors.green),
+                      )
+                    : Text(
+                        "Wait for check point",
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1!
+                            .copyWith(color: Colors.grey),
+                      ))),
         state: (null != item.completedDate)
             ? StepState.complete
             : StepState.disabled,
@@ -134,7 +201,8 @@ class _TaskStatusViewState extends State<TaskStatusView> {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Complete ${_formatter.format(_taskStatusModel.end)}"),
+          Text(
+              "Complete ${_formatter.format(widget.request.end!.getDateTimeInUtc())}"),
           if (_taskStatusModel.isComplete)
             Text("Done ${_formatter.format(_taskStatusModel.completedDate!)}"),
         ],

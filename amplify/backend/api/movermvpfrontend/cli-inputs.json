@@ -3,7 +3,7 @@
   "serviceConfiguration": {
     "apiName": "movermvpfrontend",
     "serviceName": "AppSync",
-    "gqlSchemaPath": "/tmp/amplify-0a99208c-93ca-45a0-881f-678c3333ebc9/amplify/backend/api/movermvpfrontend/schema.graphql",
+    "gqlSchemaPath": "/tmp/amplify-e3dfbce7-8c6e-45da-82d7-a50f130d90d9/amplify/backend/api/movermvpfrontend/schema.graphql",
     "defaultAuthType": {
       "mode": "API_KEY",
       "keyDescription": "api key description",

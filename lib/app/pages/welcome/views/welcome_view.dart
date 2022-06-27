@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mover/app/common/providers/user_provider.dart';
-import 'package:mover/app/pages/top_view/views/top_view.dart';
-import 'package:provider/provider.dart';
+import 'package:mover/app/pages/auth/views/signin_view.dart';
+import 'package:mover/app/pages/auth/views/signup_view.dart';
 import 'package:shimmer/shimmer.dart';
 
 class WelcomeView extends StatelessWidget {
@@ -58,7 +57,7 @@ class WelcomeView extends StatelessWidget {
               onPressed: () {
                 Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (context) => const TopView()),
+                    MaterialPageRoute(builder: (context) => const SignUpView()),
                     (route) => false);
               }),
         ],

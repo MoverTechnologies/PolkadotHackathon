@@ -8,25 +8,22 @@ class WalletConnectView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-        onPressed: () {
-          context.read<WalletProvider>().startConnect(context);
-        },
-        child: Container(
-          width: 100,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            gradient: const LinearGradient(
-              colors: [Colors.pinkAccent, Colors.cyan],
-              begin: FractionalOffset.centerLeft,
-              end: FractionalOffset.centerRight,
-            ),
-          ),
-          child: Text(
-            context.select((WalletProvider value) => value.buttonText),
-            style: const TextStyle(color: Colors.white),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ));
+    return Container(
+      width: 100,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        gradient: const LinearGradient(
+          colors: [Colors.pinkAccent, Colors.cyan],
+          begin: FractionalOffset.centerLeft,
+          end: FractionalOffset.centerRight,
+        ),
+      ),
+      child: Text(
+        context.select(
+            (WalletProvider value) => value.currentAddress ?? "invalid"),
+        style: const TextStyle(color: Colors.white),
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
   }
 }

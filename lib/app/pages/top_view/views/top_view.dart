@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mover/app/common/providers/user_provider.dart';
 import 'package:mover/app/pages/mod_order/views/mod_search_view.dart';
+import 'package:mover/app/pages/mod_request/views/mod_register.dart';
 import 'package:mover/app/pages/top_view/views/components/info_card_view.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -23,9 +24,21 @@ class TopView extends StatelessWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.grey,
                 radius: 50,
-                backgroundImage: NetworkImage(
-                  context.watch<UserProvider>().user!.iconUrl!,
-                ),
+                backgroundImage: (context.watch<UserProvider>().user == null)
+                    ? null
+                    : NetworkImage(
+                        context.watch<UserProvider>().user!.iconUrl,
+                      ),
+                child: (context.watch<UserProvider>().user == null)
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 1,
+                        ),
+                      )
+                    : null,
               ),
             ),
           ),
@@ -62,12 +75,16 @@ class TopView extends StatelessWidget {
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ))
                               ])),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ModSearchView()));
-                          },
+                          onPressed:
+                              (context.watch<UserProvider>().user == null)
+                                  ? null
+                                  : () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ModSearchView()));
+                                    },
                         )),
                   ),
                   Expanded(
@@ -89,16 +106,20 @@ class TopView extends StatelessWidget {
                                     )),
                                 FittedBox(
                                     child: Text(
-                                  AppLocalizations.of(context)!.investigateDao,
+                                  AppLocalizations.of(context)!.register,
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ))
                               ])),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ModSearchView()));
-                          },
+                          onPressed:
+                              (context.watch<UserProvider>().user == null)
+                                  ? null
+                                  : () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ModRegisterView()));
+                                    },
                         )),
                   ),
                 ],

@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:mover/app/pages/mod_order/providers/mod_search_provider.dart';
+import 'package:mover/app/pages/mod_order/models/mod_model.dart';
 import 'package:mover/app/pages/mod_order/views/mod_task_status_view.dart';
-import 'package:mover/app/pages/task_status/views/task_status_view.dart';
-import 'package:mover/app/pages/top_view/views/top_view.dart';
+import 'package:mover/models/EmploymentRequest.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ModOfferCompleteView extends StatelessWidget {
-  ModOfferCompleteView({Key? key, required ModModel this.mod})
+  const ModOfferCompleteView(
+      {Key? key, required ModModel this.mod, required this.request})
       : super(key: key);
-  ModModel mod;
+  final ModModel mod;
+  final EmploymentRequest request;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,6 +64,7 @@ class ModOfferCompleteView extends StatelessWidget {
                     MaterialPageRoute(
                         builder: (context) => ModTaskStatusView(
                               mod: mod,
+                              request: request,
                             )),
                     (route) => false);
               }),

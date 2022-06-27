@@ -15,8 +15,10 @@ import 'app/common/providers/theme_provider.dart';
 import 'app/common/providers/user_provider.dart';
 import 'app/common/providers/wallet_provider.dart';
 import 'app/common/utils/notification.dart';
+import 'app/pages/auth/providers/sign_in_provider.dart';
 import 'app/pages/mod_order/providers/mod_search_provider.dart';
 import 'app/pages/task_status/providers/task_status_provider.dart';
+import 'app/pages/wallet/providers/import_wallet_provider.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -27,6 +29,9 @@ void main() async {
   await _notifi.init();
 
   await RemoteConfigService.fetchRemoteConfig();
+
+  final WalletProvider _walletProvider = WalletProvider();
+  await _walletProvider.init();
 
   final ModSearchProvider _modSearchProvider = ModSearchProvider();
   await _modSearchProvider.init();
@@ -39,7 +44,9 @@ void main() async {
     runApp(MultiProvider(providers: [
       ChangeNotifierProvider(create: (context) => MenuProvider()),
       ChangeNotifierProvider(create: (context) => ThemeProvider()),
-      ChangeNotifierProvider(create: (context) => WalletProvider()),
+      ChangeNotifierProvider(create: (context) => ImportWalletProvider()),
+      ChangeNotifierProvider(create: (context) => _walletProvider),
+      ChangeNotifierProvider(create: (context) => SignInProvider()),
       ChangeNotifierProvider(create: (context) => UserProvider()),
       ChangeNotifierProvider(create: (context) => _modSearchProvider),
       ChangeNotifierProvider(create: (context) => TaskStatusProvider()),

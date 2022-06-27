@@ -29,12 +29,15 @@ import 'package:flutter/foundation.dart';
 class MoverUser extends Model {
   static const classType = const _MoverUserModelType();
   final String id;
-  final String? _walletID;
-  final String? _firebaseTokenID;
+  final String? _nickname;
   final String? _iconUrl;
   final List<String>? _languagesAsISO639;
   final String? _email;
-  final String? _name;
+  final String? _discordID;
+  final String? _wallet;
+  final String? _firebaseTokenID;
+  final String? _extended;
+  final String? _company;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -46,28 +49,85 @@ class MoverUser extends Model {
     return id;
   }
   
-  String? get walletID {
-    return _walletID;
+  String get nickname {
+    try {
+      return _nickname!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  String? get firebaseTokenID {
-    return _firebaseTokenID;
-  }
-  
-  String? get iconUrl {
-    return _iconUrl;
+  String get iconUrl {
+    try {
+      return _iconUrl!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
   List<String>? get languagesAsISO639 {
     return _languagesAsISO639;
   }
   
-  String? get email {
-    return _email;
+  String get email {
+    try {
+      return _email!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  String? get name {
-    return _name;
+  String? get discordID {
+    return _discordID;
+  }
+  
+  String get wallet {
+    try {
+      return _wallet!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  String get firebaseTokenID {
+    try {
+      return _firebaseTokenID!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
+  }
+  
+  String? get extended {
+    return _extended;
+  }
+  
+  String? get company {
+    return _company;
   }
   
   TemporalDateTime? get createdAt {
@@ -78,17 +138,20 @@ class MoverUser extends Model {
     return _updatedAt;
   }
   
-  const MoverUser._internal({required this.id, walletID, firebaseTokenID, iconUrl, languagesAsISO639, email, name, createdAt, updatedAt}): _walletID = walletID, _firebaseTokenID = firebaseTokenID, _iconUrl = iconUrl, _languagesAsISO639 = languagesAsISO639, _email = email, _name = name, _createdAt = createdAt, _updatedAt = updatedAt;
+  const MoverUser._internal({required this.id, required nickname, required iconUrl, languagesAsISO639, required email, discordID, required wallet, required firebaseTokenID, extended, company, createdAt, updatedAt}): _nickname = nickname, _iconUrl = iconUrl, _languagesAsISO639 = languagesAsISO639, _email = email, _discordID = discordID, _wallet = wallet, _firebaseTokenID = firebaseTokenID, _extended = extended, _company = company, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory MoverUser({String? id, String? walletID, String? firebaseTokenID, String? iconUrl, List<String>? languagesAsISO639, String? email, String? name}) {
+  factory MoverUser({String? id, required String nickname, required String iconUrl, List<String>? languagesAsISO639, required String email, String? discordID, required String wallet, required String firebaseTokenID, String? extended, String? company}) {
     return MoverUser._internal(
       id: id == null ? UUID.getUUID() : id,
-      walletID: walletID,
-      firebaseTokenID: firebaseTokenID,
+      nickname: nickname,
       iconUrl: iconUrl,
       languagesAsISO639: languagesAsISO639 != null ? List<String>.unmodifiable(languagesAsISO639) : languagesAsISO639,
       email: email,
-      name: name);
+      discordID: discordID,
+      wallet: wallet,
+      firebaseTokenID: firebaseTokenID,
+      extended: extended,
+      company: company);
   }
   
   bool equals(Object other) {
@@ -100,12 +163,15 @@ class MoverUser extends Model {
     if (identical(other, this)) return true;
     return other is MoverUser &&
       id == other.id &&
-      _walletID == other._walletID &&
-      _firebaseTokenID == other._firebaseTokenID &&
+      _nickname == other._nickname &&
       _iconUrl == other._iconUrl &&
       DeepCollectionEquality().equals(_languagesAsISO639, other._languagesAsISO639) &&
       _email == other._email &&
-      _name == other._name;
+      _discordID == other._discordID &&
+      _wallet == other._wallet &&
+      _firebaseTokenID == other._firebaseTokenID &&
+      _extended == other._extended &&
+      _company == other._company;
   }
   
   @override
@@ -117,12 +183,15 @@ class MoverUser extends Model {
     
     buffer.write("MoverUser {");
     buffer.write("id=" + "$id" + ", ");
-    buffer.write("walletID=" + "$_walletID" + ", ");
-    buffer.write("firebaseTokenID=" + "$_firebaseTokenID" + ", ");
+    buffer.write("nickname=" + "$_nickname" + ", ");
     buffer.write("iconUrl=" + "$_iconUrl" + ", ");
     buffer.write("languagesAsISO639=" + (_languagesAsISO639 != null ? _languagesAsISO639!.toString() : "null") + ", ");
     buffer.write("email=" + "$_email" + ", ");
-    buffer.write("name=" + "$_name" + ", ");
+    buffer.write("discordID=" + "$_discordID" + ", ");
+    buffer.write("wallet=" + "$_wallet" + ", ");
+    buffer.write("firebaseTokenID=" + "$_firebaseTokenID" + ", ");
+    buffer.write("extended=" + "$_extended" + ", ");
+    buffer.write("company=" + "$_company" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -130,39 +199,48 @@ class MoverUser extends Model {
     return buffer.toString();
   }
   
-  MoverUser copyWith({String? id, String? walletID, String? firebaseTokenID, String? iconUrl, List<String>? languagesAsISO639, String? email, String? name}) {
+  MoverUser copyWith({String? id, String? nickname, String? iconUrl, List<String>? languagesAsISO639, String? email, String? discordID, String? wallet, String? firebaseTokenID, String? extended, String? company}) {
     return MoverUser._internal(
       id: id ?? this.id,
-      walletID: walletID ?? this.walletID,
-      firebaseTokenID: firebaseTokenID ?? this.firebaseTokenID,
+      nickname: nickname ?? this.nickname,
       iconUrl: iconUrl ?? this.iconUrl,
       languagesAsISO639: languagesAsISO639 ?? this.languagesAsISO639,
       email: email ?? this.email,
-      name: name ?? this.name);
+      discordID: discordID ?? this.discordID,
+      wallet: wallet ?? this.wallet,
+      firebaseTokenID: firebaseTokenID ?? this.firebaseTokenID,
+      extended: extended ?? this.extended,
+      company: company ?? this.company);
   }
   
   MoverUser.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
-      _walletID = json['walletID'],
-      _firebaseTokenID = json['firebaseTokenID'],
+      _nickname = json['nickname'],
       _iconUrl = json['iconUrl'],
       _languagesAsISO639 = json['languagesAsISO639']?.cast<String>(),
       _email = json['email'],
-      _name = json['name'],
+      _discordID = json['discordID'],
+      _wallet = json['wallet'],
+      _firebaseTokenID = json['firebaseTokenID'],
+      _extended = json['extended'],
+      _company = json['company'],
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'walletID': _walletID, 'firebaseTokenID': _firebaseTokenID, 'iconUrl': _iconUrl, 'languagesAsISO639': _languagesAsISO639, 'email': _email, 'name': _name, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'nickname': _nickname, 'iconUrl': _iconUrl, 'languagesAsISO639': _languagesAsISO639, 'email': _email, 'discordID': _discordID, 'wallet': _wallet, 'firebaseTokenID': _firebaseTokenID, 'extended': _extended, 'company': _company, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
 
   static final QueryField ID = QueryField(fieldName: "moverUser.id");
-  static final QueryField WALLETID = QueryField(fieldName: "walletID");
-  static final QueryField FIREBASETOKENID = QueryField(fieldName: "firebaseTokenID");
+  static final QueryField NICKNAME = QueryField(fieldName: "nickname");
   static final QueryField ICONURL = QueryField(fieldName: "iconUrl");
   static final QueryField LANGUAGESASISO639 = QueryField(fieldName: "languagesAsISO639");
   static final QueryField EMAIL = QueryField(fieldName: "email");
-  static final QueryField NAME = QueryField(fieldName: "name");
+  static final QueryField DISCORDID = QueryField(fieldName: "discordID");
+  static final QueryField WALLET = QueryField(fieldName: "wallet");
+  static final QueryField FIREBASETOKENID = QueryField(fieldName: "firebaseTokenID");
+  static final QueryField EXTENDED = QueryField(fieldName: "extended");
+  static final QueryField COMPANY = QueryField(fieldName: "company");
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "MoverUser";
     modelSchemaDefinition.pluralName = "MoverUsers";
@@ -181,20 +259,14 @@ class MoverUser extends Model {
     modelSchemaDefinition.addField(ModelFieldDefinition.id());
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: MoverUser.WALLETID,
-      isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: MoverUser.FIREBASETOKENID,
-      isRequired: false,
+      key: MoverUser.NICKNAME,
+      isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
       key: MoverUser.ICONURL,
-      isRequired: false,
+      isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
@@ -207,12 +279,36 @@ class MoverUser extends Model {
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
       key: MoverUser.EMAIL,
+      isRequired: true,
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: MoverUser.DISCORDID,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: MoverUser.NAME,
+      key: MoverUser.WALLET,
+      isRequired: true,
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: MoverUser.FIREBASETOKENID,
+      isRequired: true,
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: MoverUser.EXTENDED,
+      isRequired: false,
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: MoverUser.COMPANY,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));

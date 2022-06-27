@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mover/app/common/endpoint/amplify_endpoint.dart';
 import 'package:mover/app/common/utils/remote_config.dart';
 import 'package:mover/app/pages/mod_order/views/mod_search_result_view.dart';
 import 'package:provider/provider.dart';
@@ -77,8 +78,8 @@ class _ModSearchViewState extends State<ModSearchView> {
             IconButton(
               icon: Icon(Icons.search,
                   color: Theme.of(context).primaryIconTheme.color),
-              onPressed: () {
-                context.read<ModSearchProvider>().search();
+              onPressed: () async {
+                await context.read<ModSearchProvider>().search();
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => ModSearchResultView()));
               },
