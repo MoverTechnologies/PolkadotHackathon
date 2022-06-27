@@ -62,9 +62,10 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         depositedToken = IERC20Upgradeable(_depositedToken);
     }
 
-    // コントラクトから実行する
     function addVestingInfo(bytes32 _proofId, address _founderAddress, address _modAddress, uint256 _amount, uint32 _jobEndTime, uint256 _duration) public {
         // require(_agreementContractAddress == msg.sender, "Not authorized");
+        require(_founderAddress != address(0), "founder is the zero address");
+        require(_modAddress != address(0), "mod is the zero address");
         require(_amount > 0, "amount must be > 0");
         require(depositedToken.balanceOf(_founderAddress) >= _amount, "insufficient token balance");
         require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
@@ -81,6 +82,15 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
             duration: _duration,
             completed: false
         });
+    }
+
+    function updateVestingInfo(bytes32 _proofId, uint256 _amount, uint32 _jobEndTime) public proofExists(_proofId) {
+        require(_amount > 0, "amount must be > 0");
+        require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
+        ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
+
+        modVestingInfo.amount = _amount;
+        modVestingInfo.jobEndTime = _jobEndTime;
     }
 
     // mod が実行する
