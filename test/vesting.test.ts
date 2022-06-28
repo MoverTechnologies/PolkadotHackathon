@@ -71,12 +71,6 @@ describe("Vesting", () => {
             ethers.constants.MaxUint256
         );
         await vtx.wait();
-
-        // Set block time
-        const latestBlock = await ethers.provider.getBlock("latest");
-        await network.provider.send("evm_setNextBlockTimestamp", [
-            latestBlock.timestamp + 100,
-        ]);
     });
 
     describe("addVestingInfo", () => {
@@ -198,20 +192,20 @@ describe("Vesting", () => {
                 )
             ).revertedWith("insufficient token balance");
         });
-        // it("should revert when jobEndtime < block.timestamp", async () => {
-        //     await expect(
-        //         VestingContract.connect(
-        //             agreementContract.signer
-        //         ).addVestingInfo(
-        //             bytesParam,
-        //             owner.address,
-        //             spender.address,
-        //             ethers.utils.parseEther("1000"),
-        //             1656298710, // 6/27
-        //             3600
-        //         )
-        //     ).revertedWith("jobEndtime must be > now");
-        // });
+        it("should revert when jobEndtime < block.timestamp", async () => {
+            await expect(
+                VestingContract.connect(
+                    agreementContract.signer
+                ).addVestingInfo(
+                    bytesParam,
+                    owner.address,
+                    spender.address,
+                    ethers.utils.parseEther("1000"),
+                    date - 1800,
+                    3600
+                )
+            ).revertedWith("jobEndtime must be > now");
+        });
         // it("should revert when duration equal 0", async () => {
         //     await expect(
         //         VestingContract.connect(
@@ -284,26 +278,28 @@ describe("Vesting", () => {
             ).revertedWith("Not authorized");
         });
 
-        // it("should revert when jobEndtime < now", async () => {
-        //     await VestingContract.connect(
-        //         agreementContract.signer
-        //     ).addVestingInfo(
-        //         bytesParam,
-        //         owner.address,
-        //         spender.address,
-        //         ethers.utils.parseEther("1000"),
-        //         date + 5000,
-        //         3600
-        //     );
+        it("should revert when jobEndtime < now", async () => {
+            await VestingContract.connect(
+                agreementContract.signer
+            ).addVestingInfo(
+                bytesParam,
+                owner.address,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 5000,
+                3600
+            );
 
-        //     await expect(
-        //         VestingContract.connect(spender).updateVestingInfo(
-        //             bytesParam,
-        //             ethers.utils.parseEther("5000"),
-        //             history
-        //         )
-        //     ).revertedWith("jobEndtime must be > now");
-        // });
+            await expect(
+                VestingContract.connect(
+                    agreementContract.signer
+                ).updateVestingInfo(
+                    bytesParam,
+                    ethers.utils.parseEther("5000"),
+                    history
+                )
+            ).revertedWith("jobEndtime must be > now");
+        });
     });
 
     describe("release", () => {
@@ -389,8 +385,8 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 5000,
-                5000
+                date + 3600,
+                3600
             );
 
             // 時間を進めて確認
@@ -398,12 +394,13 @@ describe("Vesting", () => {
             await ethers.provider.send("evm_mine", []);
 
             // console.log(await VestingContract.releaseAmount(bytesParam));
-            expect(await VestingContract.releaseAmount(bytesParam)).to.equal(0);
-            // ethers.utils.parseEther("1000")
+            expect(await VestingContract.releaseAmount(bytesParam)).to.equal(
+                ethers.utils.parseEther("1000")
+            );
 
             // 時間戻さないと後のテストがコケる！！
-            // await ethers.provider.send("evm_increaseTime", [-36000]);
-            // await ethers.provider.send("evm_mine", [-12000]);
+            await ethers.provider.send("evm_increaseTime", [-12000]);
+            await ethers.provider.send("evm_mine", []);
         });
         it("should return 0 when now < jobEndTime", async () => {
             await VestingContract.connect(
