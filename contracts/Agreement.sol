@@ -162,11 +162,14 @@ contract AgreementContract is
                 "endTime must be after startTime"
             );
             agreement.endTime = endTime;
-            // TODO: call Vesting contract to change endTime
         }
         if (rewardAmount != 0) {
             agreement.rewardAmount = rewardAmount;
         }
+
+        // Updates vesting info
+        vesting.updateVestingInfo(agreementId, rewardAmount, endTime);
+
         emit UpdateAgreement(agreementId);
     }
 
