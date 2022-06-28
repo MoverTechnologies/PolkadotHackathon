@@ -62,6 +62,10 @@ describe("AgreementContract", function () {
         await pomContract.setAgreementContractAddress(
             agreementContract.address
         );
+        await vestingContract.setAgreementContractAddress(
+            agreementContract.address
+        );
+
         // Set block time
         const latestBlock = await ethers.provider.getBlock("latest");
         await network.provider.send("evm_setNextBlockTimestamp", [
@@ -373,6 +377,27 @@ describe("AgreementContract", function () {
             expect(proof.startTime).equal(START_TIME + 100);
             expect(proof.endTime).equal(END_TIME + 100);
             expect(proof.rewardAmount).equal(ethers.utils.parseEther("10"));
+        });
+
+        it("should call updateVestingInfo", async () => {
+            // Check the value in Vesting info to check updateVestingInfo is called
+            let result = await vestingContract.modInfoVesting(agreementId);
+            expect(result[2]).to.equal(ethers.utils.parseEther("10"));
+            expect(result[4]).to.equal(END_TIME);
+
+            await agreementContract
+                .connect(founder)
+                .updateAgreement(
+                    agreementId,
+                    START_TIME + 100,
+                    END_TIME + 100,
+                    ethers.utils.parseEther("12")
+                );
+
+            result = await vestingContract.modInfoVesting(agreementId);
+
+            expect(result[2]).to.equal(ethers.utils.parseEther("12"));
+            expect(result[4]).to.equal(END_TIME + 100);
         });
 
         it("should revert if paused", async () => {
