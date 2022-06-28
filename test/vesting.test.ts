@@ -18,7 +18,6 @@ describe("Vesting", () => {
     const bytesParam =
         "0x05416460deb76d57af601be17e777b93592d8d4d4a4096c57876a91c84f4a712";
     const date = Math.floor(new Date().getTime() / 1000);
-    const history = date - 10000;
 
     beforeEach(async () => {
         // Deploy & initilize PoM contract
@@ -76,16 +75,21 @@ describe("Vesting", () => {
     describe("addVestingInfo", () => {
         it("should addVestingInfo", async () => {
             const latestBlock = await ethers.provider.getBlock("latest");
-            await VestingContract.connect(
-                agreementContract.signer
-            ).addVestingInfo(
-                bytesParam,
-                owner.address,
-                spender.address,
-                ethers.utils.parseEther("1000"),
-                latestBlock.timestamp + 5000,
-                3600
-            );
+            await expect(
+                await VestingContract.connect(
+                    agreementContract.signer
+                ).addVestingInfo(
+                    bytesParam,
+                    owner.address,
+                    spender.address,
+                    ethers.utils.parseEther("1000"),
+                    latestBlock.timestamp + 5000,
+                    3600
+                )
+            )
+                .to.emit(VestingContract, "AddVestingInfo")
+                .withArgs(bytesParam, owner.address);
+
             // check owner balance
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
@@ -238,13 +242,17 @@ describe("Vesting", () => {
             );
 
             const latestBlock = await ethers.provider.getBlock("latest");
-            await VestingContract.connect(
-                agreementContract.signer
-            ).updateVestingInfo(
-                bytesParam,
-                ethers.utils.parseEther("5000"),
-                latestBlock.timestamp + 1000
-            );
+            await expect(
+                await VestingContract.connect(
+                    agreementContract.signer
+                ).updateVestingInfo(
+                    bytesParam,
+                    ethers.utils.parseEther("5000"),
+                    latestBlock.timestamp + 1000
+                )
+            )
+                .to.emit(VestingContract, "UpdateVestingInfo")
+                .withArgs(bytesParam);
 
             // check amount
             await expect(
