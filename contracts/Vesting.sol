@@ -123,9 +123,6 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
             modVestingInfo.amount = _amount;
         }
 
-        modVestingInfo.amount = _amount;
-        modVestingInfo.jobEndTime = _jobEndTime;
-
         emit UpdateVestingInfo(_proofId);
     }
 
