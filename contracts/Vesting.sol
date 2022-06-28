@@ -14,6 +14,10 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
 
     IERC20Upgradeable public depositedToken;
 
+    // Agreement contract address
+    // To restrict addVestingInfo, updateVestingInfo, revoke function to its address
+    address private agreementContractAddress;
+
     struct ModInfoVesting {
         address founderAddress;
         address modAddress;
@@ -24,10 +28,6 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         bool completed;
         // bool revoked;
     }
-
-    // Agreement contract address
-    // To restrict addVestingInfo function to its address
-    address private agreementContractAddress;
 
     // proof id (bytes32) -> vesting info
     mapping (bytes32 =>  ModInfoVesting) public modInfoVesting;
@@ -171,7 +171,6 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
      */
     function revoke(bytes32 _proofId) external virtual proofExists(_proofId) {
         require(agreementContractAddress == msg.sender, "Not authorized");
-        // require(modVestingInfo.founderAddress == msg.sender, "msg.sender must be founder");
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
         require(modVestingInfo.completed == false, "revoke: you already completed");
         modVestingInfo.completed = true;
