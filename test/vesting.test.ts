@@ -18,6 +18,7 @@ describe("Vesting", () => {
     const bytesParam =
         "0x05416460deb76d57af601be17e777b93592d8d4d4a4096c57876a91c84f4a712";
     const date = Math.floor(new Date().getTime() / 1000);
+    const history = date - 10000;
 
     beforeEach(async () => {
         // Deploy & initilize PoM contract
@@ -74,7 +75,7 @@ describe("Vesting", () => {
 
     describe("addVestingInfo", () => {
         it("should addVestingInfo", async () => {
-            const tx = await VestingContract.connect(
+            await VestingContract.connect(
                 agreementContract.signer
             ).addVestingInfo(
                 bytesParam,
@@ -84,7 +85,6 @@ describe("Vesting", () => {
                 date + 5000,
                 3600
             );
-            await tx.wait();
             // check owner balance
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
@@ -173,7 +173,7 @@ describe("Vesting", () => {
                     owner.address,
                     spender.address,
                     ethers.utils.parseEther("1000"),
-                    date - 10000,
+                    history,
                     3600
                 )
             ).revertedWith("jobEndtime must be > now");
@@ -192,6 +192,42 @@ describe("Vesting", () => {
         //         )
         //     ).revertedWith("duration must be > 0");
         // });
+    });
+
+    describe("updateVestingInfo", () => {
+        it("should updateVestingInfo", async () => {
+            await VestingContract.connect(
+                agreementContract.signer
+            ).addVestingInfo(
+                bytesParam,
+                owner.address,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 5000,
+                3600
+            );
+
+            await VestingContract.connect(
+                agreementContract.signer
+            ).updateVestingInfo(
+                bytesParam,
+                ethers.utils.parseEther("5000"),
+                date + 3000
+            );
+
+            // check amount
+            await expect(
+                (
+                    await VestingContract.modInfoVesting(bytesParam)
+                ).amount
+            ).to.equal(ethers.utils.parseEther("5000"));
+            // check jobEndTime
+            await expect(
+                (
+                    await VestingContract.modInfoVesting(bytesParam)
+                ).jobEndTime
+            ).to.equal(date + 3000);
+        });
     });
 
     describe("release", () => {
@@ -282,7 +318,7 @@ describe("Vesting", () => {
             );
 
             // 時間を進めて確認
-            await ethers.provider.send("evm_increaseTime", [12000]);
+            await ethers.provider.send("evm_increaseTime", [36000]);
             await ethers.provider.send("evm_mine", []);
 
             // console.log(await VestingContract.releaseAmount(bytesParam));
@@ -291,8 +327,8 @@ describe("Vesting", () => {
             );
 
             // 時間戻さないと後のテストがコケる！！
-            await ethers.provider.send("evm_increaseTime", [-12000]);
-            await ethers.provider.send("evm_mine", []);
+            // await ethers.provider.send("evm_increaseTime", [-36000]);
+            // await ethers.provider.send("evm_mine", [-12000]);
         });
         it("should return 0 when now < jobEndTime", async () => {
             await VestingContract.connect(
@@ -378,5 +414,27 @@ describe("Vesting", () => {
                 SecondMockTokenContract.address
             );
         });
+    });
+
+    describe("setAgreementContractAddress", () => {
+        // it("should setAgreementContractAddress", async () => {
+        //     // second mock token
+        //     const MockTokenContractFactory = await ethers.getContractFactory(
+        //         "Token"
+        //     );
+        //     SecondMockTokenContract = await MockTokenContractFactory.deploy(
+        //         "Test",
+        //         "TEST"
+        //     );
+        //     await SecondMockTokenContract.deployed();
+        //     // change depoistedToken to second mock token
+        //     await VestingContract.setDepoistedToken(
+        //         SecondMockTokenContract.address
+        //     );
+        //     // check depoistedToken address
+        //     expect(await VestingContract.depositedToken()).to.equal(
+        //         SecondMockTokenContract.address
+        //     );
+        // });
     });
 });
