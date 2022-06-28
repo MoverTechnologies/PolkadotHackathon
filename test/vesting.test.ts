@@ -228,6 +228,48 @@ describe("Vesting", () => {
                 ).jobEndTime
             ).to.equal(date + 3000);
         });
+
+        it("should revert when Not authorized", async () => {
+            await VestingContract.connect(
+                agreementContract.signer
+            ).addVestingInfo(
+                bytesParam,
+                owner.address,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 5000,
+                3600
+            );
+
+            await expect(
+                VestingContract.connect(spender).updateVestingInfo(
+                    bytesParam,
+                    ethers.utils.parseEther("5000"),
+                    date + 3000
+                )
+            ).revertedWith("Not authorized");
+        });
+
+        it("should revert when jobEndtime < now", async () => {
+            await VestingContract.connect(
+                agreementContract.signer
+            ).addVestingInfo(
+                bytesParam,
+                owner.address,
+                spender.address,
+                ethers.utils.parseEther("1000"),
+                date + 5000,
+                3600
+            );
+
+            await expect(
+                VestingContract.connect(spender).updateVestingInfo(
+                    bytesParam,
+                    ethers.utils.parseEther("5000"),
+                    history
+                )
+            ).revertedWith("jobEndtime must be > now");
+        });
     });
 
     describe("release", () => {
