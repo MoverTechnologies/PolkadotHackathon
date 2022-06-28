@@ -18,7 +18,6 @@ describe("Vesting", () => {
     const bytesParam =
         "0x05416460deb76d57af601be17e777b93592d8d4d4a4096c57876a91c84f4a712";
     const date = Math.floor(new Date().getTime() / 1000);
-    const history = date - 10000;
 
     beforeEach(async () => {
         // Deploy & initilize PoM contract
@@ -75,16 +74,22 @@ describe("Vesting", () => {
 
     describe("addVestingInfo", () => {
         it("should addVestingInfo", async () => {
-            await VestingContract.connect(
-                agreementContract.signer
-            ).addVestingInfo(
-                bytesParam,
-                owner.address,
-                spender.address,
-                ethers.utils.parseEther("1000"),
-                date + 5000,
-                3600
-            );
+            const latestBlock = await ethers.provider.getBlock("latest");
+            await expect(
+                await VestingContract.connect(
+                    agreementContract.signer
+                ).addVestingInfo(
+                    bytesParam,
+                    owner.address,
+                    spender.address,
+                    ethers.utils.parseEther("1000"),
+                    latestBlock.timestamp + 5000,
+                    3600
+                )
+            )
+                .to.emit(VestingContract, "AddVestingInfo")
+                .withArgs(bytesParam, owner.address);
+
             // check owner balance
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("9000")
@@ -122,7 +127,7 @@ describe("Vesting", () => {
                 (
                     await VestingContract.modInfoVesting(bytesParam)
                 ).jobEndTime
-            ).to.equal(date + 5000);
+            ).to.equal(latestBlock.timestamp + 5000);
             // check duration
             await expect(
                 (
@@ -193,6 +198,7 @@ describe("Vesting", () => {
             ).revertedWith("insufficient token balance");
         });
         it("should revert when jobEndtime < block.timestamp", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             await expect(
                 VestingContract.connect(
                     agreementContract.signer
@@ -201,7 +207,7 @@ describe("Vesting", () => {
                     owner.address,
                     spender.address,
                     ethers.utils.parseEther("1000"),
-                    date - 1800,
+                    latestBlock.timestamp - 1800,
                     3600
                 )
             ).revertedWith("jobEndtime must be > now");
@@ -235,13 +241,18 @@ describe("Vesting", () => {
                 3600
             );
 
-            await VestingContract.connect(
-                agreementContract.signer
-            ).updateVestingInfo(
-                bytesParam,
-                ethers.utils.parseEther("5000"),
-                date + 3000
-            );
+            const latestBlock = await ethers.provider.getBlock("latest");
+            await expect(
+                await VestingContract.connect(
+                    agreementContract.signer
+                ).updateVestingInfo(
+                    bytesParam,
+                    ethers.utils.parseEther("5000"),
+                    latestBlock.timestamp + 1000
+                )
+            )
+                .to.emit(VestingContract, "UpdateVestingInfo")
+                .withArgs(bytesParam);
 
             // check amount
             await expect(
@@ -254,7 +265,7 @@ describe("Vesting", () => {
                 (
                     await VestingContract.modInfoVesting(bytesParam)
                 ).jobEndTime
-            ).to.equal(date + 3000);
+            ).to.equal(latestBlock.timestamp + 1000);
         });
 
         it("should revert when Not authorized", async () => {
@@ -279,6 +290,7 @@ describe("Vesting", () => {
         });
 
         it("should revert when jobEndtime < now", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             await VestingContract.connect(
                 agreementContract.signer
             ).addVestingInfo(
@@ -296,7 +308,7 @@ describe("Vesting", () => {
                 ).updateVestingInfo(
                     bytesParam,
                     ethers.utils.parseEther("5000"),
-                    history
+                    latestBlock.timestamp - 1000
                 )
             ).revertedWith("jobEndtime must be > now");
         });
@@ -304,6 +316,7 @@ describe("Vesting", () => {
 
     describe("release", () => {
         it("should release", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             // addVestingInfo
             await VestingContract.connect(
                 agreementContract.signer
@@ -312,7 +325,7 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 3600,
+                latestBlock.timestamp + 3600,
                 3600
             );
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
@@ -322,7 +335,13 @@ describe("Vesting", () => {
             await ethers.provider.send("evm_increaseTime", [12000]);
             await ethers.provider.send("evm_mine", []);
 
-            await VestingContract.connect(spender).release(bytesParam);
+            // await VestingContract.connect(spender).release(bytesParam);
+
+            await expect(
+                await VestingContract.connect(spender).release(bytesParam)
+            )
+                .to.emit(VestingContract, "Released")
+                .withArgs(bytesParam, spender.address);
 
             // check spender balance
             expect(await MockTokenContract.balanceOf(spender.address)).to.equal(
@@ -377,6 +396,7 @@ describe("Vesting", () => {
 
     describe("releaseAmount", () => {
         it("should releaseAmount", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             // addVestingInfo
             await VestingContract.connect(
                 agreementContract.signer
@@ -385,7 +405,7 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 3600,
+                latestBlock.timestamp + 3600,
                 3600
             );
 
@@ -437,10 +457,14 @@ describe("Vesting", () => {
                 ethers.utils.parseEther("9000")
             );
             // revoke
-            const tx = await VestingContract.connect(
-                agreementContract.signer
-            ).revoke(bytesParam);
-            await tx.wait();
+            await expect(
+                await VestingContract.connect(agreementContract.signer).revoke(
+                    bytesParam
+                )
+            )
+                .to.emit(VestingContract, "Revoked")
+                .withArgs(bytesParam, owner.address);
+
             // check owner balance
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("10000")
