@@ -327,7 +327,13 @@ describe("Vesting", () => {
             await ethers.provider.send("evm_increaseTime", [12000]);
             await ethers.provider.send("evm_mine", []);
 
-            await VestingContract.connect(spender).release(bytesParam);
+            // await VestingContract.connect(spender).release(bytesParam);
+
+            await expect(
+                await VestingContract.connect(spender).release(bytesParam)
+            )
+                .to.emit(VestingContract, "Released")
+                .withArgs(bytesParam, spender.address);
 
             // check spender balance
             expect(await MockTokenContract.balanceOf(spender.address)).to.equal(
@@ -443,10 +449,14 @@ describe("Vesting", () => {
                 ethers.utils.parseEther("9000")
             );
             // revoke
-            const tx = await VestingContract.connect(
-                agreementContract.signer
-            ).revoke(bytesParam);
-            await tx.wait();
+            await expect(
+                await VestingContract.connect(agreementContract.signer).revoke(
+                    bytesParam
+                )
+            )
+                .to.emit(VestingContract, "Revoked")
+                .withArgs(bytesParam, owner.address);
+
             // check owner balance
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
                 ethers.utils.parseEther("10000")
