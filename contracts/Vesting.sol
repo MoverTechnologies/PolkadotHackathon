@@ -112,9 +112,16 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
      */
     function updateVestingInfo(bytes32 _proofId, uint256 _amount, uint32 _jobEndTime) external proofExists(_proofId) {
         require(agreementContractAddress == msg.sender, "Not authorized");
-        require(_amount != 0, "amount must be > 0");
-        require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
+        
         ModInfoVesting storage modVestingInfo = modInfoVesting[_proofId];
+
+        if (_jobEndTime != 0) {
+            require(_jobEndTime > block.timestamp, "jobEndtime must be > now");
+            modVestingInfo.jobEndTime = _jobEndTime;
+        }
+        if (_amount != 0) {
+            modVestingInfo.amount = _amount;
+        }
 
         modVestingInfo.amount = _amount;
         modVestingInfo.jobEndTime = _jobEndTime;
