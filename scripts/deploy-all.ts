@@ -54,6 +54,9 @@ async function main() {
 
     // setup
     await vesting.setAgreementContractAddress(agreement.address);
+    // mockToken approve VestingContract
+    const vtx = await nw.approve(vesting.address, ethers.constants.MaxUint256);
+    await vtx.wait();
 }
 
 main().catch((error) => {
