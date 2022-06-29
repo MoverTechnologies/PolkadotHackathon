@@ -43,8 +43,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
 
     event Released(
         bytes32 indexed proofId,
-        address indexed mod,
-        uint256 indexed reward
+        address indexed mod
     );
 
     event Revoked(
@@ -143,7 +142,7 @@ contract Vesting is Initializable, ReentrancyGuardUpgradeable, OwnableUpgradeabl
         }
 
         depositedToken.safeTransfer(msg.sender, releasable);
-        emit Released(_proofId, msg.sender, releasable);
+        emit Released(_proofId, msg.sender);
     }
 
     /**
