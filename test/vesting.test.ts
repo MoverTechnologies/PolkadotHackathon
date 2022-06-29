@@ -353,6 +353,7 @@ describe("Vesting", () => {
             await ethers.provider.send("evm_mine", []);
         });
         it("should revert when now < jobEndTime", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             // addVestingInfo
             await VestingContract.connect(
                 agreementContract.signer
@@ -361,7 +362,7 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 3600,
+                latestBlock.timestamp + 3600,
                 3600
             );
             await expect(
@@ -369,6 +370,7 @@ describe("Vesting", () => {
             ).revertedWith("now must be > jobEndTime");
         });
         it("should revert when modAddress not equal msg.sender", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             // // addVestingInfo
             await VestingContract.connect(
                 agreementContract.signer
@@ -377,7 +379,7 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 3600,
+                latestBlock.timestamp + 3600,
                 3600
             );
 
@@ -423,6 +425,7 @@ describe("Vesting", () => {
             await ethers.provider.send("evm_mine", []);
         });
         it("should return 0 when now < jobEndTime", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             await VestingContract.connect(
                 agreementContract.signer
             ).addVestingInfo(
@@ -430,7 +433,7 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 3600,
+                latestBlock.timestamp + 3600,
                 3600
             );
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
@@ -442,6 +445,7 @@ describe("Vesting", () => {
 
     describe("revoke", () => {
         it("should revoke", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             // addVestingInfo
             await VestingContract.connect(
                 agreementContract.signer
@@ -450,7 +454,7 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 3600,
+                latestBlock.timestamp + 3600,
                 3600
             );
             expect(await MockTokenContract.balanceOf(owner.address)).to.equal(
@@ -472,6 +476,7 @@ describe("Vesting", () => {
         });
 
         it("should revert when msg.sender not equal agreementContract", async () => {
+            const latestBlock = await ethers.provider.getBlock("latest");
             // addVestingInfo
             await VestingContract.connect(
                 agreementContract.signer
@@ -480,7 +485,7 @@ describe("Vesting", () => {
                 owner.address,
                 spender.address,
                 ethers.utils.parseEther("1000"),
-                date + 3600,
+                latestBlock.timestamp + 3600,
                 3600
             );
 
