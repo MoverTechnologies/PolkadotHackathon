@@ -1,12 +1,12 @@
 import {ethers, upgrades} from "hardhat";
-import * as PowCon from "./Pow";
+import * as PoMCon from "../typechain/PoM";
 
 async function main() {
     // this is for
-    const gnosisSafe =
-        process.env.ENV === "prod"
-            ? "0x8B80762e3b8A56E36a04a8DBF46eBCEF6e19cE3b"
-            : "0x4BACf63107d0B56D6E0BD00945DFdd0ddfF49c45";
+    // const gnosisSafe =
+    //     process.env.ENV === "prod"
+    //         ? "0x8B80762e3b8A56E36a04a8DBF46eBCEF6e19cE3b"
+    //         : "0x4BACf63107d0B56D6E0BD00945DFdd0ddfF49c45";
 
     const [deployer] = await ethers.getSigners();
 
@@ -14,22 +14,22 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
     // We get the contract to deploy
-    const PowContract = await ethers.getContractFactory("PoW");
-    const pow = (await upgrades.deployProxy(
-        PowContract,
+    const PoMContract = await ethers.getContractFactory("PoM");
+    const pom = (await upgrades.deployProxy(
+        PoMContract,
         [
-            "Proved",
-            "PROVED",
+            "ProofOfModerate",
+            "PoM",
             process.env.ENV === "prod"
                 ? "https://www.assetproved.com/public/proved/"
-                : "https://provedcdkstack-dev-s3s3imagebucket90afec10-530s8rgn9kbj.s3.us-west-2.amazonaws.com/public/proved/",
+                : "http://localhost:8545/",
         ],
         {
             initializer: "initialize",
         }
-    )) as PowCon.PoW;
+    )) as PoMCon.PoM;
 
-    console.log("Pow deployed to:", pow.address);
+    console.log("PoM deployed to:", pom.address);
 
     // Required only once
     // The owner of the ProxyAdmin can upgrade our contracts
@@ -41,3 +41,4 @@ main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
 });
+// 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
