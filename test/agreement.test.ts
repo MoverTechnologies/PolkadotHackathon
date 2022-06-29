@@ -417,6 +417,26 @@ describe("AgreementContract", function () {
             ).to.be.revertedWith("Not authorized");
         });
 
+        it("should revert if agreement already completed", async () => {
+            // move the time forward to complete agreement
+            await ethers.provider.send("evm_increaseTime", [26784000]);
+            await ethers.provider.send("evm_mine", []);
+
+            await agreementContract
+                .connect(founder)
+                .completeAgreement(agreementId, "THIS IS REVIEW");
+
+            await expect(
+                agreementContract
+                    .connect(founder)
+                    .updateAgreement(agreementId, 1640592294, 1640592301, 12)
+            ).to.be.revertedWith("Agreement already completed");
+
+            // Move the time back to normal
+            await ethers.provider.send("evm_increaseTime", [-26784000]);
+            await ethers.provider.send("evm_mine", []);
+        });
+
         it("should revert if agreement does not exist", async () => {
             await expect(
                 agreementContract
@@ -449,7 +469,7 @@ describe("AgreementContract", function () {
                 )
             ).to.be.revertedWith("startTime must be after now");
 
-            // Move the time to normal
+            // Move the time back to normal
             await ethers.provider.send("evm_increaseTime", [-2678400]);
             await ethers.provider.send("evm_mine", []);
         });
