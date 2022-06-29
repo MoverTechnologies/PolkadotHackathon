@@ -4,6 +4,7 @@ import * as AgreementCon from "../typechain/AgreementContract";
 import * as VestingCon from "../typechain/Vesting";
 
 async function main() {
+    // pom contract
     const PoMContract = await ethers.getContractFactory("PoM");
     const pom = (await upgrades.deployProxy(
         PoMContract,
@@ -20,28 +21,39 @@ async function main() {
     )) as PoMCon.PoM;
     console.log("PoM deployed to:", pom.address);
 
-    const AgreementContract = await ethers.getContractFactory(
-        "AgreementContract"
-    );
-    const agreement = (await upgrades.deployProxy(
-        AgreementContract,
-        [pom.address], // contract address of PoM contract
-        {
-            initializer: "initialize",
-        }
-    )) as AgreementCon.AgreementContract;
-    console.log("AgreementContract deployed to:", agreement.address);
+    // mock token contract
+    const Token = await ethers.getContractFactory("Token");
+    const nw = await Token.deploy("New", "NEW");
+    await nw.deployed();
+    console.log("new deployed to:", nw.address);
 
+    // vesting contract
     const VestingContract = await ethers.getContractFactory("Vesting");
     const vesting = (await upgrades.deployProxy(
         VestingContract,
-        [agreement.address], // contract address of Agreement contract
+        [nw.address], // contract address of Agreement contract
         {
             initializer: "initialize",
         }
     )) as VestingCon.Vesting;
     await vesting.deployed();
     console.log("vestingContract deployed to: " + vesting.address);
+
+    // agreement contract
+    const AgreementContract = await ethers.getContractFactory(
+        "AgreementContract"
+    );
+    const agreement = (await upgrades.deployProxy(
+        AgreementContract,
+        [pom.address, vesting.address], // contract address of PoM contract
+        {
+            initializer: "initialize",
+        }
+    )) as AgreementCon.AgreementContract;
+    console.log("AgreementContract deployed to:", agreement.address);
+
+    // setup
+    await vesting.setAgreementContractAddress(agreement.address);
 }
 
 main().catch((error) => {
