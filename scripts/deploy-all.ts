@@ -31,7 +31,7 @@ async function main() {
     const VestingContract = await ethers.getContractFactory("Vesting");
     const vesting = (await upgrades.deployProxy(
         VestingContract,
-        [nw.address], // contract address of Agreement contract
+        [nw.address], // contract address of new token contract
         {
             initializer: "initialize",
         }
@@ -45,7 +45,7 @@ async function main() {
     );
     const agreement = (await upgrades.deployProxy(
         AgreementContract,
-        [pom.address, vesting.address], // contract address of PoM contract
+        [pom.address, vesting.address],
         {
             initializer: "initialize",
         }
