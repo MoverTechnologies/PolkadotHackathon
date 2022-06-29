@@ -217,7 +217,7 @@ contract PoM is
      * @return tokenId from proofId
      */
     function tokenID(bytes32 proofId) external view returns (uint256) {
-        require(!_exists(_proofIdToTokenId[proofId]), "Invalid proofId");
+        require(_exists(_proofIdToTokenId[proofId]), "Invalid proofId");
         return _proofIdToTokenId[proofId];
     }
 
