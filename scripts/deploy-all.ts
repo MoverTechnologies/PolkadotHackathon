@@ -53,6 +53,7 @@ async function main() {
     console.log("AgreementContract deployed to:", agreement.address);
 
     // setup
+    await pom.setAgreementContractAddress(agreement.address);
     await vesting.setAgreementContractAddress(agreement.address);
     // mockToken approve VestingContract
     const vtx = await nw.approve(vesting.address, ethers.constants.MaxUint256);
