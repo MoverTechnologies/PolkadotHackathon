@@ -51,6 +51,13 @@ contract AgreementContract is
         );
         _;
     }
+    modifier agreementNotCompleted(bytes32 agreementId) {
+        require(
+            _agreements[agreementId].isCompleted == false,
+            "Agreement already completed"
+        );
+        _;
+    }
 
     /*************************************
      * Functions
@@ -143,8 +150,14 @@ contract AgreementContract is
         uint32 startTime,
         uint32 endTime,
         uint256 rewardAmount
-    ) external whenNotPaused onlyFounder(agreementId) {
+    )
+        external
+        whenNotPaused
+        onlyFounder(agreementId)
+        agreementNotCompleted(agreementId)
+    {
         Agreement storage agreement = _agreements[agreementId];
+
         if (startTime != 0) {
             require(startTime > block.timestamp, "startTime must be after now");
 
@@ -184,6 +197,7 @@ contract AgreementContract is
         external
         whenNotPaused
         onlyFounder(agreementId)
+        agreementNotCompleted(agreementId)
     {
         require(
             block.timestamp > _agreements[agreementId].endTime,
@@ -191,8 +205,6 @@ contract AgreementContract is
         );
 
         Agreement storage agreement = _agreements[agreementId];
-
-        require(agreement.isCompleted == false, "Agreement already completed");
         agreement.isCompleted = true;
 
         pom.addReview(agreementId, review);
