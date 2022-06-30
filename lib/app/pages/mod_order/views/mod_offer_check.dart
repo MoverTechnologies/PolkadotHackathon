@@ -34,8 +34,8 @@ class ModOfferCheckView extends StatefulWidget {
 class _ModOfferCheckViewState extends State<ModOfferCheckView> {
   int _currentSortColumn = 0;
   bool _isAscending = true;
-  DateTime _start = new DateTime.now();
-  final DateTime _now = DateTime.now();
+  DateTime _start = new DateTime.now().add(Duration(seconds: 30));
+  final DateTime _tomorrow = DateTime.now().add(Duration(seconds: 30));
   Currency _currency = Currency.values.first;
   int _lockMonth = 2;
   int _vestingMonth = 3;
@@ -235,8 +235,8 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                                             context: context,
                                             initialDate: _start,
                                             firstDate: _start,
-                                            lastDate:
-                                                _now.add(Duration(days: 60)));
+                                            lastDate: _tomorrow
+                                                .add(Duration(days: 60)));
                                     if (picked != null) {
                                       setState(() => _start = DateTime(
                                           picked.year,
@@ -486,56 +486,98 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                                         Color.fromARGB(255, 102, 102, 102),
                                     highlightColor:
                                         Color.fromARGB(255, 187, 187, 187),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!
-                                              .contract,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge,
-                                        ),
-                                        const Icon(Icons.arrow_forward)
-                                      ],
-                                    )),
+                                    child: (context
+                                            .watch<WalletProvider>()
+                                            .inProgress)
+                                        ? SizedBox(
+                                            height: 10,
+                                            width: 10,
+                                            child: CircularProgressIndicator(),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                AppLocalizations.of(context)!
+                                                    .contract,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge,
+                                              ),
+                                              const Icon(Icons.arrow_forward)
+                                            ],
+                                          )),
                               ),
                               onPressed: () async {
                                 final _user = context.read<UserProvider>().user;
                                 if (null != _user) {
-                                  EmploymentRequest _new =
-                                      widget.employmentRequest.copyWith(
-                                    employerWallet: context
-                                        .read<UserProvider>()
-                                        .user!
-                                        .wallet,
-                                    start: TemporalDateTime(_start),
-                                    end: TemporalDateTime(DateTime(
-                                        _start.year,
-                                        _start.month +
-                                            widget
-                                                .employmentRequest.periodMonth,
-                                        _start.day)),
-                                    currency:
-                                        _currency.toString().split('.').last,
-                                    lockMonth: _lockMonth,
-                                    vestingMonth: _vestingMonth,
-                                  );
-                                  _new = _new.copyWith(
-                                    progressStatus: jsonEncode(
-                                        TaskStatusModel.fromEmploymentRequest(
-                                                _new)
-                                            .toJson()),
-                                  );
+                                  EmploymentRequest? _new;
+                                  String? agreementId;
                                   try {
-                                    await context
+                                    // ==========================================
+                                    // contract call
+                                    // ==========================================
+                                    agreementId = await context
                                         .read<WalletProvider>()
-                                        .mint(_new.employeeWallet!, _new.id);
+                                        .createAgreeement(
+                                            widget.employmentRequest
+                                                .employeeWallet!,
+                                            "demoDao",
+                                            widget.employmentRequest.price,
+                                            DateTimeRange(
+                                              start: _start,
+                                              // end: DateTime(
+                                              //     _start.year,
+                                              //     _start.month +
+                                              //         widget.employmentRequest
+                                              //             .periodMonth,
+                                              //     _start.day),
+                                              end: _start.add(
+                                                Duration(seconds: 10),
+                                              ),
+                                            ));
+                                    if (null == agreementId) {
+                                      // failed to contract call
+                                      return;
+                                    }
+                                    print("agreementId: $agreementId");
+
+                                    _new = widget.employmentRequest.copyWith(
+                                      agreementId: agreementId,
+                                      employerWallet: context
+                                          .read<UserProvider>()
+                                          .user!
+                                          .wallet,
+                                      start: TemporalDateTime(_start),
+                                      end: TemporalDateTime(DateTime(
+                                          _start.year,
+                                          _start.month +
+                                              widget.employmentRequest
+                                                  .periodMonth,
+                                          _start.day)),
+                                      currency:
+                                          _currency.toString().split('.').last,
+                                      lockMonth: _lockMonth,
+                                      vestingMonth: _vestingMonth,
+                                    );
+                                    print("agreementId2: ${_new.agreementId}");
+                                    _new = _new.copyWith(
+                                      progressStatus: jsonEncode(
+                                          TaskStatusModel.fromEmploymentRequest(
+                                                  _new)
+                                              .toJson()),
+                                    );
                                   } catch (e) {
                                     print(e);
                                   }
+                                  if (null == _new) {
+                                    return;
+                                  }
                                   try {
+                                    // ==========================================
+                                    // save to AWS
+                                    // ==========================================
                                     await AmplifyEndpoint()
                                         .updateEmploymentRequest(_new);
                                     print(_new);
@@ -545,7 +587,7 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                                             builder: (context) =>
                                                 ModOfferCompleteView(
                                                   mod: widget.mod,
-                                                  request: _new,
+                                                  request: _new!,
                                                 )),
                                         (route) => false);
                                   } catch (e) {

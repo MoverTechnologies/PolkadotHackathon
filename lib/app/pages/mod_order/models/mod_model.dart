@@ -92,7 +92,7 @@ final List<ModModel> statsModelsMockData = [
         iconUrl:
             'https://image.binance.vision/editor-uploads-original/9c15d9647b9643dfbc5e522299d13593.png',
         discordID: 'feay89y78@8967',
-        wallet: '0x89fA617c3e0842B407E0CF14c9c6aB82eba0dA80',
+        wallet: '0xF83F62CC6Ad13570263D12e692b8Ee7850F928ef',
         firebaseTokenID: '',
         extended: '',
         languagesAsISO639: ["ja", "en"],

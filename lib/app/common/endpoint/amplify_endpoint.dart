@@ -202,6 +202,9 @@ class AmplifyEndpoint {
       currency: employmentRequest.currency,
       lockMonth: employmentRequest.lockMonth,
       vestingMonth: employmentRequest.vestingMonth,
+      agreementId: employmentRequest.agreementId,
+      extended: employmentRequest.extended,
+      progressStatus: employmentRequest.progressStatus,
     );
 
     await Amplify.DataStore.save(_new);

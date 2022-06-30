@@ -416,30 +416,39 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                         Color.fromARGB(255, 102, 102, 102),
                                     highlightColor:
                                         Color.fromARGB(255, 187, 187, 187),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          AppLocalizations.of(context)!
-                                                  .contract +
-                                              AppLocalizations.of(context)!
-                                                  .complete,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge,
-                                        ),
-                                        const Icon(Icons.arrow_forward)
-                                      ],
-                                    )),
+                                    child: (context
+                                            .watch<WalletProvider>()
+                                            .inProgress)
+                                        ? SizedBox(
+                                            height: 10,
+                                            width: 10,
+                                            child: CircularProgressIndicator(),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                AppLocalizations.of(context)!
+                                                        .contract +
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .complete,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge,
+                                              ),
+                                              const Icon(Icons.arrow_forward)
+                                            ],
+                                          )),
                               ),
                               onPressed: () async {
                                 try {
                                   // TODO: call update contract api. start Lock and vesting
                                   await context
                                       .read<WalletProvider>()
-                                      .addReview(widget.request.employeeWallet!,
-                                          widget.request.id, "good");
+                                      .completeAgreement(
+                                          widget.request.agreementId!, "good");
                                   Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(

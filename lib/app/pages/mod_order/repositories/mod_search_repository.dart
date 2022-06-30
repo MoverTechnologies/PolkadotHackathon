@@ -62,6 +62,7 @@ class ModSearchRepository {
         ));
       }
     }
+    print(_result);
 
     // filter all user from Amplify
     List<ModModel> _filterdResult = _filterByEmploymentCondition(_req, _result);

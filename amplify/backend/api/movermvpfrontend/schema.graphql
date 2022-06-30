@@ -13,6 +13,7 @@ type EmploymentRequest @model @auth(rules: [{allow: public}]) {
   extended: AWSJSON
   lockMonth: Int
   vestingMonth: Int
+  agreementId: String
 }
 
 type MoverUser @model @auth(rules: [{allow: public}]) {
