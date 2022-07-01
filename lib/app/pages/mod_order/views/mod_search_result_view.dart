@@ -4,6 +4,7 @@ import 'package:mover/app/common/utils/remote_config.dart';
 import 'package:mover/app/pages/mod_order/providers/mod_search_provider.dart';
 import 'package:mover/app/pages/mod_order/views/mod_offer_view.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:lottie/lottie.dart';
@@ -33,12 +34,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
 
     List<Widget> _selectedWidget = [];
 
-    _selectedWidget.addAll(context
-        .watch<ModSearchProvider>()
-        .selectedKeywords
-        .asMap()
-        .entries
-        .map((e) {
+    _selectedWidget.addAll(context.watch<ModSearchProvider>().selectedKeywords.asMap().entries.map((e) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Chip(
@@ -46,8 +42,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
         ),
       );
     }).toList());
-    _selectedWidget.addAll(
-        context.watch<ModSearchProvider>().selectedItems.items.entries.map((e) {
+    _selectedWidget.addAll(context.watch<ModSearchProvider>().selectedItems.items.entries.map((e) {
       if ("keyword" == e.key) {
         return Container();
       }
@@ -63,8 +58,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Theme.of(context).primaryIconTheme.color),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryIconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -72,19 +66,16 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
         child: (context.watch<ModSearchProvider>().isUpdading)
             ? Lottie.asset('assets/lottie/lottie-searching.json')
             : Column(children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        "${context.watch<ModSearchProvider>().resultMods.length}",
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      Text(
-                        "mods",
-                        style: Theme.of(context).textTheme.headline6,
-                      )
-                    ]),
+                Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+                  Text(
+                    "${context.watch<ModSearchProvider>().resultMods.length}",
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  Text(
+                    "mods",
+                    style: Theme.of(context).textTheme.headline6,
+                  )
+                ]),
                 SizedBox(height: 16),
                 Container(
                     width: MediaQuery.of(context).size.width * 0.8,
@@ -97,13 +88,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                             height: 50,
                           )
                         : Wrap(children: _selectedWidget)),
-                Align(
-                    alignment: Alignment.centerRight,
-                    child: DropdownButton(
-                        icon: const Icon(Icons.sort),
-                        items: _items,
-                        value: _selectItem,
-                        onChanged: _sort)),
+                Align(alignment: Alignment.centerRight, child: DropdownButton(icon: const Icon(Icons.sort), items: _items, value: _selectItem, onChanged: _sort)),
                 Center(
                   child: Column(
                       children: context
@@ -113,8 +98,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                           .entries
                           .map(
                             (e) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4.0, vertical: 8.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
                                 child: ListTile(
                                   tileColor: Theme.of(context).cardColor,
                                   title: Column(children: [
@@ -127,8 +111,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                           direction: Axis.horizontal,
                                           allowHalfRating: true,
                                           itemCount: 5,
-                                          itemPadding: EdgeInsets.symmetric(
-                                              horizontal: 4.0),
+                                          itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
                                           itemBuilder: (context, _) => Icon(
                                             Icons.star,
                                             color: Colors.amber,
@@ -142,10 +125,7 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                     Text(e.value.user.nickname)
                                   ]),
                                   onTap: () {
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ModOfferView(mod: e.value)));
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => ModOfferView(mod: e.value)));
                                   },
                                   subtitle: Text(
                                     e.value.rating.toExpDaoString(),
@@ -160,10 +140,8 @@ class _ModSearchResultViewState extends State<ModSearchResultView> {
                                   ),
                                   onLongPress: () => {},
                                   trailing: Text(
-                                    "\$${e.value.employmentRequests.last.price}",
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                                    "\$${NumberFormat("#,###").format(e.value.employmentRequests.last.price)}",
+                                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                                   ),
                                 )),
                           )

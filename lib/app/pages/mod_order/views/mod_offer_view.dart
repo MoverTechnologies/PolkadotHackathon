@@ -29,14 +29,14 @@ class _ModOfferViewState extends State<ModOfferView> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Theme.of(context).primaryIconTheme.color),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryIconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
+            automaticallyImplyLeading: false,
             pinned: true,
             flexibleSpace: SizedBox(
                 height: 200,
@@ -54,8 +54,7 @@ class _ModOfferViewState extends State<ModOfferView> {
                           ),
                         ),
                         Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Column(
                               children: [
                                 Row(children: [
@@ -68,8 +67,7 @@ class _ModOfferViewState extends State<ModOfferView> {
                                         direction: Axis.horizontal,
                                         allowHalfRating: true,
                                         itemCount: 5,
-                                        itemPadding: EdgeInsets.symmetric(
-                                            horizontal: 4.0),
+                                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
                                         itemBuilder: (context, _) => Icon(
                                           Icons.star,
                                           color: Colors.black,
@@ -98,14 +96,8 @@ class _ModOfferViewState extends State<ModOfferView> {
                                         .toList(),
                                   )
                                 ]),
-                                Text(
-                                    "${widget.mod.user.nickname}(${widget.mod.rating.expDao})",
-                                    style:
-                                        Theme.of(context).textTheme.headline6),
-                                Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.5,
-                                    child: _userExperienceChips()),
+                                Text("${widget.mod.user.nickname}(${widget.mod.rating.expDao})", style: Theme.of(context).textTheme.headline6),
+                                Container(width: MediaQuery.of(context).size.width * 0.5, child: _userExperienceChips()),
                               ],
                             ))
                       ],
@@ -123,15 +115,11 @@ class _ModOfferViewState extends State<ModOfferView> {
                 .map(
                   (e) => InkWell(
                       onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ModOfferCheckView(
-                                mod: widget.mod, employmentRequest: e.value)));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => ModOfferCheckView(mod: widget.mod, employmentRequest: e.value)));
                       },
                       child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 8.0),
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+                          margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
                           decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
@@ -143,91 +131,66 @@ class _ModOfferViewState extends State<ModOfferView> {
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 8.0),
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                              child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                                Stack(
                                   children: [
-                                    Stack(
+                                    Icon(
+                                      Icons.calendar_month,
+                                      size: 80,
+                                      color: Theme.of(context).cardColor.withAlpha(150),
+                                    ),
+                                    Positioned(
+                                      top: 12,
+                                      left: 0,
+                                      child: Container(
+                                          width: 80,
+                                          height: 80,
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                "${e.value.periodMonth}",
+                                                style: Theme.of(context).textTheme.headline4,
+                                              ),
+                                              Text("mon", style: Theme.of(context).textTheme.caption),
+                                            ],
+                                          )),
+                                    )
+                                  ],
+                                ),
+                                Container(
+                                    width: 80,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        Icon(
-                                          Icons.calendar_month,
-                                          size: 80,
-                                          color: Theme.of(context)
-                                              .cardColor
-                                              .withAlpha(150),
+                                        Text(
+                                          "${e.value.hourPerDay}",
+                                          style: Theme.of(context).textTheme.headline4,
                                         ),
-                                        Positioned(
-                                          top: 12,
-                                          left: 0,
-                                          child: Container(
-                                              width: 80,
-                                              height: 80,
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    "${e.value.periodMonth}",
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headline4,
-                                                  ),
-                                                  Text("mon",
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .caption),
-                                                ],
-                                              )),
-                                        )
+                                        Text("h/day", style: Theme.of(context).textTheme.caption),
                                       ],
-                                    ),
-                                    Container(
-                                        width: 80,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "${e.value.hourPerDay}",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4,
-                                            ),
-                                            Text("h/day",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .caption),
-                                          ],
-                                        )),
-                                    Container(
-                                        width: 80,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "${e.value.dayPerMonth}",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline4,
-                                            ),
-                                            Text("d/mon",
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .caption),
-                                          ],
-                                        )),
-                                    Container(
-                                      width: 80,
-                                      child: FittedBox(
-                                          child: Text(
-                                        "\$${NumberFormat("#,###").format(e.value.price)}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline4,
-                                      )),
-                                    ),
-                                  ])))),
+                                    )),
+                                Container(
+                                    width: 80,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "${e.value.dayPerMonth}",
+                                          style: Theme.of(context).textTheme.headline4,
+                                        ),
+                                        Text("d/mon", style: Theme.of(context).textTheme.caption),
+                                      ],
+                                    )),
+                                Container(
+                                  width: 80,
+                                  child: FittedBox(
+                                      child: Text(
+                                    "\$${NumberFormat("#,###").format(e.value.price)}",
+                                    style: Theme.of(context).textTheme.headline4,
+                                  )),
+                                ),
+                              ])))),
                 )
                 .toList()),
           ),

@@ -18,8 +18,7 @@ class ModSearchRepository {
     List<dynamic> _repository = [];
     List<ModModel> _tmp = [];
     List<ModModel> _result = [];
-    ModSearchEndpoint _endpoint =
-        ModSearchEndpoint(_getQuery(_req), Config.searchRpcUrl);
+    ModSearchEndpoint _endpoint = ModSearchEndpoint(_getQuery(_req), Config.searchRpcUrl);
     // TODO : Implement GraphQL query
     // await _endpoint.init();
 
@@ -50,15 +49,33 @@ class ModSearchRepository {
     }
 
     // fetch found user data from Amplify
-    for (var modModel in _tmp) {
-      final _user = await AmplifyEndpoint().getUser(modModel.user.wallet);
-      final _employmentReqest = await AmplifyEndpoint()
-          .getEmploymentRequestList(modModel.user.wallet);
-      if (null != _user) {
+    // for (var modModel in _tmp) {
+    //   final _user = await AmplifyEndpoint().getUser(modModel.user.wallet);
+    //   final _employmentReqest = await AmplifyEndpoint().getEmploymentRequestList(modModel.user.wallet);
+    //   if (null != _user) {
+    //     _result.add(ModModel(
+    //       user: _user,
+    //       rating: modModel.rating,
+    //       employmentRequests: _employmentReqest,
+    //     ));
+    //   }
+    // }
+
+    final _userList = await AmplifyEndpoint().getAllUser();
+    if (_userList == null) {
+      return [];
+    }
+    for (var user in _userList) {
+      final _employmentRequest = await AmplifyEndpoint().getEmploymentRequestList(user.wallet);
+      if (_employmentRequest.isNotEmpty) {
         _result.add(ModModel(
-          user: _user,
-          rating: modModel.rating,
-          employmentRequests: _employmentReqest,
+          user: user,
+          rating: ModRatingModel(
+            total: 3,
+            expDao: 0,
+            isEns: true,
+          ),
+          employmentRequests: _employmentRequest,
         ));
       }
     }
@@ -75,8 +92,7 @@ class ModSearchRepository {
   }
 
   String _getQuery(ModSearchRequest _req) {
-    String _query =
-        "query ReadRepositories(\$nFirst: Int!,\$nOffset: Int!){ moderator(first:\$nFirst, offset:\$nOffset";
+    String _query = "query ReadRepositories(\$nFirst: Int!,\$nOffset: Int!){ moderator(first:\$nFirst, offset:\$nOffset";
     String _filter = "";
     _req.items.forEach((key, e) {
       print("$key $e");
@@ -114,8 +130,7 @@ class ModSearchRepository {
     return _query;
   }
 
-  List<ModModel> _filterByEmploymentCondition(
-      ModSearchRequest _modSearchRequest, List<ModModel> _result) {
+  List<ModModel> _filterByEmploymentCondition(ModSearchRequest _modSearchRequest, List<ModModel> _result) {
     List<ModModel> _filterdResult = [];
     for (var modModel in _result) {
       if (modModel.employmentRequests.isNotEmpty) {
@@ -130,53 +145,32 @@ class ModSearchRepository {
           // =====================================================
           // Price
           if (_modSearchRequest.items.containsKey("price")) {
-            if ((null != _modSearchRequest.items["price"]!.item["min"]) &&
-                (null != _modSearchRequest.items["price"]!.item["max"])) {
+            if ((null != _modSearchRequest.items["price"]!.item["min"]) && (null != _modSearchRequest.items["price"]!.item["max"])) {
               // min <= price <= max
-              filter &= ((_modSearchRequest.items["price"]!.item["min"] <=
-                      request.price) &&
-                  (request.price <=
-                      _modSearchRequest.items["price"]!.item["max"]));
+              filter &= ((_modSearchRequest.items["price"]!.item["min"] <= request.price) && (request.price <= _modSearchRequest.items["price"]!.item["max"]));
             } else if (null != _modSearchRequest.items["price"]!.item["min"]) {
               // min <= price
-              filter &= (_modSearchRequest.items["price"]!.item["min"] <=
-                  request.price);
+              filter &= (_modSearchRequest.items["price"]!.item["min"] <= request.price);
             } else if (null != _modSearchRequest.items["price"]!.item["max"]) {
               // price <= max
-              filter &= (request.price <=
-                  _modSearchRequest.items["price"]!.item["max"]);
+              filter &= (request.price <= _modSearchRequest.items["price"]!.item["max"]);
             }
           }
           // =====================================================
           // period
           if (_modSearchRequest.items.containsKey("periodOfEmployment")) {
-            if ((null !=
-                    _modSearchRequest
-                        .items["periodOfEmployment"]!.item["min"]) &&
-                (null !=
-                    _modSearchRequest
-                        .items["periodOfEmployment"]!.item["max"])) {
+            if ((null != _modSearchRequest.items["periodOfEmployment"]!.item["min"]) && (null != _modSearchRequest.items["periodOfEmployment"]!.item["max"])) {
               // =====================================================
               // min <= period <= max
-              filter &=
-                  (_modSearchRequest.items["periodOfEmployment"]!.item["min"] <=
-                          request.periodMonth) ||
-                      (request.periodMonth <=
-                          _modSearchRequest
-                              .items["periodOfEmployment"]!.item["max"]);
-            } else if (null !=
-                _modSearchRequest.items["periodOfEmployment"]!.item["min"]) {
+              filter &= (_modSearchRequest.items["periodOfEmployment"]!.item["min"] <= request.periodMonth) || (request.periodMonth <= _modSearchRequest.items["periodOfEmployment"]!.item["max"]);
+            } else if (null != _modSearchRequest.items["periodOfEmployment"]!.item["min"]) {
               // =====================================================
               // min <= period
-              filter &=
-                  (_modSearchRequest.items["periodOfEmployment"]!.item["min"] <=
-                      request.periodMonth);
-            } else if (null !=
-                _modSearchRequest.items["periodOfEmployment"]!.item["max"]) {
+              filter &= (_modSearchRequest.items["periodOfEmployment"]!.item["min"] <= request.periodMonth);
+            } else if (null != _modSearchRequest.items["periodOfEmployment"]!.item["max"]) {
               // =====================================================
               // price <= max
-              filter &= (request.periodMonth <=
-                  _modSearchRequest.items["periodOfEmployment"]!.item["max"]);
+              filter &= (request.periodMonth <= _modSearchRequest.items["periodOfEmployment"]!.item["max"]);
             }
           }
 
@@ -186,10 +180,7 @@ class ModSearchRepository {
         // =====================================================
         // add filterd user to result
         if (_request.toList().isNotEmpty) {
-          _filterdResult.add(ModModel(
-              user: modModel.user,
-              rating: modModel.rating,
-              employmentRequests: _request.toList()));
+          _filterdResult.add(ModModel(user: modModel.user, rating: modModel.rating, employmentRequests: _request.toList()));
         }
       }
     }

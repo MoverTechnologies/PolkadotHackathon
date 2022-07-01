@@ -17,8 +17,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'mod_pay_complete_view.dart';
 
 class ModPayCheckView extends StatefulWidget {
-  const ModPayCheckView({Key? key, required this.mod, required this.request})
-      : super(key: key);
+  const ModPayCheckView({Key? key, required this.mod, required this.request}) : super(key: key);
 
   final ModModel mod;
   final EmploymentRequest request;
@@ -35,14 +34,14 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Theme.of(context).primaryIconTheme.color),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryIconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
+            automaticallyImplyLeading: false,
             pinned: true,
             flexibleSpace: SizedBox(
                 height: 200,
@@ -60,8 +59,7 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                           ),
                         ),
                         Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Column(
                               children: [
                                 Row(children: [
@@ -74,8 +72,7 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                         direction: Axis.horizontal,
                                         allowHalfRating: true,
                                         itemCount: 5,
-                                        itemPadding: EdgeInsets.symmetric(
-                                            horizontal: 4.0),
+                                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
                                         itemBuilder: (context, _) => Icon(
                                           Icons.star,
                                           color: Colors.black,
@@ -104,14 +101,8 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                         .toList(),
                                   )
                                 ]),
-                                Text(
-                                    "${widget.mod.user.nickname}(${widget.mod.rating.expDao})",
-                                    style:
-                                        Theme.of(context).textTheme.headline6),
-                                Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.5,
-                                    child: _userExperienceChips()),
+                                Text("${widget.mod.user.nickname}(${widget.mod.rating.expDao})", style: Theme.of(context).textTheme.headline6),
+                                Container(width: MediaQuery.of(context).size.width * 0.5, child: _userExperienceChips()),
                               ],
                             ))
                       ],
@@ -136,12 +127,10 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                 color: Colors.grey,
                               ),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Text(
                                     widget.mod.user.company ?? "No company",
-                                    style:
-                                        Theme.of(context).textTheme.headline5,
+                                    style: Theme.of(context).textTheme.headline5,
                                   ))
                             ],
                           )),
@@ -157,46 +146,37 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                               child: Row(
                             children: [
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
                                         "${widget.request.periodMonth}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        style: Theme.of(context).textTheme.headline5,
                                       ),
                                       Text("mon")
                                     ],
                                   )),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
                                         "${widget.request.hourPerDay}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        style: Theme.of(context).textTheme.headline5,
                                       ),
                                       Text("h/week")
                                     ],
                                   )),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
                                         "${widget.request.dayPerMonth}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        style: Theme.of(context).textTheme.headline5,
                                       ),
                                       Text("d/mon")
                                     ],
@@ -221,17 +201,12 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text("start",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall),
+                                      Text("start", style: Theme.of(context).textTheme.bodySmall),
                                     ],
                                   ),
                                   Text(
-                                    _formatter.format(widget.request.start!
-                                        .getDateTimeInUtc()),
-                                    style:
-                                        Theme.of(context).textTheme.headline5,
+                                    _formatter.format(widget.request.start!.getDateTimeInUtc()),
+                                    style: Theme.of(context).textTheme.headline5,
                                   )
                                 ],
                               ),
@@ -241,15 +216,10 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("end",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
+                                  Text("end", style: Theme.of(context).textTheme.bodySmall),
                                   Text(
-                                    _formatter.format(
-                                        widget.request.end!.getDateTimeInUtc()),
-                                    style:
-                                        Theme.of(context).textTheme.headline5,
+                                    _formatter.format(widget.request.end!.getDateTimeInUtc()),
+                                    style: Theme.of(context).textTheme.headline5,
                                   )
                                 ],
                               )
@@ -266,24 +236,14 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                 color: Colors.grey,
                               ),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("currency",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall),
+                                      Text("currency", style: Theme.of(context).textTheme.bodySmall),
                                       Text(
-                                        widget.request.currency
-                                            .toString()
-                                            .split('.')
-                                            .last,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        widget.request.currency.toString().split('.').last,
+                                        style: Theme.of(context).textTheme.headline5,
                                       ),
                                     ],
                                   )),
@@ -291,12 +251,10 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                 width: 16,
                               ),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Text(
                                     "\$${widget.request.price}",
-                                    style:
-                                        Theme.of(context).textTheme.headline5,
+                                    style: Theme.of(context).textTheme.headline5,
                                   )),
                             ],
                           )),
@@ -311,21 +269,14 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                 color: Colors.grey,
                               ),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("Lock",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall),
+                                      Text("Lock", style: Theme.of(context).textTheme.bodySmall),
                                       Text(
                                         widget.request.lockMonth.toString(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        style: Theme.of(context).textTheme.headline5,
                                       ),
                                     ],
                                   )),
@@ -333,21 +284,14 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                 width: 64,
                               ),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("Vesting",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall),
+                                      Text("Vesting", style: Theme.of(context).textTheme.bodySmall),
                                       Text(
                                         widget.request.vestingMonth.toString(),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        style: Theme.of(context).textTheme.headline5,
                                       ),
                                     ],
                                   )),
@@ -392,51 +336,34 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                       //     )),
                       SizedBox(height: 8),
                       Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 32.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
                           child: TextButton(
                               child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 20),
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 30),
+                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                margin: const EdgeInsets.symmetric(horizontal: 30),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   gradient: const LinearGradient(
-                                    colors: [
-                                      Color.fromARGB(255, 206, 219, 26),
-                                      Color.fromARGB(255, 113, 211, 34)
-                                    ],
+                                    colors: [Color.fromARGB(255, 206, 219, 26), Color.fromARGB(255, 113, 211, 34)],
                                     begin: FractionalOffset.centerLeft,
                                     end: FractionalOffset.centerRight,
                                   ),
                                 ),
                                 child: Shimmer.fromColors(
-                                    baseColor:
-                                        Color.fromARGB(255, 102, 102, 102),
-                                    highlightColor:
-                                        Color.fromARGB(255, 187, 187, 187),
-                                    child: (context
-                                            .watch<WalletProvider>()
-                                            .inProgress)
+                                    baseColor: Color.fromARGB(255, 102, 102, 102),
+                                    highlightColor: Color.fromARGB(255, 187, 187, 187),
+                                    child: (context.watch<WalletProvider>().inProgress)
                                         ? SizedBox(
                                             height: 10,
                                             width: 10,
                                             child: CircularProgressIndicator(),
                                           )
                                         : Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                AppLocalizations.of(context)!
-                                                        .contract +
-                                                    AppLocalizations.of(
-                                                            context)!
-                                                        .complete,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleLarge,
+                                                AppLocalizations.of(context)!.contract + AppLocalizations.of(context)!.complete,
+                                                style: Theme.of(context).textTheme.titleLarge,
                                               ),
                                               const Icon(Icons.arrow_forward)
                                             ],
@@ -445,15 +372,11 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                               onPressed: () async {
                                 try {
                                   // TODO: call update contract api. start Lock and vesting
-                                  await context
-                                      .read<WalletProvider>()
-                                      .completeAgreement(
-                                          widget.request.agreementId!, "good");
+                                  await context.read<WalletProvider>().completeAgreement(widget.request.agreementId!, "good");
                                   Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              ModPayCompleteView(
+                                          builder: (context) => ModPayCompleteView(
                                                 mod: widget.mod,
                                                 request: widget.request,
                                               )),

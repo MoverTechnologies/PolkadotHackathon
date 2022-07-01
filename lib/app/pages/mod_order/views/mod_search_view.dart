@@ -28,31 +28,23 @@ class _ModSearchViewState extends State<ModSearchView> {
   Widget build(BuildContext context) {
     List<Widget> _selectedWidget = [];
 
-    _selectedWidget.addAll(context
-        .watch<ModSearchProvider>()
-        .selectedKeywords
-        .asMap()
-        .entries
-        .map((e) {
+    _selectedWidget.addAll(context.watch<ModSearchProvider>().selectedKeywords.asMap().entries.map((e) {
       return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Chip(
               label: Text(e.value),
               onDeleted: () {
-                context
-                    .read<ModSearchProvider>()
-                    .onDeleteItem(ModSearchRequestItem(
-                        header: ModSearchConfigHeader(
-                          key: "keyword",
-                          name: "keyword",
-                          omitName: "",
-                          type: "",
-                        ),
-                        item: {"key": e.value, "val": e.value}));
+                context.read<ModSearchProvider>().onDeleteItem(ModSearchRequestItem(
+                    header: ModSearchConfigHeader(
+                      key: "keyword",
+                      name: "keyword",
+                      omitName: "",
+                      type: "",
+                    ),
+                    item: {"key": e.value, "val": e.value}));
               }));
     }).toList());
-    _selectedWidget.addAll(
-        context.watch<ModSearchProvider>().selectedItems.items.entries.map((e) {
+    _selectedWidget.addAll(context.watch<ModSearchProvider>().selectedItems.items.entries.map((e) {
       if ("keyword" == e.key) {
         return Container();
       }
@@ -70,18 +62,15 @@ class _ModSearchViewState extends State<ModSearchView> {
           elevation: 0,
           backgroundColor: Colors.transparent,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back,
-                color: Theme.of(context).primaryIconTheme.color),
+            icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryIconTheme.color),
             onPressed: () => Navigator.of(context).pop(),
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.search,
-                  color: Theme.of(context).primaryIconTheme.color),
+              icon: Icon(Icons.search, color: Theme.of(context).primaryIconTheme.color),
               onPressed: () async {
                 await context.read<ModSearchProvider>().search();
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ModSearchResultView()));
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ModSearchResultView()));
               },
             ),
             SizedBox(width: 16),
@@ -90,6 +79,7 @@ class _ModSearchViewState extends State<ModSearchView> {
         body: CustomScrollView(
           slivers: <Widget>[
             SliverAppBar(
+              automaticallyImplyLeading: false,
               pinned: true,
               flexibleSpace: SizedBox(
                   height: 200,
@@ -99,16 +89,14 @@ class _ModSearchViewState extends State<ModSearchView> {
                         child: TextField(
                           controller: _textFieldController,
                           onSubmitted: (_text) {
-                            context
-                                .read<ModSearchProvider>()
-                                .onAddItem(ModSearchRequestItem(
-                                    header: ModSearchConfigHeader(
-                                      key: "keyword",
-                                      name: "keyword",
-                                      omitName: "keyword",
-                                      type: "",
-                                    ),
-                                    item: {"key": _text, "val": _text}));
+                            context.read<ModSearchProvider>().onAddItem(ModSearchRequestItem(
+                                header: ModSearchConfigHeader(
+                                  key: "keyword",
+                                  name: "keyword",
+                                  omitName: "keyword",
+                                  type: "",
+                                ),
+                                item: {"key": _text, "val": _text}));
                           },
                           decoration: InputDecoration(
                             labelText: AppLocalizations.of(context)!.search,
@@ -123,10 +111,7 @@ class _ModSearchViewState extends State<ModSearchView> {
                     ),
                     Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: SingleChildScrollView(
-                            controller: _chipScrollController,
-                            scrollDirection: Axis.horizontal,
-                            child: Row(children: _selectedWidget))),
+                        child: SingleChildScrollView(controller: _chipScrollController, scrollDirection: Axis.horizontal, child: Row(children: _selectedWidget))),
                   ])),
               expandedHeight: 200,
               collapsedHeight: 150,
@@ -159,8 +144,7 @@ class _ModSearchViewState extends State<ModSearchView> {
             child: FittedBox(
                 child: Row(
                     children: e.items.map((item) {
-              final _requestItem =
-                  ModSearchRequestItem(header: e.header, item: item);
+              final _requestItem = ModSearchRequestItem(header: e.header, item: item);
               return _toggleButton(_requestItem);
             }).toList())));
       } else if ("selectable" == e.header.type) {
@@ -169,8 +153,7 @@ class _ModSearchViewState extends State<ModSearchView> {
             child: FittedBox(
                 child: Row(
                     children: e.items.map((item) {
-              final _requestItem =
-                  ModSearchRequestItem(header: e.header, item: item);
+              final _requestItem = ModSearchRequestItem(header: e.header, item: item);
               return _hotwordButton(_requestItem);
             }).toList())));
       } else if ("toggleBool" == e.header.type) {
@@ -179,8 +162,7 @@ class _ModSearchViewState extends State<ModSearchView> {
             child: FittedBox(
                 child: Row(
                     children: e.items.map((item) {
-              final _requestItem =
-                  ModSearchRequestItem(header: e.header, item: item);
+              final _requestItem = ModSearchRequestItem(header: e.header, item: item);
               return _toggleButton(_requestItem);
             }).toList())));
       }
