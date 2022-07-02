@@ -155,8 +155,7 @@ class Web3Repository {
         chainId: chain.chainID);
 
     print("fetching proof ids...");
-    final tx =
-        await _pom.getAllTokenIds(EthereumAddress.fromHex(moderatorAddress));
+    final tx = await _pom.getAllTokenIds(EthereumAddress.fromHex(moderatorAddress));
 
     client.dispose();
 
@@ -183,8 +182,7 @@ class Web3Repository {
     return tx;
   }
 
-  Future<StreamController<TransactionReceipt?>?> burnToken(
-      String proofId) async {
+  Future<StreamController<TransactionReceipt?>?> burnToken(String proofId) async {
     if (null == _credential) {
       // not connected
       return null;
@@ -196,16 +194,13 @@ class Web3Repository {
     final _transaction = Transaction(
       from: _sender,
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, BigInt.from(0)),
-      nonce: await client.getTransactionCount(_sender,
-          atBlock: BlockNum.pending()),
-      maxGas: 5000000,
+      nonce: await client.getTransactionCount(_sender, atBlock: BlockNum.pending()),
+      maxGas: 1000000,
 
       gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(200)),
       // EIP-1559
-      maxFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
-      maxPriorityFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
+      maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
+      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
     );
 
     print("processing...");
@@ -216,8 +211,7 @@ class Web3Repository {
         client: client,
         chainId: chain.chainID);
 
-    final tx = await _pom.burnToken(hexToBytes(proofId),
-        credentials: _credential!, transaction: _transaction);
+    final tx = await _pom.burnToken(hexToBytes(proofId), credentials: _credential!, transaction: _transaction);
 
     print("tx: ${tx}");
 
@@ -238,8 +232,7 @@ class Web3Repository {
   // ============================================================
   // Agreeement contract
   // ============================================================
-  Future<String?> createAgreeement(String moderatorAddress, String daoName,
-      int amount, DateTimeRange _range) async {
+  Future<String?> createAgreeement(String moderatorAddress, String daoName, int amount, DateTimeRange _range) async {
     String? _ret;
     if (null == _credential) {
       // not connected
@@ -254,14 +247,12 @@ class Web3Repository {
       from: _sender,
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, BigInt.from(0)),
       nonce: await client.getTransactionCount(_sender, atBlock: _blockNum),
-      maxGas: 5000000,
+      maxGas: 1000000,
 
       gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(200)),
       // EIP-1559
-      maxFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
-      maxPriorityFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
+      maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
+      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
     );
 
     print("signing...");
@@ -277,21 +268,16 @@ class Web3Repository {
     final tx = await _agreement.createAgreement(
       EthereumAddress.fromHex(moderatorAddress),
       Uint8List.fromList(daoName.padLeft(22).codeUnits), // 22bytes of daoName
-      BigInt.from(_range.start.millisecondsSinceEpoch /
-          1000), // start time (currentTime)
-      BigInt.from(
-          _range.end.millisecondsSinceEpoch / 1000), // end time (currentTime)
-      EtherAmount.fromUnitAndValue(EtherUnit.ether, amount)
-          .getInWei, // reward amount
+      BigInt.from(_range.start.millisecondsSinceEpoch / 1000), // start time (currentTime)
+      BigInt.from(_range.end.millisecondsSinceEpoch / 1000), // end time (currentTime)
+      EtherAmount.fromUnitAndValue(EtherUnit.ether, amount).getInWei, // reward amount
       BigInt.from(60), // vesting duration (60s after endTime has passed)
       credentials: _credential!,
       transaction: _transaction,
     );
 
     final _receipt = await _waitTransaction(client, tx);
-    if (null == _receipt ||
-        null == _receipt.status ||
-        false == _receipt.status) {
+    if (null == _receipt || null == _receipt.status || false == _receipt.status) {
       return null;
     }
 
@@ -312,8 +298,7 @@ class Web3Repository {
     return _ret;
   }
 
-  Future<UpdateAgreement?> updateAgreement(
-      String agreementId, DateTimeRange _range, int amount) async {
+  Future<UpdateAgreement?> updateAgreement(String agreementId, DateTimeRange _range, int amount) async {
     if (null == _credential) {
       // not connected
       return null;
@@ -325,16 +310,13 @@ class Web3Repository {
     final _transaction = Transaction(
       from: _sender,
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, BigInt.from(0)),
-      nonce: await client.getTransactionCount(_sender,
-          atBlock: BlockNum.pending()),
-      maxGas: 5000000,
+      nonce: await client.getTransactionCount(_sender, atBlock: BlockNum.pending()),
+      maxGas: 1000000,
 
       gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(200)),
       // EIP-1559
-      maxFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
-      maxPriorityFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
+      maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
+      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
     );
 
     print("signing...");
@@ -349,12 +331,9 @@ class Web3Repository {
 
     final tx = await _agreement.updateAgreement(
       hexToBytes(agreementId),
-      BigInt.from(
-          (_range.start.millisecondsSinceEpoch / 1000).floor()), // start time
-      BigInt.from(
-          (_range.end.millisecondsSinceEpoch / 1000).floor()), // end time
-      EtherAmount.fromUnitAndValue(EtherUnit.ether, amount)
-          .getInWei, // reward amount
+      BigInt.from((_range.start.millisecondsSinceEpoch / 1000).floor()), // start time
+      BigInt.from((_range.end.millisecondsSinceEpoch / 1000).floor()), // end time
+      EtherAmount.fromUnitAndValue(EtherUnit.ether, amount).getInWei, // reward amount
       credentials: _credential!,
       transaction: _transaction,
     );
@@ -362,9 +341,7 @@ class Web3Repository {
     print("tx: ${tx}");
 
     final _receipt = await _waitTransaction(client, tx);
-    if (null == _receipt ||
-        null == _receipt.status ||
-        false == _receipt.status) {
+    if (null == _receipt || null == _receipt.status || false == _receipt.status) {
       return null;
     }
 
@@ -373,8 +350,7 @@ class Web3Repository {
     return _ret;
   }
 
-  Future<CompleteAgreement?> completeAgreement(
-      String agreementId, String review) async {
+  Future<CompleteAgreement?> completeAgreement(String agreementId, String review) async {
     if (null == _credential) {
       // not connected
       return null;
@@ -386,16 +362,13 @@ class Web3Repository {
     final _transaction = Transaction(
       from: _sender,
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, BigInt.from(0)),
-      nonce: await client.getTransactionCount(_sender,
-          atBlock: BlockNum.pending()),
-      maxGas: 5000000,
+      nonce: await client.getTransactionCount(_sender, atBlock: BlockNum.pending()),
+      maxGas: 1000000,
 
       gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(200)),
       // EIP-1559
-      maxFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
-      maxPriorityFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
+      maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
+      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
     );
 
     print("signing...");
@@ -417,9 +390,7 @@ class Web3Repository {
 
     CompleteAgreement? _ret;
     final _receipt = await _waitTransaction(client, tx);
-    if (null == _receipt ||
-        null == _receipt.status ||
-        false == _receipt.status) {
+    if (null == _receipt || null == _receipt.status || false == _receipt.status) {
       return null;
     }
     // event subscription
@@ -451,8 +422,7 @@ class Web3Repository {
         client: client,
         chainId: chain.chainID);
 
-    final tx =
-        await _agreement.getAllIds(EthereumAddress.fromHex(moderatorAddress));
+    final tx = await _agreement.getAllIds(EthereumAddress.fromHex(moderatorAddress));
 
     client.dispose();
     return tx;
@@ -482,10 +452,7 @@ class Web3Repository {
       return null;
     }
     final client = Web3Client(chain.rpcUrl, Client());
-    AgreementContract _agreement = AgreementContract(
-        address: EthereumAddress.fromHex(Config.agreementContract.address),
-        client: client,
-        chainId: chain.chainID);
+    AgreementContract _agreement = AgreementContract(address: EthereumAddress.fromHex(Config.agreementContract.address), client: client, chainId: chain.chainID);
 
     print("get total agreement count...");
 
@@ -504,10 +471,7 @@ class Web3Repository {
       return null;
     }
     final client = Web3Client(chain.rpcUrl, Client());
-    Vesting _vesting = Vesting(
-        address: EthereumAddress.fromHex(Config.vestingContract.address),
-        client: client,
-        chainId: chain.chainID);
+    Vesting _vesting = Vesting(address: EthereumAddress.fromHex(Config.vestingContract.address), client: client, chainId: chain.chainID);
 
     print("get total agreement count...");
 
@@ -517,8 +481,7 @@ class Web3Repository {
     return tx;
   }
 
-  Future<StreamController<TransactionReceipt?>?> release(
-      String agreementId) async {
+  Future<StreamController<TransactionReceipt?>?> release(String agreementId) async {
     if (null == _credential) {
       // not connected
       return null;
@@ -530,16 +493,13 @@ class Web3Repository {
     final _transaction = Transaction(
       from: _sender,
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, BigInt.from(0)),
-      nonce: await client.getTransactionCount(_sender,
-          atBlock: BlockNum.pending()),
-      maxGas: 5000000,
+      nonce: await client.getTransactionCount(_sender, atBlock: BlockNum.pending()),
+      maxGas: 1000000,
 
       gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(200)),
       // EIP-1559
-      maxFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
-      maxPriorityFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
+      maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
+      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
     );
 
     print("signing...");
@@ -587,20 +547,16 @@ class Web3Repository {
     final _transaction = Transaction(
       from: _sender,
       value: EtherAmount.fromUnitAndValue(EtherUnit.ether, BigInt.from(0)),
-      nonce: await client.getTransactionCount(_sender,
-          atBlock: BlockNum.pending()),
-      maxGas: 5000000,
+      nonce: await client.getTransactionCount(_sender, atBlock: BlockNum.pending()),
+      maxGas: 1000000,
 
       gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(200)),
       // EIP-1559
-      maxFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
-      maxPriorityFeePerGas:
-          EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
+      maxFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(70)),
+      maxPriorityFeePerGas: EtherAmount.fromUnitAndValue(EtherUnit.gwei, BigInt.from(30)),
     );
 
-    print(
-        "approving... ${EtherAmount.fromUnitAndValue(EtherUnit.ether, amount).getInWei}");
+    print("approving... ${EtherAmount.fromUnitAndValue(EtherUnit.ether, amount).getInWei}");
 
     Token _token = Token(
         // your contract argument
@@ -617,9 +573,7 @@ class Web3Repository {
     print("tx: ${tx}");
 
     final _receipt = await _waitTransaction(client, tx);
-    if (null == _receipt ||
-        null == _receipt.status ||
-        false == _receipt.status) {
+    if (null == _receipt || null == _receipt.status || false == _receipt.status) {
       client.dispose();
       return false;
     }
@@ -634,10 +588,7 @@ class Web3Repository {
       return null;
     }
     final client = Web3Client(chain.rpcUrl, Client());
-    Token _token = Token(
-        address: EthereumAddress.fromHex(Config.tokenContract.address),
-        client: client,
-        chainId: chain.chainID);
+    Token _token = Token(address: EthereumAddress.fromHex(Config.tokenContract.address), client: client, chainId: chain.chainID);
 
     print("get my balance...");
 
@@ -651,8 +602,7 @@ class Web3Repository {
   // ============================================================
 
   // wait transaction to be confirmed
-  Future<TransactionReceipt?> _waitTransaction(
-      Web3Client _client, String _tx) async {
+  Future<TransactionReceipt?> _waitTransaction(Web3Client _client, String _tx) async {
     int _cnt = 0;
     const int cntMax = 600; // 10min
     TransactionReceipt? _receipt;
@@ -675,16 +625,13 @@ class Web3Repository {
 
   /// TransactionReceipt test data
   final _transactionReceiptTest = TransactionReceipt(
-    blockHash: Uint8List(
-        0x0000000000000000000000000000000000000000000000000000000000000000),
-    contractAddress:
-        EthereumAddress.fromHex("0x0000000000000000000000000000000000000000"),
+    blockHash: Uint8List(0x0000000000000000000000000000000000000000000000000000000000000000),
+    contractAddress: EthereumAddress.fromHex("0x0000000000000000000000000000000000000000"),
     cumulativeGasUsed: BigInt.from(0),
     from: EthereumAddress.fromHex("0x0000000000000000000000000000000000000000"),
     gasUsed: BigInt.from(0),
     logs: [],
-    transactionHash: Uint8List(
-        0x0000000000000000000000000000000000000000000000000000000000000000),
+    transactionHash: Uint8List(0x0000000000000000000000000000000000000000000000000000000000000000),
     transactionIndex: 1234,
   );
 }

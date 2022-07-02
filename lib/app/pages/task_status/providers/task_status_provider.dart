@@ -18,12 +18,12 @@ class TaskStatusProvider with ChangeNotifier {
   bool inProgress = false;
 
   setTaskStatus(EmploymentRequest _request) {
+    _currentStep = 0;
     if (null == _request.progressStatus) {
       return;
     }
     try {
-      _taskStatus =
-          TaskStatusModel.fromJson(jsonDecode(_request.progressStatus!));
+      _taskStatus = TaskStatusModel.fromJson(jsonDecode(_request.progressStatus!));
       _employmentRequest = _request;
       for (var i = 0; i < _taskStatus!.taskStatusList.length; i++) {
         if (null == _taskStatus!.taskStatusList[i].completedDate) {
@@ -36,6 +36,7 @@ class TaskStatusProvider with ChangeNotifier {
     } catch (e) {
       print("##### Error in setTaskStatus ##### $e");
     }
+    print(_currentStep);
   }
 
   approve() async {
@@ -51,20 +52,16 @@ class TaskStatusProvider with ChangeNotifier {
     if (_currentStep < 1) {
       // not started
       _taskStatus!.isStarted = true;
-      AmplifyEndpoint().updateTaskStatus(
-          _employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
+      AmplifyEndpoint().updateTaskStatus(_employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
     } else if (_currentStep < (stepLength - 1)) {
       // started but not complete
-      _taskStatus!.taskStatusList[_currentStep - 1].completedDate =
-          DateTime.now();
-      AmplifyEndpoint().updateTaskStatus(
-          _employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
+      _taskStatus!.taskStatusList[_currentStep - 1].completedDate = DateTime.now();
+      AmplifyEndpoint().updateTaskStatus(_employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
     } else if (_currentStep < (stepLength)) {
       // complete
       _taskStatus!.isComplete = true;
       _taskStatus!.completedDate = DateTime.now();
-      AmplifyEndpoint().updateTaskStatus(
-          _employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
+      AmplifyEndpoint().updateTaskStatus(_employmentRequest!.id, jsonEncode(_taskStatus!.toJson()));
     } else {
       // already complete
       // nop
@@ -88,8 +85,7 @@ class TaskStatusProvider with ChangeNotifier {
       _ret = _employmentRequest!.start!.getDateTimeInUtc().isBefore(_now);
     } else if (_currentStep < (stepLength - 1)) {
       // started but not complete
-      _ret =
-          _taskStatus!.taskStatusList[_currentStep - 1].deadline.isBefore(_now);
+      _ret = _taskStatus!.taskStatusList[_currentStep - 1].deadline.isBefore(_now);
     } else if (_currentStep < (stepLength)) {
       // complete
       _ret = _employmentRequest!.end!.getDateTimeInUtc().isBefore(_now);

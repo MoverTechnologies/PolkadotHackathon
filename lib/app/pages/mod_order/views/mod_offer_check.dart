@@ -132,10 +132,13 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.groups,
-                                size: 32,
-                                color: Colors.grey,
+                              Tooltip(
+                                child: Icon(
+                                  Icons.groups,
+                                  size: 32,
+                                  color: Colors.grey,
+                                ),
+                                message: AppLocalizations.of(context)!.guildName,
                               ),
                               Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -148,10 +151,13 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(
-                            Icons.calendar_month,
-                            size: 32,
-                            color: Colors.grey,
+                          Tooltip(
+                            child: Icon(
+                              Icons.calendar_month,
+                              size: 32,
+                              color: Colors.grey,
+                            ),
+                            message: AppLocalizations.of(context)!.termsOfEmployment,
                           ),
                           FittedBox(
                               child: Row(
@@ -225,7 +231,7 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text("start", style: Theme.of(context).textTheme.bodySmall),
+                                      Text(AppLocalizations.of(context)!.start, style: Theme.of(context).textTheme.bodySmall),
                                     ],
                                   ),
                                   Text(
@@ -240,7 +246,7 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("end", style: Theme.of(context).textTheme.bodySmall),
+                                  Text(AppLocalizations.of(context)!.end, style: Theme.of(context).textTheme.bodySmall),
                                   Text(
                                     _formatter.format(DateTime(_start.year, _start.month + widget.employmentRequest.periodMonth, _start.day)),
                                     style: Theme.of(context).textTheme.headline5!.copyWith(color: Colors.grey),
@@ -254,17 +260,20 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.monetization_on,
-                                size: 32,
-                                color: Colors.grey,
+                              Tooltip(
+                                child: Icon(
+                                  Icons.monetization_on,
+                                  size: 32,
+                                  color: Colors.grey,
+                                ),
+                                message: AppLocalizations.of(context)!.currency,
                               ),
                               Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("currency", style: Theme.of(context).textTheme.bodySmall),
+                                      Text(AppLocalizations.of(context)!.currency, style: Theme.of(context).textTheme.bodySmall),
                                       DropdownButton<Currency>(
                                         items: Currency.values.map((Currency value) {
                                           return DropdownMenuItem<Currency>(
@@ -296,30 +305,38 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                           padding: const EdgeInsets.symmetric(horizontal: 1.0),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.lock,
-                                size: 32,
-                                color: Colors.grey,
+                              Tooltip(
+                                child: Icon(
+                                  Icons.lock,
+                                  size: 32,
+                                  color: Colors.grey,
+                                ),
+                                message: "${AppLocalizations.of(context)!.lock} and ${AppLocalizations.of(context)!.vesting}",
                               ),
                               Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  child: Row(
                                     children: [
-                                      Text("Lock", style: Theme.of(context).textTheme.bodySmall),
-                                      DropdownButton<int>(
-                                        items: <int>[0, 1, 2, 3].map((int value) {
-                                          return DropdownMenuItem<int>(
-                                            value: value,
-                                            child: Text(
-                                              value.toString(),
-                                              style: Theme.of(context).textTheme.headline5,
-                                            ),
-                                          );
-                                        }).toList(),
-                                        value: _lockMonth,
-                                        onChanged: (value) => setState(() => _lockMonth = value ?? 2),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(AppLocalizations.of(context)!.lock, style: Theme.of(context).textTheme.bodySmall),
+                                          DropdownButton<int>(
+                                            items: <int>[0, 1, 2, 3].map((int value) {
+                                              return DropdownMenuItem<int>(
+                                                value: value,
+                                                child: Text(
+                                                  value.toString(),
+                                                  style: Theme.of(context).textTheme.headline5,
+                                                ),
+                                              );
+                                            }).toList(),
+                                            value: _lockMonth,
+                                            onChanged: (value) => setState(() => _lockMonth = value ?? 2),
+                                          ),
+                                        ],
                                       ),
+                                      Text("mon")
                                     ],
                                   )),
                               SizedBox(
@@ -330,7 +347,7 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text("Vesting", style: Theme.of(context).textTheme.bodySmall),
+                                      Text(AppLocalizations.of(context)!.vesting, style: Theme.of(context).textTheme.bodySmall),
                                       DropdownButton<int>(
                                         items: <int>[0, 1, 2, 3].map((int value) {
                                           return DropdownMenuItem<int>(
@@ -392,6 +409,8 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 20),
                                 margin: const EdgeInsets.symmetric(horizontal: 30),
+                                height: 70,
+                                width: MediaQuery.of(context).size.width * 0.8,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   gradient: const LinearGradient(
@@ -400,25 +419,29 @@ class _ModOfferCheckViewState extends State<ModOfferCheckView> {
                                     end: FractionalOffset.centerRight,
                                   ),
                                 ),
-                                child: Shimmer.fromColors(
-                                    baseColor: Color.fromARGB(255, 102, 102, 102),
-                                    highlightColor: Color.fromARGB(255, 187, 187, 187),
-                                    child: (context.watch<WalletProvider>().inProgress)
-                                        ? SizedBox(
-                                            height: 10,
-                                            width: 10,
-                                            child: CircularProgressIndicator(),
-                                          )
-                                        : Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                AppLocalizations.of(context)!.contract,
-                                                style: Theme.of(context).textTheme.titleLarge,
-                                              ),
-                                              const Icon(Icons.arrow_forward)
-                                            ],
-                                          )),
+                                child: (context.watch<WalletProvider>().inProgress)
+                                    ? const SizedBox(
+                                        height: 10,
+                                        width: 10,
+                                        child: FittedBox(
+                                            child: CircularProgressIndicator(
+                                          color: Colors.grey,
+                                          strokeWidth: 2,
+                                        )),
+                                      )
+                                    : Shimmer.fromColors(
+                                        baseColor: Color.fromARGB(255, 102, 102, 102),
+                                        highlightColor: Color.fromARGB(255, 187, 187, 187),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              AppLocalizations.of(context)!.contract,
+                                              style: Theme.of(context).textTheme.titleLarge,
+                                            ),
+                                            const Icon(Icons.arrow_forward)
+                                          ],
+                                        )),
                               ),
                               onPressed: () async {
                                 final _user = context.read<UserProvider>().user;

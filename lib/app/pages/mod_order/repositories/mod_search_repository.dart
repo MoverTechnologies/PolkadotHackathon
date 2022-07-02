@@ -41,12 +41,12 @@ class ModSearchRepository {
     //     break;
     //   }
     // }
-    _tmp.addAll(searchResultToModel(_repository));
+    // _tmp.addAll(searchResultToModel(_repository));
 
-    if (_tmp.isEmpty) {
-      // no data found
-      return [];
-    }
+    // if (_tmp.isEmpty) {
+    //   // no data found
+    //   return [];
+    // }
 
     // fetch found user data from Amplify
     // for (var modModel in _tmp) {

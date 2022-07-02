@@ -166,7 +166,7 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                         "${widget.request.hourPerDay}",
                                         style: Theme.of(context).textTheme.headline5,
                                       ),
-                                      Text("h/week")
+                                      Text("h/day")
                                     ],
                                   )),
                               Padding(
@@ -341,6 +341,8 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 20),
                                 margin: const EdgeInsets.symmetric(horizontal: 30),
+                                height: 70,
+                                width: MediaQuery.of(context).size.width * 0.8,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
                                   gradient: const LinearGradient(
@@ -349,25 +351,29 @@ class _ModPayCheckViewState extends State<ModPayCheckView> {
                                     end: FractionalOffset.centerRight,
                                   ),
                                 ),
-                                child: Shimmer.fromColors(
-                                    baseColor: Color.fromARGB(255, 102, 102, 102),
-                                    highlightColor: Color.fromARGB(255, 187, 187, 187),
-                                    child: (context.watch<WalletProvider>().inProgress)
-                                        ? SizedBox(
-                                            height: 10,
-                                            width: 10,
-                                            child: CircularProgressIndicator(),
-                                          )
-                                        : Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                AppLocalizations.of(context)!.contract + AppLocalizations.of(context)!.complete,
-                                                style: Theme.of(context).textTheme.titleLarge,
-                                              ),
-                                              const Icon(Icons.arrow_forward)
-                                            ],
-                                          )),
+                                child: (context.watch<WalletProvider>().inProgress)
+                                    ? const SizedBox(
+                                        height: 10,
+                                        width: 10,
+                                        child: FittedBox(
+                                            child: CircularProgressIndicator(
+                                          color: Colors.grey,
+                                          strokeWidth: 2,
+                                        )),
+                                      )
+                                    : Shimmer.fromColors(
+                                        baseColor: Color.fromARGB(255, 102, 102, 102),
+                                        highlightColor: Color.fromARGB(255, 187, 187, 187),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              AppLocalizations.of(context)!.contract + AppLocalizations.of(context)!.complete,
+                                              style: Theme.of(context).textTheme.titleLarge,
+                                            ),
+                                            const Icon(Icons.arrow_forward)
+                                          ],
+                                        )),
                               ),
                               onPressed: () async {
                                 try {
