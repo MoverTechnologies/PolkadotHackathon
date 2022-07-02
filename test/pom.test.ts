@@ -14,9 +14,6 @@ const daoNameParam = ethers.utils.zeroPad(
     22
 );
 
-const START_TIME = 1656676800; // 2022/7/1 12:00:00
-const END_TIME = 1659355200; // 2022/8/1 12:00:00
-
 describe("PoM", () => {
     let pomContract: PoM;
     let agreementContract: AgreementContract;
@@ -25,6 +22,9 @@ describe("PoM", () => {
     let founder: SignerWithAddress;
     let moderator: SignerWithAddress;
     let otherSigners: SignerWithAddress[];
+
+    let startTime = Math.floor(Date.now() / 1000);
+    let endTime = Math.floor(Date.now() / 1000);
 
     let agreement: any;
 
@@ -56,11 +56,16 @@ describe("PoM", () => {
 
         [owner, founder, moderator, ...otherSigners] =
             await ethers.getSigners();
+
+        const latestBlock = await ethers.provider.getBlock("latest");
+        startTime = latestBlock.timestamp + 100;
+        endTime = latestBlock.timestamp + 120;
+
         agreement = {
             id: ethers.utils.formatBytes32String("agreementId"),
             daoName: daoNameParam,
-            startTime: BigNumber.from(START_TIME),
-            endTime: BigNumber.from(END_TIME),
+            startTime: BigNumber.from(startTime),
+            endTime: BigNumber.from(endTime),
             isCompleted: false,
             rewardAmount: BigNumber.from(10),
             founder: founder.address,
@@ -96,8 +101,8 @@ describe("PoM", () => {
 
             const expected = [
                 founder.address,
-                START_TIME,
-                END_TIME,
+                startTime,
+                endTime,
                 "0x00000000000000000000000000000064616f4e616d65", // hex value of string "daoName"
                 BigNumber.from(10),
                 "",
@@ -247,8 +252,8 @@ describe("PoM", () => {
             // Check token related to second agreement
             const remainedProof = [
                 founder.address,
-                START_TIME, // startTime
-                END_TIME, // endTime
+                startTime, // startTime
+                endTime, // endTime
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes hash of "daoName"
                 BigNumber.from(10), // rewardAmount
                 "", // review
@@ -296,8 +301,8 @@ describe("PoM", () => {
         it("should return proofDetail", async () => {
             const expected = [
                 founder.address,
-                START_TIME, // startTime
-                END_TIME, // endTime
+                startTime, // startTime
+                endTime, // endTime
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes hash of "daoName"
                 BigNumber.from(10), // rewardAmount
                 "", // review

@@ -13,8 +13,7 @@ const DAO_NAME_PARAM = ethers.utils.zeroPad(
     ethers.utils.toUtf8Bytes("daoName"),
     22
 );
-const START_TIME = 1656676800; // 2022/7/1 12:00:00
-const END_TIME = 1659355200; // 2022/8/1 12:00:00
+
 const ETHER_10 = ethers.utils.parseEther("10");
 
 describe("AgreementContract", function () {
@@ -26,6 +25,9 @@ describe("AgreementContract", function () {
     let founder: SignerWithAddress;
     let moderator: SignerWithAddress;
     let otherSigners: SignerWithAddress[];
+
+    let startTime = Math.floor(Date.now() / 1000);
+    let endTime = Math.floor(Date.now() / 1000);
 
     let agreementId;
 
@@ -83,6 +85,9 @@ describe("AgreementContract", function () {
             ]
         );
         agreementId = ethers.utils.keccak256(hash);
+
+        startTime = latestBlock.timestamp + 110;
+        endTime = latestBlock.timestamp + 120;
     };
 
     beforeEach(async () => {
@@ -126,8 +131,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ETHER_10,
                     5184000
                 );
@@ -147,8 +152,8 @@ describe("AgreementContract", function () {
             const expected = [
                 id,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                START_TIME,
-                END_TIME,
+                startTime,
+                endTime,
                 false,
                 ethers.utils.parseEther("10"),
                 founder.address,
@@ -170,8 +175,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -188,8 +193,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -209,8 +214,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -236,8 +241,8 @@ describe("AgreementContract", function () {
                     .createAgreement(
                         ethers.constants.AddressZero,
                         DAO_NAME_PARAM,
-                        START_TIME,
-                        END_TIME,
+                        startTime,
+                        endTime,
                         ETHER_10,
                         5184000
                     )
@@ -250,7 +255,7 @@ describe("AgreementContract", function () {
                     moderator.address,
                     DAO_NAME_PARAM,
                     1625140800, // 2021/7/1 12:00:00
-                    END_TIME,
+                    endTime,
                     ETHER_10,
                     5184000
                 )
@@ -264,8 +269,8 @@ describe("AgreementContract", function () {
                     .createAgreement(
                         moderator.address,
                         DAO_NAME_PARAM,
-                        END_TIME,
-                        START_TIME,
+                        endTime,
+                        startTime,
                         ETHER_10,
                         5184000
                     )
@@ -279,8 +284,8 @@ describe("AgreementContract", function () {
                     .createAgreement(
                         moderator.address,
                         DAO_NAME_PARAM,
-                        START_TIME,
-                        END_TIME,
+                        startTime,
+                        endTime,
                         0,
                         5184000
                     )
@@ -296,8 +301,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -307,16 +312,16 @@ describe("AgreementContract", function () {
                 .connect(founder)
                 .updateAgreement(
                     agreementId,
-                    START_TIME + 100,
-                    END_TIME + 100,
+                    startTime + 100,
+                    endTime + 100,
                     ethers.utils.parseEther("12")
                 );
 
             const expected = [
                 agreementId,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                START_TIME + 100,
-                END_TIME + 100,
+                startTime + 100,
+                endTime + 100,
                 false,
                 ethers.utils.parseEther("12"),
                 founder.address,
@@ -344,8 +349,8 @@ describe("AgreementContract", function () {
             );
 
             const expected = {
-                startTime: BigNumber.from(START_TIME),
-                endTime: BigNumber.from(END_TIME),
+                startTime: BigNumber.from(startTime),
+                endTime: BigNumber.from(endTime),
                 rewardAmount: BigNumber.from(12),
             };
 
@@ -361,21 +366,21 @@ describe("AgreementContract", function () {
         it("should update agreement only startTime and endTime properties", async () => {
             let proof = await agreementContract.getAgreementDetail(agreementId);
 
-            expect(proof.startTime).equal(BigNumber.from(START_TIME));
-            expect(proof.endTime).equal(BigNumber.from(END_TIME));
+            expect(proof.startTime).equal(BigNumber.from(startTime));
+            expect(proof.endTime).equal(BigNumber.from(endTime));
             expect(proof.rewardAmount).equal(ethers.utils.parseEther("10"));
 
             await agreementContract.connect(founder).updateAgreement(
                 agreementId,
-                START_TIME + 100,
-                END_TIME + 100,
+                startTime + 100,
+                endTime + 100,
                 0 // rewardAmount property
             );
 
             proof = await agreementContract.getAgreementDetail(agreementId);
 
-            expect(proof.startTime).equal(START_TIME + 100);
-            expect(proof.endTime).equal(END_TIME + 100);
+            expect(proof.startTime).equal(startTime + 100);
+            expect(proof.endTime).equal(endTime + 100);
             expect(proof.rewardAmount).equal(ethers.utils.parseEther("10"));
         });
 
@@ -383,21 +388,21 @@ describe("AgreementContract", function () {
             // Check the value in Vesting info to check updateVestingInfo is called
             let result = await vestingContract.modInfoVesting(agreementId);
             expect(result[2]).to.equal(ethers.utils.parseEther("10"));
-            expect(result[4]).to.equal(END_TIME);
+            expect(result[4]).to.equal(endTime);
 
             await agreementContract
                 .connect(founder)
                 .updateAgreement(
                     agreementId,
-                    START_TIME + 100,
-                    END_TIME + 100,
+                    startTime + 100,
+                    endTime + 100,
                     ethers.utils.parseEther("12")
                 );
 
             result = await vestingContract.modInfoVesting(agreementId);
 
             expect(result[2]).to.equal(ethers.utils.parseEther("12"));
-            expect(result[4]).to.equal(END_TIME + 100);
+            expect(result[4]).to.equal(endTime + 100);
         });
 
         it("should revert if paused", async () => {
@@ -463,7 +468,7 @@ describe("AgreementContract", function () {
             await expect(
                 agreementContract.connect(founder).updateAgreement(
                     agreementId,
-                    START_TIME + 100,
+                    startTime + 100,
                     0, // 2022/6/1 12:00:00
                     0
                 )
@@ -479,7 +484,7 @@ describe("AgreementContract", function () {
                 agreementContract.connect(founder).updateAgreement(
                     agreementId,
                     1625140800, // 2021/7/1 12:00:00
-                    END_TIME + 100,
+                    endTime + 100,
                     12
                 )
             ).to.be.revertedWith("startTime must be after now");
@@ -527,8 +532,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -551,8 +556,8 @@ describe("AgreementContract", function () {
             const expected = [
                 agreementId,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                START_TIME,
-                END_TIME,
+                startTime,
+                endTime,
                 true, // isCompleted property
                 ethers.utils.parseEther("10"),
                 founder.address,
@@ -603,8 +608,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -625,8 +630,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("12"),
                     5184000
                 );
@@ -641,8 +646,8 @@ describe("AgreementContract", function () {
             const expected = [
                 agreementId,
                 "0x00000000000000000000000000000064616f4e616d65", // 22bytes of string "daoName"
-                START_TIME,
-                END_TIME,
+                startTime,
+                endTime,
                 false, // isCompleted property
                 ethers.utils.parseEther("10"),
                 founder.address,
@@ -682,8 +687,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -704,8 +709,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -760,8 +765,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -771,8 +776,8 @@ describe("AgreementContract", function () {
                 .createAgreement(
                     moderator.address,
                     DAO_NAME_PARAM,
-                    START_TIME,
-                    END_TIME,
+                    startTime,
+                    endTime,
                     ethers.utils.parseEther("10"),
                     5184000
                 );
@@ -803,8 +808,8 @@ describe("AgreementContract", function () {
                     .createAgreement(
                         moderator.address,
                         DAO_NAME_PARAM,
-                        START_TIME,
-                        END_TIME,
+                        startTime,
+                        endTime,
                         ethers.utils.parseEther("10"),
                         5184000
                     )
@@ -837,8 +842,8 @@ describe("AgreementContract", function () {
                     .createAgreement(
                         moderator.address,
                         DAO_NAME_PARAM,
-                        START_TIME,
-                        END_TIME,
+                        startTime,
+                        endTime,
                         ethers.utils.parseEther("10"),
                         5184000
                     )
@@ -850,8 +855,8 @@ describe("AgreementContract", function () {
                     .createAgreement(
                         moderator.address,
                         DAO_NAME_PARAM,
-                        START_TIME,
-                        END_TIME,
+                        startTime,
+                        endTime,
                         ethers.utils.parseEther("10"),
                         5184000
                     )
