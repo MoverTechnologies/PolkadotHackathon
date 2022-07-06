@@ -13,25 +13,27 @@ network:
     file: ./dist/chaintypes.js
 dataSources:
   - kind: substrate/Moonbeam
-    startBlock: 436282
+    startBlock: 1379519 # block number contracts were deployed
 
     assets:
-      erc20:
-        file: './erc20.abi.json'
+      agreement:
+        file: './abi/agreement.abi.json'
     processor:
       file: './node_modules/@subql/contract-processors/dist/moonbeam.js'
       options:
-        abi: erc20
-        # Kazuya Token
-        address: '0x3d4dcfd2b483549527f7611ccfecb40b47d0c17b'
+        abi: agreement
+        # Agreement proxy contract
+        address: '0x44EA7Cdc85c6bB9c60c15FF3E21D2c2b9B0df25A'
 
     mapping:
       file: ./dist/index.js
       handlers:
-        - handler: handleERC20Transfer
+        - handler: handleCreateAgreement
           kind: substrate/MoonbeamEvent
           filter:
             topics:
-              - Transfer(address indexed from,address indexed to,uint256 value)
+              # - Transfer(address indexed from,address indexed to,uint256 value)
+              # - Attest(address indexed _to,uint256 indexed _tokenId)
+              - CreateAgreement(address indexed moderator,bytes32 indexed agreementId)
         # - handler: handleEVMCall
         #   kind: substrate/MoonbeamCall
