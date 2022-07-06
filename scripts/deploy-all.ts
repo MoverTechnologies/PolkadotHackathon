@@ -12,7 +12,7 @@ async function main() {
             "ProofOfModerate",
             "PoM",
             process.env.ENV === "prod"
-                ? "https://www.assetproved.com/public/proved/"
+                ? "https://mover.com/"
                 : "http://localhost:8545/",
         ],
         {
@@ -55,8 +55,6 @@ async function main() {
     // setup
     await pom.setAgreementContractAddress(agreement.address);
     await vesting.setAgreementContractAddress(agreement.address);
-
-    // await nw.mint("XXXXXXXXXXXXXXXXXXXXXXXX", ethers.utils.parseEther("10000"));
 }
 
 main().catch((error) => {

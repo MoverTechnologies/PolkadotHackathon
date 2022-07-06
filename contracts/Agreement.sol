@@ -180,8 +180,9 @@ contract AgreementContract is
             agreement.rewardAmount = rewardAmount;
         }
 
-        // Updates vesting info
+        // Updates vesting info and proof associated with token
         vesting.updateVestingInfo(agreementId, rewardAmount, endTime);
+        pom.updateProof(agreement);
 
         emit UpdateAgreement(agreementId);
     }

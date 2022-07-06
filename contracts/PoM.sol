@@ -147,6 +147,35 @@ contract PoM is
     }
 
     /**
+     * @dev Modify proof infomation when changed by founder
+     * @param agreement Agreement, modified agreement info
+     */
+    function updateProof(Agreement calldata agreement)
+        external
+        onlyFromAgreement
+    {
+        uint256 tokenId = _proofIdToTokenId[agreement.id];
+        _requireMinted(tokenId);
+
+        Proof storage proof = _proofs[tokenId];
+
+        // Data validity is checked in AgreementContract
+        if (proof.startTime != agreement.startTime) {
+            proof.startTime = agreement.startTime;
+        }
+
+        if (proof.endTime != agreement.endTime) {
+            proof.endTime = agreement.endTime;
+        }
+
+        if (proof.rewardAmount != agreement.rewardAmount) {
+            proof.rewardAmount = agreement.rewardAmount;
+        }
+
+        emit ModifiyPoM(tokenId, ownerOf(tokenId));
+    }
+
+    /**
      * @notice Only founder, NOT moderator (holder), can burn the token
      * @dev Burns token
      * @param proofId bytes32, proofId equal to agreementId

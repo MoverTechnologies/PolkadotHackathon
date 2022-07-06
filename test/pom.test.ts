@@ -196,6 +196,70 @@ describe("PoM", () => {
         });
     });
 
+    describe("updateProof", () => {
+        beforeEach(async () => {
+            await pomContract.mintToken(moderator.address, agreement);
+        });
+        it("should update proof info", async () => {
+            let proof = await pomContract.getProofDetail(1);
+
+            expect(proof.startTime).equal(agreement.startTime);
+            expect(proof.endTime).equal(agreement.endTime);
+            expect(proof.rewardAmount).equal(agreement.rewardAmount);
+
+            const now = Math.floor(Date.now() / 1000);
+
+            const newAgreement = Object.assign({}, agreement);
+            newAgreement.startTime = now + 100;
+            newAgreement.endTime = now + 120;
+            newAgreement.rewardAmount = agreement.rewardAmount + 100;
+
+            const result = await pomContract.updateProof(newAgreement);
+
+            await expect(await result).to.emit(pomContract, "ModifiyPoM");
+
+            proof = await pomContract.getProofDetail(1);
+            expect(proof.startTime).equal(newAgreement.startTime);
+            expect(proof.endTime).equal(newAgreement.endTime);
+            expect(proof.rewardAmount).equal(newAgreement.rewardAmount);
+        });
+
+        it("should NOT update fields that are not changed", async () => {
+            let proof = await pomContract.getProofDetail(1);
+
+            expect(proof.startTime).equal(agreement.startTime);
+            expect(proof.endTime).equal(agreement.endTime);
+            expect(proof.rewardAmount).equal(agreement.rewardAmount);
+
+            const now = Math.floor(Date.now() / 1000);
+
+            const newAgreement = Object.assign({}, agreement);
+            newAgreement.startTime = now + 100;
+
+            await pomContract.updateProof(newAgreement);
+
+            proof = await pomContract.getProofDetail(1);
+            expect(proof.startTime).equal(newAgreement.startTime);
+            expect(proof.endTime).equal(agreement.endTime); // not updated
+            expect(proof.rewardAmount).equal(agreement.rewardAmount); // not updated
+        });
+
+        it("should revert if from an invalid caller", async () => {
+            await expect(
+                pomContract.connect(otherSigners[0]).updateProof(agreement)
+            ).to.be.revertedWith("Invalid caller");
+        });
+
+        it("should revert if token does not exist", async () => {
+            const newAgreement = Object.assign({}, agreement);
+            newAgreement.id =
+                ethers.utils.formatBytes32String("randomAgreemendId");
+            await expect(
+                pomContract.updateProof(newAgreement)
+            ).to.be.revertedWith("ERC4973: invalid token ID");
+        });
+    });
+
     describe("burnToken", () => {
         beforeEach(async () => {
             await pomContract.mintToken(moderator.address, agreement);
