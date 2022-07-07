@@ -60,7 +60,10 @@ const config: HardhatUserConfig = {
         astar: {
             url: "https://evm.astar.network/",
             chainId: 592,
-            accounts: [privateKey],
+            accounts:
+                process.env.PRIVATE_KEY !== undefined
+                    ? [process.env.PRIVATE_KEY]
+                    : [],
         },
         shibuya: {
             url: "https://evm.shibuya.astar.network",
@@ -76,7 +79,26 @@ const config: HardhatUserConfig = {
         currency: "USD",
     },
     etherscan: {
-        apiKey: process.env.POLYGONSCAN_API_KEY,
+        apiKey: "6385KJF3N95MCQNKWSJUA9D3UPBSUKR6HJ",
+        // apiKey: process.env.POLYGONSCAN_API_KEY,
+        customChains: [
+            {
+                network: "shibuya",
+                chainId: 81,
+                urls: {
+                    apiURL: "https://blockscout.com/shibuya/api",
+                    browserURL: "https://blockscout.com",
+                },
+            },
+            {
+                network: "astar",
+                chainId: 592,
+                urls: {
+                    apiURL: "https://blockscout.com/astar/api",
+                    browserURL: "https://blockscout.com",
+                },
+            },
+        ],
     },
     abiExporter: {
         clear: true,

@@ -25,7 +25,7 @@ async function main() {
     const Token = await ethers.getContractFactory("Token");
     const nw = await Token.deploy("New", "NEW");
     await nw.deployed();
-    console.log("new deployed to:", nw.address);
+    console.log("New Token deployed to:", nw.address);
 
     // vesting contract
     const VestingContract = await ethers.getContractFactory("Vesting");
@@ -37,7 +37,7 @@ async function main() {
         }
     )) as VestingCon.Vesting;
     await vesting.deployed();
-    console.log("vestingContract deployed to: " + vesting.address);
+    console.log("VestingContract deployed to: " + vesting.address);
 
     // agreement contract
     const AgreementContract = await ethers.getContractFactory(
