@@ -13,7 +13,7 @@ network:
     file: ./dist/chaintypes.js
 dataSources:
   - kind: substrate/Moonbeam
-    startBlock: 1379519 # block number the contracts for Mover were deployed
+    startBlock: 1385000 #1379519 # block number the contracts for Mover were deployed
 
     assets:
       agreement:
@@ -38,7 +38,3 @@ dataSources:
           kind: substrate/MoonbeamCall
           filter:
             function: createAgreement(address moderator,bytes22 daoName,uint32 startTime,uint32 endTime,uint256 rewardAmount,uint256 vestingDuration)
-        - handler: handleUpdateAgreement
-          kind: substrate/MoonbeamCall
-          filter:
-            function: updateAgreement(bytes32 agreementId,uint32 startTime,uint32 endTime,uint256 rewardAmount)

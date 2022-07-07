@@ -7,7 +7,7 @@ type Moderator @entity {
 	hasEns: Boolean # whether a wallet has ens
 	experiencedDaos: Int! # how many DAOs the wallet has participated in
 	agreementIds: [String]! # agreement ids that moderator completed
-	tokenIds: [BigInt]! # token ids
+	tokenIds: [BigInt] # token ids
 }
 
 type Agreement @entity {
