@@ -62,5 +62,8 @@
     },
     "dependencies": {
         "@openzeppelin/contracts-upgradeable": "^4.4.1"
+    },
+    "resolutions": {
+        "minimist": "^1.2.6"
     }
 }
