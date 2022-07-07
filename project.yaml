@@ -1,8 +1,8 @@
 specVersion: 0.2.0
-name: astar-evm
+name: mover-qubquery
 version: 0.0.1
-description: This SubQuery project can be use as a starting point for Astar network
-repository: https://github.com/subquery/astar-subql-starters
+description: This SubQuery project is for Mover dApp
+repository: https://github.com/MoverTechnologies/mover-subquery
 schema:
   file: ./schema.graphql
 network:
@@ -13,7 +13,7 @@ network:
     file: ./dist/chaintypes.js
 dataSources:
   - kind: substrate/Moonbeam
-    startBlock: 1379519 # block number contracts were deployed
+    startBlock: 1379519 # block number the contracts for Mover were deployed
 
     assets:
       agreement:
@@ -28,12 +28,17 @@ dataSources:
     mapping:
       file: ./dist/index.js
       handlers:
-        - handler: handleCreateAgreement
+        - handler: handleCreateAgreementEvent
           kind: substrate/MoonbeamEvent
           filter:
             topics:
-              # - Transfer(address indexed from,address indexed to,uint256 value)
-              # - Attest(address indexed _to,uint256 indexed _tokenId)
               - CreateAgreement(address indexed moderator,bytes32 indexed agreementId)
-        # - handler: handleEVMCall
-        #   kind: substrate/MoonbeamCall
+
+        - handler: handleCreateAgreementCall
+          kind: substrate/MoonbeamCall
+          filter:
+            function: createAgreement(address moderator,bytes22 daoName,uint32 startTime,uint32 endTime,uint256 rewardAmount,uint256 vestingDuration)
+        - handler: handleUpdateAgreement
+          kind: substrate/MoonbeamCall
+          filter:
+            function: updateAgreement(bytes32 agreementId,uint32 startTime,uint32 endTime,uint256 rewardAmount)
