@@ -1,16 +1,17 @@
 {
-	"name": "astar-evm",
+	"name": "mover-subquery",
 	"version": "0.0.1",
-	"description": "This SubQuery project can be use as a starting point for Astar network",
+	"description": "This SubQuery project is for Mover dApp",
 	"main": "dist/index.js",
 	"scripts": {
 		"build": "./node_modules/.bin/subql build",
 		"prepack": "rm -rf dist && npm build",
 		"test": "jest",
 		"codegen": "./node_modules/.bin/subql codegen",
+		"setup": "yarn codegen && yarn build",
 		"start:docker": "docker-compose pull && docker-compose up"
 	},
-	"homepage": "https://github.com/subquery/astar-subql-starter",
+	"homepage": "https://github.com/MoverTechnologies/mover-subquery",
 	"repository": "github:subquery/astar-subql-starter",
 	"files": [
 		"dist",
