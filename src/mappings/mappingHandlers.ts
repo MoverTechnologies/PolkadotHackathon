@@ -5,11 +5,6 @@ import {
 } from '@subql/contract-processors/dist/moonbeam';
 import { CreateAgreementCallArgs, CreateEventArgs } from '../args';
 
-type AttestEventArgs = [string, BigInt] & {
-	to: string;
-	tokenId: BigInt;
-};
-
 export async function handleCreateAgreementEvent(
 	event: MoonbeamEvent<CreateEventArgs>
 ): Promise<void> {
@@ -29,7 +24,7 @@ export async function handleCreateAgreementEvent(
 export const handleCreateAgreementCall = async (
 	event: MoonbeamCall<CreateAgreementCallArgs>
 ) => {
-	logger.warn('Calling handleCreateAgreementCall');
+	logger.warn('Calling CREATE CALL');
 
 	if (!event.success) {
 		logger.warn('CreateAgreement Call was not successful');
