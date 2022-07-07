@@ -16,5 +16,11 @@ export type AmplifyDependentResourcesAttributes = {
             "AppClientIDWeb": "string",
             "AppClientID": "string"
         }
+    },
+    "storage": {
+        "s3movermvpfrontendstoragef1088782": {
+            "BucketName": "string",
+            "Region": "string"
+        }
     }
 }

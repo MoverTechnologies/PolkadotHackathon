@@ -42,6 +42,7 @@ class EmploymentRequest extends Model {
   final int? _lockMonth;
   final int? _vestingMonth;
   final String? _agreementId;
+  final int? _reputation;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -154,6 +155,10 @@ class EmploymentRequest extends Model {
     return _agreementId;
   }
   
+  int? get reputation {
+    return _reputation;
+  }
+  
   TemporalDateTime? get createdAt {
     return _createdAt;
   }
@@ -162,9 +167,9 @@ class EmploymentRequest extends Model {
     return _updatedAt;
   }
   
-  const EmploymentRequest._internal({required this.id, employerWallet, employeeWallet, start, end, required dayPerMonth, required hourPerDay, required periodMonth, required currency, required price, progressStatus, extended, lockMonth, vestingMonth, agreementId, createdAt, updatedAt}): _employerWallet = employerWallet, _employeeWallet = employeeWallet, _start = start, _end = end, _dayPerMonth = dayPerMonth, _hourPerDay = hourPerDay, _periodMonth = periodMonth, _currency = currency, _price = price, _progressStatus = progressStatus, _extended = extended, _lockMonth = lockMonth, _vestingMonth = vestingMonth, _agreementId = agreementId, _createdAt = createdAt, _updatedAt = updatedAt;
+  const EmploymentRequest._internal({required this.id, employerWallet, employeeWallet, start, end, required dayPerMonth, required hourPerDay, required periodMonth, required currency, required price, progressStatus, extended, lockMonth, vestingMonth, agreementId, reputation, createdAt, updatedAt}): _employerWallet = employerWallet, _employeeWallet = employeeWallet, _start = start, _end = end, _dayPerMonth = dayPerMonth, _hourPerDay = hourPerDay, _periodMonth = periodMonth, _currency = currency, _price = price, _progressStatus = progressStatus, _extended = extended, _lockMonth = lockMonth, _vestingMonth = vestingMonth, _agreementId = agreementId, _reputation = reputation, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory EmploymentRequest({String? id, String? employerWallet, String? employeeWallet, TemporalDateTime? start, TemporalDateTime? end, required int dayPerMonth, required double hourPerDay, required int periodMonth, required String currency, required int price, String? progressStatus, String? extended, int? lockMonth, int? vestingMonth, String? agreementId}) {
+  factory EmploymentRequest({String? id, String? employerWallet, String? employeeWallet, TemporalDateTime? start, TemporalDateTime? end, required int dayPerMonth, required double hourPerDay, required int periodMonth, required String currency, required int price, String? progressStatus, String? extended, int? lockMonth, int? vestingMonth, String? agreementId, int? reputation}) {
     return EmploymentRequest._internal(
       id: id == null ? UUID.getUUID() : id,
       employerWallet: employerWallet,
@@ -180,7 +185,8 @@ class EmploymentRequest extends Model {
       extended: extended,
       lockMonth: lockMonth,
       vestingMonth: vestingMonth,
-      agreementId: agreementId);
+      agreementId: agreementId,
+      reputation: reputation);
   }
   
   bool equals(Object other) {
@@ -205,7 +211,8 @@ class EmploymentRequest extends Model {
       _extended == other._extended &&
       _lockMonth == other._lockMonth &&
       _vestingMonth == other._vestingMonth &&
-      _agreementId == other._agreementId;
+      _agreementId == other._agreementId &&
+      _reputation == other._reputation;
   }
   
   @override
@@ -231,6 +238,7 @@ class EmploymentRequest extends Model {
     buffer.write("lockMonth=" + (_lockMonth != null ? _lockMonth!.toString() : "null") + ", ");
     buffer.write("vestingMonth=" + (_vestingMonth != null ? _vestingMonth!.toString() : "null") + ", ");
     buffer.write("agreementId=" + "$_agreementId" + ", ");
+    buffer.write("reputation=" + (_reputation != null ? _reputation!.toString() : "null") + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -238,7 +246,7 @@ class EmploymentRequest extends Model {
     return buffer.toString();
   }
   
-  EmploymentRequest copyWith({String? id, String? employerWallet, String? employeeWallet, TemporalDateTime? start, TemporalDateTime? end, int? dayPerMonth, double? hourPerDay, int? periodMonth, String? currency, int? price, String? progressStatus, String? extended, int? lockMonth, int? vestingMonth, String? agreementId}) {
+  EmploymentRequest copyWith({String? id, String? employerWallet, String? employeeWallet, TemporalDateTime? start, TemporalDateTime? end, int? dayPerMonth, double? hourPerDay, int? periodMonth, String? currency, int? price, String? progressStatus, String? extended, int? lockMonth, int? vestingMonth, String? agreementId, int? reputation}) {
     return EmploymentRequest._internal(
       id: id ?? this.id,
       employerWallet: employerWallet ?? this.employerWallet,
@@ -254,7 +262,8 @@ class EmploymentRequest extends Model {
       extended: extended ?? this.extended,
       lockMonth: lockMonth ?? this.lockMonth,
       vestingMonth: vestingMonth ?? this.vestingMonth,
-      agreementId: agreementId ?? this.agreementId);
+      agreementId: agreementId ?? this.agreementId,
+      reputation: reputation ?? this.reputation);
   }
   
   EmploymentRequest.fromJson(Map<String, dynamic> json)  
@@ -273,11 +282,12 @@ class EmploymentRequest extends Model {
       _lockMonth = (json['lockMonth'] as num?)?.toInt(),
       _vestingMonth = (json['vestingMonth'] as num?)?.toInt(),
       _agreementId = json['agreementId'],
+      _reputation = (json['reputation'] as num?)?.toInt(),
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'employerWallet': _employerWallet, 'employeeWallet': _employeeWallet, 'start': _start?.format(), 'end': _end?.format(), 'dayPerMonth': _dayPerMonth, 'hourPerDay': _hourPerDay, 'periodMonth': _periodMonth, 'currency': _currency, 'price': _price, 'progressStatus': _progressStatus, 'extended': _extended, 'lockMonth': _lockMonth, 'vestingMonth': _vestingMonth, 'agreementId': _agreementId, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'employerWallet': _employerWallet, 'employeeWallet': _employeeWallet, 'start': _start?.format(), 'end': _end?.format(), 'dayPerMonth': _dayPerMonth, 'hourPerDay': _hourPerDay, 'periodMonth': _periodMonth, 'currency': _currency, 'price': _price, 'progressStatus': _progressStatus, 'extended': _extended, 'lockMonth': _lockMonth, 'vestingMonth': _vestingMonth, 'agreementId': _agreementId, 'reputation': _reputation, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
 
   static final QueryField ID = QueryField(fieldName: "employmentRequest.id");
@@ -295,6 +305,7 @@ class EmploymentRequest extends Model {
   static final QueryField LOCKMONTH = QueryField(fieldName: "lockMonth");
   static final QueryField VESTINGMONTH = QueryField(fieldName: "vestingMonth");
   static final QueryField AGREEMENTID = QueryField(fieldName: "agreementId");
+  static final QueryField REPUTATION = QueryField(fieldName: "reputation");
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "EmploymentRequest";
     modelSchemaDefinition.pluralName = "EmploymentRequests";
@@ -394,6 +405,12 @@ class EmploymentRequest extends Model {
       key: EmploymentRequest.AGREEMENTID,
       isRequired: false,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
+    ));
+    
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
+      key: EmploymentRequest.REPUTATION,
+      isRequired: false,
+      ofType: ModelFieldType(ModelFieldTypeEnum.int)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(

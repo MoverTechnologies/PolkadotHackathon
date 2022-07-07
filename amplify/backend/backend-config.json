@@ -47,5 +47,12 @@
         ]
       }
     }
+  },
+  "storage": {
+    "s3movermvpfrontendstoragef1088782": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": []
+    }
   }
 }

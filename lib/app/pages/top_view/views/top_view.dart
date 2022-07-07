@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mover/app/common/providers/user_provider.dart';
 import 'package:mover/app/pages/mod_order/views/mod_search_view.dart';
 import 'package:mover/app/pages/mod_request/views/mod_register.dart';
+import 'package:mover/app/pages/my_page/views/my_page_view.dart';
 import 'package:mover/app/pages/top_view/views/components/info_card_view.dart';
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -21,31 +22,42 @@ class TopView extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(10.0),
             child: FittedBox(
-              child: CircleAvatar(
-                backgroundColor: Colors.grey,
-                radius: 50,
-                backgroundImage: (context.watch<UserProvider>().user == null)
-                    ? null
-                    : NetworkImage(
-                        context.watch<UserProvider>().user!.iconUrl,
+              child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MyPageView(),
                       ),
-                child: (context.watch<UserProvider>().user == null)
-                    ? SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 1,
-                        ),
-                      )
-                    : null,
-              ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey,
+                    radius: 50,
+                    backgroundImage:
+                        (context.watch<UserProvider>().user == null)
+                            ? null
+                            : NetworkImage(
+                                context.watch<UserProvider>().user!.iconUrl,
+                              ),
+                    child: (context.watch<UserProvider>().user == null)
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 1,
+                            ),
+                          )
+                        : null,
+                  )),
             ),
           ),
         ],
       ),
       body: SafeArea(
-          child: Center(
+          child: SingleChildScrollView(
+              child: Center(
         child: Column(children: [
           InfoCardView(),
           Padding(
@@ -136,7 +148,7 @@ class TopView extends StatelessWidget {
                     suffixIcon: Icon(Icons.search)),
               )),
         ]),
-      )),
+      ))),
     );
   }
 }

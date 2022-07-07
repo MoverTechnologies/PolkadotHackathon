@@ -230,7 +230,7 @@ class AmplifyEndpoint {
 }
 
 enum Currency {
-  MATIC,
+  NEW,
 }
 
 abstract class AuthCredentials {

@@ -1,0 +1,12 @@
+{
+  "resourceName": "s3movermvpfrontendstoragef1088782",
+  "bucketName": "movermvpfrontend-storage-f1088782",
+  "policyUUID": "84d1bce8",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ]
+}

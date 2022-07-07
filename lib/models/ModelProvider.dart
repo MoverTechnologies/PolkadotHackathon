@@ -28,7 +28,7 @@ export 'MoverUser.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "e98875b85fa7336138bf99d200c017cf";
+  String version = "d1009b0f70ee5a8b0040d9da26df2b56";
   @override
   List<ModelSchema> modelSchemas = [EmploymentRequest.schema, MoverUser.schema];
   static final ModelProvider _instance = ModelProvider();
