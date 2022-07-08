@@ -274,13 +274,18 @@ class Web3Repository {
 
     BigInt? balance = await balanceOf();
     print("balance : $balance");
+    final _now = DateTime.now();
     final tx = await _agreement.createAgreement(
       EthereumAddress.fromHex(moderatorAddress),
       Uint8List.fromList(daoName.padLeft(22).codeUnits), // 22bytes of daoName
-      BigInt.from(_range.start.millisecondsSinceEpoch /
+      // BigInt.from(_range.start.millisecondsSinceEpoch /
+      //     1000), // start time (currentTime)
+      BigInt.from(_now.add(Duration(seconds: 60)).millisecondsSinceEpoch /
           1000), // start time (currentTime)
-      BigInt.from(
-          _range.end.millisecondsSinceEpoch / 1000), // end time (currentTime)
+      // BigInt.from(
+      //     _range.end.millisecondsSinceEpoch / 1000), // end time (currentTime)
+      BigInt.from(_now.add(Duration(seconds: 90)).millisecondsSinceEpoch /
+          1000), // end time (currentTime)
       EtherAmount.fromUnitAndValue(EtherUnit.ether, amount)
           .getInWei, // reward amount
       BigInt.from(60), // vesting duration (60s after endTime has passed)
