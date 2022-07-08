@@ -16,7 +16,7 @@ class RemoteConfigService {
   }
 
   static ModSearchConfig getModSearchRequestConfig() {
-    final decoded = _getConfig('modSearchRequestForPoloygon');
+    final decoded = _getConfig('modSearchRequest');
     final _modSearchRequest = ModSearchConfig.fromJson(decoded);
     return _modSearchRequest;
   }

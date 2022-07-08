@@ -14,6 +14,7 @@ class ModModel {
 }
 
 class ModRatingModel {
+  final String id;
   final double total;
   final int expDao;
   final bool isEns;
@@ -31,7 +32,15 @@ class ModRatingModel {
   }
 
   ModRatingModel(
-      {required this.total, required this.expDao, required this.isEns});
+      {required this.id,
+      required this.total,
+      required this.expDao,
+      required this.isEns});
+
+  @override
+  String toString() {
+    return "{id: $id total: $total expDao: $expDao isEns: $isEns}";
+  }
 }
 
 class ModSearchRequestModel {
@@ -55,6 +64,7 @@ final List<ModModel> statsModelsMockData = [
         languagesAsISO639: ["ja", "en"],
       ),
       rating: ModRatingModel(
+        id: "0x26d4640A76F6cAF8ff3fcDf34ea02219c983b1B9",
         total: 4.5,
         expDao: 128,
         isEns: true,
@@ -98,6 +108,7 @@ final List<ModModel> statsModelsMockData = [
         languagesAsISO639: ["ja", "en"],
       ),
       rating: ModRatingModel(
+        id: "0xF83F62CC6Ad13570263D12e692b8Ee7850F928ef",
         total: 4.5,
         expDao: 128,
         isEns: true,

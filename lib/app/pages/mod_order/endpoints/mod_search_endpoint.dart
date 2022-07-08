@@ -7,7 +7,7 @@ class ModSearchEndpoint extends GraphqlInterfaceAbstract {
   @override
   List<dynamic> _getNodeData(Map<String, dynamic>? _data) {
     if (_data == null) return [];
-    final List<dynamic> nodes = _data['search']['nodes'];
+    final List<dynamic> nodes = _data['moderators']['nodes'];
     return nodes;
   }
 }
