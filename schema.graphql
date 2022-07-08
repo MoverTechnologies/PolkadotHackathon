@@ -4,16 +4,16 @@ type Wallet @entity {
 
 type Moderator @entity {
 	id: ID! # wallet address
-	# hasEns: Boolean # whether a wallet has ens
 	experiencedDaos: Int! # how many DAOs the wallet has participated in
-	agreementIds: [String]! # agreement ids that moderator completed
-	tokenIds: [BigInt] # token ids
+	agreementIds: [String]! # agreement ids that moderator has
+	# hasEns: Boolean # whether a wallet has ens
+	# tokenIds: [BigInt]
 }
 
 type Agreement @entity {
 	id: ID!
 	agreementId: String! @index(unique: true)
-	moderator: String! # moderator address
+	moderator: Moderator!
 	founder: String! # founder address
 	daoName: String!
 	startTime: Date!

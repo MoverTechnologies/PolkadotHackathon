@@ -41,7 +41,7 @@ export const handleCreateAgreementCall = async (
 	}
 
 	const {
-		moderator,
+		moderator: moderatorAddr,
 		daoName,
 		startTime,
 		endTime,
@@ -50,10 +50,12 @@ export const handleCreateAgreementCall = async (
 	} = event.args;
 	const founder = event.from;
 
+	const moderator = await getModerator(moderatorAddr);
+
 	const agreement = await Agreement.create({
 		id: event.hash,
 		agreementId: '',
-		moderator,
+		moderatorId: moderator.id,
 		founder,
 		daoName,
 		startTime: new Date(startTime * 1000),
@@ -110,7 +112,7 @@ export const handleCompleteAgreementCall = async (
 		logger.error('Agreement not found');
 		return;
 	}
-	const moderator = await Moderator.get(agreement.moderator);
+	const moderator = await Moderator.get(agreement.moderatorId);
 
 	if (!moderator) {
 		logger.error('Moderator not found');
@@ -124,15 +126,22 @@ export const handleCompleteAgreementCall = async (
 	await moderator.save();
 };
 
+/**
+ * @dev If moderator doesn't exist yet, creates new moderator and returns it
+ * @param address moderator address
+ * @returns moderator object
+ */
 export const getModerator = async (address: string): Promise<Moderator> => {
 	const moderator = await Moderator.get(address);
 
 	if (moderator) return moderator;
 
-	return await Moderator.create({
+	const newModerator = await Moderator.create({
 		id: address,
 		experiencedDaos: 0,
 		agreementIds: [],
-		tokenIds: [],
 	});
+	await newModerator.save();
+
+	return newModerator;
 };
