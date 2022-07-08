@@ -18,18 +18,14 @@ export type CreateAgreementCallArgs = [
 	vestingDuration: number;
 };
 
-export type UpdateAgreementCallArgs = [
-	string,
-	string,
-	number,
-	number,
-	number,
-	number
-] & {
+export type UpdateAgreementCallArgs = [string, number, number, number] & {
 	agreementId: string;
-	daoName: string;
 	startTime: number;
 	endTime: number;
 	rewardAmount: number;
-	vestingDuration: number;
+};
+
+export type CompleteAgreementCallArgs = [string, string] & {
+	agreementId: string;
+	review: string;
 };
