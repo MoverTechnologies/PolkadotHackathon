@@ -13,8 +13,6 @@ import {
 export async function handleCreateAgreementEvent(
 	event: MoonbeamEvent<CreateEventArgs>
 ): Promise<void> {
-	logger.warn('Calling CREATE');
-
 	const moderatorAddr = event.args.moderator;
 	const agreementId = event.args.agreementId;
 
@@ -37,8 +35,6 @@ export async function handleCreateAgreementEvent(
 export const handleCreateAgreementCall = async (
 	event: MoonbeamCall<CreateAgreementCallArgs>
 ) => {
-	logger.warn('Calling CREATE CALL');
-
 	if (!event.success) {
 		logger.warn('CreateAgreement Call was not successful');
 		return;
@@ -73,10 +69,8 @@ export const handleCreateAgreementCall = async (
 export const handleUpdateAgreementCall = async (
 	event: MoonbeamCall<UpdateAgreementCallArgs>
 ) => {
-	logger.warn('Calling UPDATE CALL');
-
 	if (!event.success) {
-		logger.warn('UpdateAgreement Call was not successful');
+		logger.error('UpdateAgreement Call was not successful');
 		return;
 	}
 
@@ -105,8 +99,6 @@ export const handleUpdateAgreementCall = async (
 export const handleCompleteAgreementCall = async (
 	event: MoonbeamCall<CompleteAgreementCallArgs>
 ) => {
-	logger.warn('Calling COMPLETE CALL');
-
 	if (!event.success) {
 		logger.warn('CompleteAgreement Call was not successful');
 		return;
@@ -119,8 +111,6 @@ export const handleCompleteAgreementCall = async (
 		return;
 	}
 	const moderator = await Moderator.get(agreement.moderator);
-	logger.warn('MODERATOR!');
-	logger.warn(moderator);
 
 	if (!moderator) {
 		logger.error('Moderator not found');
