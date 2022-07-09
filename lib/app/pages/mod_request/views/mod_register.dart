@@ -55,7 +55,8 @@ class _ModRegisterViewState extends State<ModRegisterView> {
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).primaryIconTheme.color),
+          icon: Icon(Icons.arrow_back,
+              color: Theme.of(context).primaryIconTheme.color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -84,7 +85,8 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                 ),
                               ),
                               Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0),
                                   child: Column(
                                     children: [
                                       Row(children: [
@@ -106,8 +108,16 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                               .toList(),
                                         )
                                       ]),
-                                      Text("${_user.nickname}", style: Theme.of(context).textTheme.headline6),
-                                      Container(width: MediaQuery.of(context).size.width * 0.5, child: _userExperienceChips()),
+                                      Text("${_user.nickname}",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline6),
+                                      Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.5,
+                                          child: _userExperienceChips()),
                                     ],
                                   ))
                             ],
@@ -123,7 +133,8 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                         child: Column(
                           children: [
                             Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Row(
                                   children: [
                                     Icon(
@@ -132,10 +143,13 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                       color: Colors.grey,
                                     ),
                                     Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
                                         child: Text(
                                           _user.company ?? "No company",
-                                          style: Theme.of(context).textTheme.headline5,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline5,
                                         ))
                                   ],
                                 )),
@@ -151,64 +165,120 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                     child: Row(
                                   children: [
                                     Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
                                             DropdownButton<int>(
-                                              items: <int>[1, 2, 3].map((int value) {
+                                              items: <int>[1, 2, 3]
+                                                  .map((int value) {
                                                 return DropdownMenuItem<int>(
                                                   value: value,
                                                   child: Text(
                                                     value.toString(),
-                                                    style: Theme.of(context).textTheme.headline5,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline5,
                                                   ),
                                                 );
                                               }).toList(),
                                               value: _periodMonth,
-                                              onChanged: (value) => setState(() => _periodMonth = value ?? 2),
+                                              onChanged: (value) => setState(
+                                                  () => _periodMonth =
+                                                      value ?? 2),
                                             ),
                                             Text("mon")
                                           ],
                                         )),
                                     Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
                                             DropdownButton<int>(
-                                              items: <int>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((int value) {
+                                              items: <int>[
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5,
+                                                6,
+                                                7,
+                                                8,
+                                                9,
+                                                10
+                                              ].map((int value) {
                                                 return DropdownMenuItem<int>(
                                                   value: value,
                                                   child: Text(
                                                     value.toString(),
-                                                    style: Theme.of(context).textTheme.headline5,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline5,
                                                   ),
                                                 );
                                               }).toList(),
                                               value: _hourPerDay.toInt(),
-                                              onChanged: (value) => setState(() => _hourPerDay = value!.toDouble()),
+                                              onChanged: (value) => setState(
+                                                  () => _hourPerDay =
+                                                      value!.toDouble()),
                                             ),
                                             Text("h/day")
                                           ],
                                         )),
                                     Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
                                         child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
                                             DropdownButton<int>(
-                                              items: <int>[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map((int value) {
+                                              items: <int>[
+                                                0,
+                                                1,
+                                                2,
+                                                3,
+                                                4,
+                                                5,
+                                                6,
+                                                7,
+                                                8,
+                                                9,
+                                                10,
+                                                11,
+                                                12,
+                                                13,
+                                                14,
+                                                15,
+                                                16,
+                                                17,
+                                                18,
+                                                19,
+                                                20,
+                                                21,
+                                                22,
+                                                23,
+                                                24
+                                              ].map((int value) {
                                                 return DropdownMenuItem<int>(
                                                   value: value,
                                                   child: Text(
                                                     value.toString(),
-                                                    style: Theme.of(context).textTheme.headline5,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline5,
                                                   ),
                                                 );
                                               }).toList(),
                                               value: _dayPerMonth,
-                                              onChanged: (value) => setState(() => _dayPerMonth = value ?? 20),
+                                              onChanged: (value) => setState(
+                                                  () => _dayPerMonth =
+                                                      value ?? 20),
                                             ),
                                             Text("d/mon")
                                           ],
@@ -291,7 +361,8 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                             //       ],
                             //     )),
                             Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
@@ -301,23 +372,37 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                       color: Colors.grey,
                                     ),
                                     Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text("currency", style: Theme.of(context).textTheme.bodySmall),
+                                            Text("currency",
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall),
                                             DropdownButton<Currency>(
-                                              items: Currency.values.map((Currency value) {
-                                                return DropdownMenuItem<Currency>(
+                                              items: Currency.values
+                                                  .map((Currency value) {
+                                                return DropdownMenuItem<
+                                                    Currency>(
                                                   value: value,
                                                   child: Text(
-                                                    value.toString().split('.').last,
-                                                    style: Theme.of(context).textTheme.headline5,
+                                                    value
+                                                        .toString()
+                                                        .split('.')
+                                                        .last,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline5,
                                                   ),
                                                 );
                                               }).toList(),
                                               value: _currency,
-                                              onChanged: (value) => setState(() => _currency = value ?? Currency.values.first),
+                                              onChanged: (value) => setState(
+                                                  () => _currency = value ??
+                                                      Currency.values.first),
                                             ),
                                           ],
                                         )),
@@ -326,7 +411,8 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                     ),
                                     Container(
                                         width: 100,
-                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
                                         child: TextField(
                                           controller: _priceTextController,
                                           onTap: () {
@@ -338,7 +424,10 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                             labelText: "\$price",
                                             errorText: _priceErrMsg,
                                           ),
-                                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
                                         )),
                                   ],
                                 )),
@@ -459,28 +548,40 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                             //     )),
                             SizedBox(height: 8),
                             Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 32.0),
                                 child: TextButton(
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 20),
-                                      margin: const EdgeInsets.symmetric(horizontal: 30),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20),
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 30),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
                                         gradient: const LinearGradient(
-                                          colors: [Color.fromARGB(255, 206, 219, 26), Color.fromARGB(255, 113, 211, 34)],
+                                          colors: [
+                                            Color.fromARGB(255, 206, 219, 26),
+                                            Color.fromARGB(255, 113, 211, 34)
+                                          ],
                                           begin: FractionalOffset.centerLeft,
                                           end: FractionalOffset.centerRight,
                                         ),
                                       ),
                                       child: Shimmer.fromColors(
-                                          baseColor: Color.fromARGB(255, 102, 102, 102),
-                                          highlightColor: Color.fromARGB(255, 187, 187, 187),
+                                          baseColor: Color.fromARGB(
+                                              255, 102, 102, 102),
+                                          highlightColor: Color.fromARGB(
+                                              255, 187, 187, 187),
                                           child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                AppLocalizations.of(context)!.register,
-                                                style: Theme.of(context).textTheme.titleLarge,
+                                                AppLocalizations.of(context)!
+                                                    .register,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge,
                                               ),
                                               const Icon(Icons.arrow_forward)
                                             ],
@@ -488,24 +589,37 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                     ),
                                     onPressed: () async {
                                       if (_priceTextController.text.isEmpty) {
-                                        _priceErrMsg = AppLocalizations.of(context)!.price;
+                                        _priceErrMsg =
+                                            AppLocalizations.of(context)!.price;
                                         return;
                                       }
-                                      final _user = context.read<UserProvider>().user;
+                                      final _user =
+                                          context.read<UserProvider>().user;
                                       if (null != _user) {
-                                        EmploymentRequest _new = EmploymentRequest(
-                                          employerWallet: context.read<UserProvider>().user!.wallet,
+                                        EmploymentRequest _new =
+                                            EmploymentRequest(
+                                          employerWallet: context
+                                              .read<UserProvider>()
+                                              .user!
+                                              .wallet,
                                           start: TemporalDateTime(_start),
-                                          end: TemporalDateTime(DateTime(_start.year, _start.month + _periodMonth, _start.day)),
+                                          end: TemporalDateTime(DateTime(
+                                              _start.year,
+                                              _start.month + _periodMonth,
+                                              _start.day)),
                                           price: _price,
-                                          currency: _currency.toString().split('.').last,
+                                          currency: _currency
+                                              .toString()
+                                              .split('.')
+                                              .last,
                                           lockMonth: _lockMonth,
                                           vestingMonth: _vestingMonth,
                                           dayPerMonth: _dayPerMonth,
                                           periodMonth: _periodMonth,
                                           hourPerDay: _hourPerDay,
                                         );
-                                        await AmplifyEndpoint().registerEmploymentRequest(
+                                        await AmplifyEndpoint()
+                                            .registerEmploymentRequest(
                                           _user.wallet,
                                           _periodMonth,
                                           _dayPerMonth,
@@ -514,7 +628,12 @@ class _ModRegisterViewState extends State<ModRegisterView> {
                                           _price,
                                         );
                                         print(_new);
-                                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const ModRegisterCompleteView()), (route) => false);
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const ModRegisterCompleteView()),
+                                            (route) => false);
                                       }
                                     })),
                           ],
@@ -530,10 +649,14 @@ class _ModRegisterViewState extends State<ModRegisterView> {
     return Wrap(
       children: [
         Chip(
-          backgroundColor: Colors.purpleAccent,
+          backgroundColor: Colors.pinkAccent,
           label: FittedBox(
               child: Text(
-            "Polygon Hacker House 2022",
+            "Polkadot Hackathon",
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall!
+                .copyWith(color: Colors.white),
           )),
         ),
       ],

@@ -28,6 +28,185 @@ class RemoteConfigService {
   }
 }
 
+// example of how to use the config
+// {
+//   "uri":"https://api.subquery.network/sq/MoverTechnologies/aggrement",
+//   "version":0,
+//   "request":{
+//     "keyword": {
+//       "name": "keyword",
+//       "omitName": "words",
+//       "type":"selectable",
+//       "items": [
+//         {
+//           "key": "STEPN",
+//           "val": "STEPN"
+//         },
+//         {
+//           "key": "GameFi",
+//           "val": "GameFi"
+//         }
+//       ]
+//     },
+//     "experiencedDaos": {
+//       "name": "Experience of DAO",
+//       "omitName": "Exp DAO",
+//       "type": "toggleRange",
+//       "items": [
+//         {
+//           "key": "10<",
+//           "min": 0,
+//           "max": 10
+//         },
+//         {
+//           "key": "+10",
+//           "min": 10,
+//           "max": null
+//         },
+//         {
+//           "key": "+100",
+//           "min": 100,
+//           "max": null
+//         }
+//       ]
+//     },
+//     "nftHeld": {
+//       "name": "Number of NFTs held",
+//       "omitName": "NFTs",
+//       "type": "toggleRange",
+//       "items": [
+//         {
+//           "key": "10<",
+//           "min": 0,
+//           "max": 10
+//         },
+//         {
+//           "key": "+10",
+//           "min": 10,
+//           "max": null
+//         },
+//         {
+//           "key": "+100",
+//           "min": 100,
+//           "max": null
+//         }
+//       ]
+//     },
+//     "hasEns": {
+//       "name": "Has ENS",
+//       "omitName": "ENS",
+//       "type": "toggleBool",
+//       "items": [
+//         {
+//           "key": "Yes",
+//           "val": true
+//         },
+//         {
+//           "key": "No",
+//           "val": false
+//         }
+//       ]
+//     },
+//     "cryptoExperiencePeriod": {
+//       "name": "Experience cript",
+//       "omitName": "Exp.crypt",
+//       "type": "toggleRange",
+//       "items": [
+//         {
+//           "key": "1<",
+//           "min": null,
+//           "max": 1
+//         },
+//         {
+//           "key": "+1",
+//           "min": 1,
+//           "max": null
+//         },
+//         {
+//           "key": "+6",
+//           "min": 6,
+//           "max": null
+//         },
+//         {
+//           "key": "+24",
+//           "min": 24,
+//           "max": null
+//         }
+//       ]
+//     },
+//     "cryptoRecentActivity": {
+//       "name": "Crypt recent activity",
+//       "omitName": "Recent",
+//       "type": "toggleIcon",
+//       "items": [
+//         {
+//           "key": "hign",
+//           "val": "hign",
+//           "uri": "http://"
+//         },
+//         {
+//           "key": "normal",
+//           "val": "normal",
+//           "uri": "http://"
+//         },
+//         {
+//           "key": "low",
+//           "val": "low",
+//           "uri": "http://"
+//         }
+//       ]
+//     },
+//     "price": {
+//       "name": "$Price",
+//       "omitName": "",
+//       "type": "toggleRange",
+//       "items": [
+//         {
+//           "key": "$100",
+//           "min": 0,
+//           "max": 100
+//         },
+//         {
+//           "key": "$500",
+//           "min": 0,
+//           "max": 500
+//         },
+//         {
+//           "key": "$5,000",
+//           "min": 0,
+//           "max": 5000
+//         }
+//       ]
+//     },
+//     "periodOfEmployment": {
+//       "name": "Period of employment(Month)",
+//       "omitName": "Period",
+//       "type": "toggleRange",
+//       "items": [
+//         {
+//           "key": "1<",
+//           "min": null,
+//           "max": 1
+//         },
+//         {
+//           "key": "+1",
+//           "min": 1,
+//           "max": null
+//         },
+//         {
+//           "key": "+3",
+//           "min": 3,
+//           "max": null
+//         },
+//         {
+//           "key": "+6",
+//           "min": 6,
+//           "max": null
+//         }
+//       ]
+//     }
+//   }
+// }
 class ModSearchConfig {
   ModSearchConfig({
     required this.uri,
