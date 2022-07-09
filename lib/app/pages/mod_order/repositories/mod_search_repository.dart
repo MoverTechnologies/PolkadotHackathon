@@ -17,6 +17,7 @@ class ModSearchRepository {
 
   Future<List<ModModel>> searchMods(ModSearchRequest _req) async {
     List<dynamic> _repository = [];
+
     ModSearchEndpoint _endpoint =
         ModSearchEndpoint(_getQuery(_req), config.uri);
     await _endpoint.init();
@@ -49,16 +50,41 @@ class ModSearchRepository {
 
     // fetch found user data from Amplify
     List<ModModel> _result = [];
-    for (var searchResult in searchResultList) {
-      final _user = await AmplifyEndpoint().getUser(searchResult.id);
-      if (null != _user) {
-        final _employmentReqest =
-            await AmplifyEndpoint().getEmploymentRequestList(searchResult.id);
+
+    if (_req.items["keyword"]!.item.isEmpty && _req.items.length < 2) {
+      // fetch all data
+      final _userList = await AmplifyEndpoint().getAllUser();
+      if (null == _userList) {
+        // no data found
+        return [];
+      }
+      for (var _user in _userList) {
         _result.add(ModModel(
           user: _user,
-          rating: searchResult,
-          employmentRequests: _employmentReqest,
+          rating:
+              searchResultList.firstWhere((element) => (element.id == _user.id),
+                  orElse: () => ModRatingModel(
+                        id: _user.id,
+                        total: 0,
+                        expDao: 0,
+                        isEns: false,
+                      )), // from SubQuery
+          employmentRequests:
+              await AmplifyEndpoint().getEmploymentRequestList(_user.id),
         ));
+      }
+    } else {
+      for (var searchResult in searchResultList) {
+        final _user = await AmplifyEndpoint().getUser(searchResult.id);
+        if (null != _user) {
+          final _employmentReqest =
+              await AmplifyEndpoint().getEmploymentRequestList(searchResult.id);
+          _result.add(ModModel(
+            user: _user,
+            rating: searchResult,
+            employmentRequests: _employmentReqest,
+          ));
+        }
       }
     }
 
