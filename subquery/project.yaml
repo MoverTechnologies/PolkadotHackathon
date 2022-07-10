@@ -1,0 +1,48 @@
+specVersion: 0.2.0
+name: mover-qubquery
+version: 0.0.1
+description: This SubQuery project is for Mover dApp
+repository: https://github.com/MoverTechnologies/mover-subquery
+schema:
+  file: ./schema.graphql
+network:
+  endpoint: wss://astar.api.onfinality.io/public-wss
+  genesisHash: '0x9eb76c5184c4ab8679d2d5d819fdf90b9c001403e9e17da2e14b6d8aec4029c6'
+  # dictionary: https://api.subquery.network/sq/subquery/astar-dictionary
+  chaintypes:
+    file: ./dist/chaintypes.js
+dataSources:
+  - kind: substrate/Moonbeam
+    startBlock: 1379519 # block number the contracts for Mover were deployed #1385000
+
+    assets:
+      agreement:
+        file: './abi/agreement.abi.json'
+    processor:
+      file: './node_modules/@subql/contract-processors/dist/moonbeam.js'
+      options:
+        abi: agreement
+        # Agreement proxy contract
+        address: '0x44EA7Cdc85c6bB9c60c15FF3E21D2c2b9B0df25A'
+
+    mapping:
+      file: ./dist/index.js
+      handlers:
+        - handler: handleCreateAgreementEvent
+          kind: substrate/MoonbeamEvent
+          filter:
+            topics:
+              - CreateAgreement(address indexed moderator,bytes32 indexed agreementId)
+
+        - handler: handleCreateAgreementCall
+          kind: substrate/MoonbeamCall
+          filter:
+            function: createAgreement(address moderator,bytes22 daoName,uint32 startTime,uint32 endTime,uint256 rewardAmount,uint256 vestingDuration)
+        - handler: handleUpdateAgreementCall
+          kind: substrate/MoonbeamCall
+          filter:
+            function: updateAgreement(bytes32 agreementId,uint32 startTime,uint32 endTime,uint256 rewardAmount)
+        - handler: handleCompleteAgreementCall
+          kind: substrate/MoonbeamCall
+          filter:
+            function: completeAgreement(bytes32 agreementId,string review)
