@@ -26,10 +26,10 @@ In the future, we will work with Discord to implement a KYC mechanism based on z
 
 ## Technology
 
-AstarNetwork
-SBT
-Subquery
-AWS
+- AstarNetwork
+- SBT
+- Subquery
+- AWS
 
 ## Contract Address on AstarNetwork
 
@@ -42,5 +42,4 @@ IMPLEMENT
  - POM: 0x9c75273f17c0d4E08769ba8779A631B44934F362
  - Vesting: 0xd22EE6671646e81B58A42f727eBF611790128996
  - Agreement: 0xF730e4cfF7Ac559C70eA41158107e772046C3754
-
  - Token : 0x6845Abeb53C1B5E41820Fe8e3F454Ef560aD83f0
