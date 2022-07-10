@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-movermvpfrontend-dev-161513-authRole",
+      "UnauthRoleArn": "arn:aws:iam::054074403343:role/amplify-movermvpfrontend-dev-161513-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::054074403343:role/amplify-movermvpfrontend-dev-161513-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-movermvpfrontend-dev-161513-deployment",
+      "UnauthRoleName": "amplify-movermvpfrontend-dev-161513-unauthRole",
+      "StackName": "amplify-movermvpfrontend-dev-161513",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:054074403343:stack/amplify-movermvpfrontend-dev-161513/91d39490-f456-11ec-92b7-0624706c0c51",
+      "AmplifyAppId": "d6o98njiblu7v"
+    },
+    "categories": {
+      "auth": {
+        "movermvpfrontend": {}
+      }
+    }
+  }
+}

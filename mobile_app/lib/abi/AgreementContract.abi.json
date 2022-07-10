@@ -1,0 +1,509 @@
+[{
+        "anonymous": false,
+        "inputs": [{
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "agreementId",
+            "type": "bytes32"
+        }],
+        "name": "CompleteAgreement",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+                "indexed": true,
+                "internalType": "address",
+                "name": "moderator",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "agreementId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "CreateAgreement",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        }],
+        "name": "Paused",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "previousAdminRole",
+                "type": "bytes32"
+            },
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "newAdminRole",
+                "type": "bytes32"
+            }
+        ],
+        "name": "RoleAdminChanged",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            }
+        ],
+        "name": "RoleGranted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "sender",
+                "type": "address"
+            }
+        ],
+        "name": "RoleRevoked",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+        }],
+        "name": "Unpaused",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [{
+            "indexed": true,
+            "internalType": "bytes32",
+            "name": "agreementId",
+            "type": "bytes32"
+        }],
+        "name": "UpdateAgreement",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "DEFAULT_ADMIN_ROLE",
+        "outputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "agreementId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "string",
+                "name": "review",
+                "type": "string"
+            }
+        ],
+        "name": "completeAgreement",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "address",
+                "name": "moderator",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes22",
+                "name": "daoName",
+                "type": "bytes22"
+            },
+            {
+                "internalType": "uint32",
+                "name": "startTime",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint32",
+                "name": "endTime",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rewardAmount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "vestingDuration",
+                "type": "uint256"
+            }
+        ],
+        "name": "createAgreement",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "agreementId",
+            "type": "bytes32"
+        }],
+        "name": "getAgreementDetail",
+        "outputs": [{
+            "components": [{
+                    "internalType": "bytes32",
+                    "name": "id",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes22",
+                    "name": "daoName",
+                    "type": "bytes22"
+                },
+                {
+                    "internalType": "uint32",
+                    "name": "startTime",
+                    "type": "uint32"
+                },
+                {
+                    "internalType": "uint32",
+                    "name": "endTime",
+                    "type": "uint32"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "isCompleted",
+                    "type": "bool"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "rewardAmount",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "founder",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "moderator",
+                    "type": "address"
+                }
+            ],
+            "internalType": "struct SharedStructs.Agreement",
+            "name": "",
+            "type": "tuple"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "address",
+            "name": "holder",
+            "type": "address"
+        }],
+        "name": "getAllAgreements",
+        "outputs": [{
+            "components": [{
+                    "internalType": "bytes32",
+                    "name": "id",
+                    "type": "bytes32"
+                },
+                {
+                    "internalType": "bytes22",
+                    "name": "daoName",
+                    "type": "bytes22"
+                },
+                {
+                    "internalType": "uint32",
+                    "name": "startTime",
+                    "type": "uint32"
+                },
+                {
+                    "internalType": "uint32",
+                    "name": "endTime",
+                    "type": "uint32"
+                },
+                {
+                    "internalType": "bool",
+                    "name": "isCompleted",
+                    "type": "bool"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "rewardAmount",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "founder",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "moderator",
+                    "type": "address"
+                }
+            ],
+            "internalType": "struct SharedStructs.Agreement[]",
+            "name": "",
+            "type": "tuple[]"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "address",
+            "name": "holder",
+            "type": "address"
+        }],
+        "name": "getAllIds",
+        "outputs": [{
+            "internalType": "bytes32[]",
+            "name": "",
+            "type": "bytes32[]"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "bytes32",
+            "name": "role",
+            "type": "bytes32"
+        }],
+        "name": "getRoleAdmin",
+        "outputs": [{
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getTotalAgreements",
+        "outputs": [{
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "grantRole",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "hasRole",
+        "outputs": [{
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "address",
+                "name": "_pom",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "_vesting",
+                "type": "address"
+            }
+        ],
+        "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "pause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "paused",
+        "outputs": [{
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "renounceRole",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "revokeRole",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+            "internalType": "bytes4",
+            "name": "interfaceId",
+            "type": "bytes4"
+        }],
+        "name": "supportsInterface",
+        "outputs": [{
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+        }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "unpause",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{
+                "internalType": "bytes32",
+                "name": "agreementId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint32",
+                "name": "startTime",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint32",
+                "name": "endTime",
+                "type": "uint32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "rewardAmount",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateAgreement",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
