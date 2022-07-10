@@ -6,7 +6,7 @@ MOVER
 
 MOVER is a global HR mobile tool which is useful for hiring multilingual speakers on metaverse world.
 It utilises SBT to visualise each other's achievements and competencies, overcoming native language barriers.
-Easily search for moderator's experience and competencies and hire, contract and reward them in just three clicks.
+Easily search for moderator's experience and complete hiring, settle contracts and pay them in just three clicks.
 
 ## Problem
 
