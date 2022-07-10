@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "587264196362",
+    "project_id": "mover-43345",
+    "storage_bucket": "mover-43345.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587264196362:android:7acecfa66eeec20ecc44f3",
+        "android_client_info": {
+          "package_name": "jp.mover.devillage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "587264196362-1t27q9bvgub7erk0mnvbef3jcjfui3e7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_k3q0TlKBRJBAMGeg7I04HnvzGuJxCHg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "587264196362-1t27q9bvgub7erk0mnvbef3jcjfui3e7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
